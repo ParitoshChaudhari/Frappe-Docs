@@ -1,6 +1,6 @@
 {
   "name": "frappe-docs",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Complete Developer Documentation for Frappe Framework v15",
   "type": "module",
   "scripts": {

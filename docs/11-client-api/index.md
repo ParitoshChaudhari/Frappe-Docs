@@ -528,11 +528,174 @@ frappe.ui.form.on("Project", {
 
 ---
 
+## 10. Complete Client JavaScript API & Utility Reference Matrix
+
+Below is the exhaustive, categorized reference of additional client-side JavaScript APIs provided by Frappe v15:
+
+### 1. Form Instance (`frm`) Lifecycle & Page Utilities
+
+| Method | Parameters | Description & Code Example |
+| :--- | :--- | :--- |
+| `frm.trigger(event)` | `event_name` | Programmatically triggers a form or docfield event handler.<br>`frm.trigger("status");` |
+| `frm.refresh_fields()` | `fields_array` | Forces DOM re-render for multiple docfields at once.<br>`frm.refresh_fields(["status", "priority"]);` |
+| `frm.save_or_update()` | `action`, `callback` | Intelligently saves draft or updates existing document.<br>`frm.save_or_update();` |
+| `frm.get_field(field)` | `fieldname` | Returns DocField control instance (`df`, `$wrapper`, `$input`).<br>`let control = frm.get_field("status");` |
+| `frm.set_read_only()` | None | Sets all docfields on form to read-only state.<br>`frm.set_read_only();` |
+| `frm.page.add_action_item()`| `label`, `action_fn` | Adds custom item to standard **Actions** dropdown menu.<br>`frm.page.add_action_item(__("Export"), () => {});` |
+| `frm.page.clear_action_items()`| None | Clears all custom action items from Actions dropdown menu.<br>`frm.page.clear_action_items();` |
+| `frm.page.add_menu_item()` | `label`, `action_fn`, `standard` | Adds custom menu item to standard **Menu** dropdown.<br>`frm.page.add_menu_item(__("Print Spec"), () => {});` |
+
+---
+
+### 2. User Notifications, Warnings & Progress Bars (`frappe.*`)
+
+```javascript
+// 1. Standard Modal Alert Dialog
+frappe.msgprint(__("Operation completed successfully."), __("Success"));
+
+// 2. Exception Error Modal (Displays red alert and raises JS exception)
+frappe.throw(__("Invalid account status. Transaction aborted."));
+
+// 3. Confirmation Warning Dialog with Custom Action Button
+frappe.warn(
+    __("Unsaved Changes"),
+    __("You have unsaved changes. Are you sure you want to discard them?"),
+    () => { /* Proceed Callback */ },
+    __("Discard Changes")
+);
+
+// 4. Global Header Progress Bar
+frappe.show_progress(__("Processing Bulk Orders"), 45, 100, __("Processing order 45 of 100..."));
+
+// 5. Hide Progress Bar
+frappe.hide_progress();
+```
+
+---
+
+### 3. Client Navigation, Route Inspection & Breadcrumbs
+
+```javascript
+// 1. Get current browser route array (e.g. ['Form', 'Customer', 'CUST-001'])
+let current_route = frappe.get_route();
+console.log("Current View:", current_route[0]); // 'Form'
+
+// 2. Get current browser route string (e.g. 'Form/Customer/CUST-001')
+let route_str = frappe.get_route_str();
+
+// 3. Set pre-filtered options for next target route navigation
+frappe.set_route_options({ "status": "Open", "priority": "High" });
+frappe.set_route("List", "Task");
+
+// 4. Inject dynamic breadcrumb link into Desk header toolbar
+frappe.breadcrumbs.add("Projects", "Project");
+```
+
+---
+
+### 4. Client-Side Database APIs (`frappe.db.*` in JS)
+
+```javascript
+// 1. Fetch value from Single DocType (e.g. System Settings)
+frappe.db.get_single_value("System Settings", "default_currency").then(currency => {
+    console.log("System Default Currency:", currency);
+});
+
+// 2. Query filtered list of records
+frappe.db.get_list("Task", {
+    fields: ["name", "subject", "status"],
+    filters: { status: "Open" },
+    limit: 10
+}).then(tasks => {
+    console.log("Open Tasks:", tasks);
+});
+
+// 3. Fetch full Document instance object
+frappe.db.get_doc("Customer", "CUST-001").then(doc => {
+    console.log("Customer Doc:", doc);
+});
+
+// 4. Delete document record programmatically
+frappe.db.delete_doc("ToDo", "TODO-00001").then(() => {
+    frappe.show_alert({ message: __("ToDo deleted"), indicator: "green" });
+});
+
+// 5. Direct field update in database
+frappe.db.set_value("Task", "TASK-00001", "status", "Completed").then(r => {
+    console.log("Updated record:", r.message);
+});
+```
+
+---
+
+### 5. Client Schema & Field Formatting (`frappe.meta` & `frappe.format`)
+
+```javascript
+// 1. Inspect DocField schema definition
+let df = frappe.meta.get_docfield("Customer", "customer_name", frm.doc.name);
+console.log("Is Mandatory:", df.reqd);
+
+// 2. Check if field exists in DocType schema
+if (frappe.meta.has_field("Customer", "credit_limit")) {
+    console.log("Field exists!");
+}
+
+// 3. Universal Field Value Formatter (Formats values based on fieldtype metadata)
+let formatted_val = frappe.format(15000.5, { fieldtype: "Currency" }, { doc: frm.doc });
+console.log("Formatted Currency:", formatted_val); // "$ 15,000.50"
+```
+
+---
+
+### 6. Client Model Memory Helpers (`frappe.model.*`)
+
+```javascript
+// 1. Get new unsaved document object in memory
+let new_doc = frappe.model.get_new_doc("Task");
+
+// 2. Update field in local client model memory and trigger UI updates
+frappe.model.set_value("Task", frm.doc.name, "priority", "Urgent");
+
+// 3. Clear local document memory cache
+frappe.model.clear_doc("Task", frm.doc.name);
+
+// 4. Ensure DocType metadata is loaded before executing logic
+frappe.model.with_doctype("Task", () => {
+    console.log("Task DocType schema ready!");
+});
+```
+
+---
+
+### 7. MultiSelect Dialog Selector (`frappe.ui.form.MultiSelectDialog`)
+
+Opens a popup modal displaying a searchable list table allowing users to select multiple records:
+
+```javascript
+new frappe.ui.form.MultiSelectDialog({
+    doctype: "Item",
+    target: frm,
+    set_filters: { is_sales_item: 1 },
+    action(selections) {
+        // selections contains array of selected primary keys (e.g. ['ITEM-001', 'ITEM-002'])
+        selections.forEach(item_code => {
+            let row = frm.add_child("items");
+            row.item_code = item_code;
+        });
+        frm.refresh_field("items");
+    }
+});
+```
+
+---
+
 ## Related Topics
 
 - [09. Server API](/09-server-api/)
 - [12. Child Tables](/12-child-tables/)
 - [14. Authentication, Session & Roles](/14-authentication-permissions/)
 - [23. Client vs Server API Matrix](/23-client-vs-server/)
+- [24. Searchable API Index](/24-api-index/)
+
 
 

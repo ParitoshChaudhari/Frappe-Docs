@@ -41,15 +41,18 @@ features:
   - title: Operations & Monitoring
     details: Monitor Supervisor status, restart web/worker processes, inspect MariaDB threads, kill long queries & release Redis load.
     link: /26-devops-operations/
-  - title: Production Frappe Docker
-    details: Official Frappe Docker containerization, compose.yaml, pwd.yml, custom app images, site creation & Kubernetes Helm deployment.
-    link: /27-frappe-docker/
+  - title: Open Source Ecosystem
+    details: Overview of major open-source applications built on Frappe Framework v15, including ERPNext, Frappe HR (HRMS), and India Compliance.
+    link: /opensource-projects/
   - title: Complete Reports Engine
     details: Master Standard Reports, Query Reports, Script Reports, Tree Reports, Frappe Charts, KPI summary cards & MultiSelect filters.
     link: /18-reports/
   - title: Cookbook & Recipes
     details: Practical code recipes for real-world ERPNext / Frappe developer patterns and common anti-patterns to avoid.
     link: /22-cookbook/
+  - title: Production Frappe Docker
+    details: Official Frappe Docker containerization, compose.yaml, pwd.yml, custom app images, site creation & Kubernetes Helm deployment.
+    link: /27-frappe-docker/
 ---
 
 <div class="vp-doc" style="max-width: 1152px; margin: 0 auto; padding: 2rem 1.5rem;">

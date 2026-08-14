@@ -105,6 +105,13 @@ export default defineConfig({
           { text: '26. Operations: Services & Performance', link: '/26-devops-operations/' },
           { text: '27. Production: Frappe Docker', link: '/27-frappe-docker/' }
         ]
+      },
+      {
+        text: 'Ecosystem & Open Source',
+        collapsible: true,
+        items: [
+          { text: 'Open Source Projects', link: '/opensource-projects/' }
+        ]
       }
     ],
 

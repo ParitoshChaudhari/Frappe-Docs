@@ -1,6 +1,6 @@
 # Frappe Framework v15 Complete Developer Documentation & Reference
 
-[![Documentation Version](https://img.shields.io/badge/version-v1.2.0-blue.svg)](https://github.com/ParitoshChaudhari/Frappe-Docs)
+[![Documentation Version](https://img.shields.io/badge/version-v1.3.0-blue.svg)](https://github.com/ParitoshChaudhari/Frappe-Docs)
 [![Frappe Framework](https://img.shields.io/badge/frappe-v15-0052CC.svg)](https://frappeframework.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -12,21 +12,18 @@ A fast, lightweight, static-first developer documentation website and technical 
 
 ## 🌟 Key Features & Documentation Highlights
 
+- **Open Source Ecosystem**: Dedicated unnumbered section (`opensource-projects`) providing project tables, descriptions, GitHub links, and Bench CLI installation commands for **ERPNext**, **Frappe HR (HRMS)**, and **India Compliance**.
+- **Exhaustive Client Script JS API Matrix**: Detailed reference in Chapter 11 for missing client script methods (`frm.trigger()`, `frm.refresh_fields()`, `frappe.msgprint`, `frappe.warn`, `frappe.show_progress`, `frappe.get_route`, `frappe.db.*`, `frappe.meta.*`, `frappe.format`, `frappe.model.*`, `frappe.ui.form.MultiSelectDialog`).
 - **Navbar GitHub Integration**: Instant link to the GitHub repository directly to the left of the theme toggle switch in the top navigation bar.
 - **Chapter 30: Frappe ORM Masterclass**: Comprehensive, 5-part guide covering `SELECT`, `WHERE`, `LIMIT`, `GROUP BY`, `HAVING`, `INNER`/`LEFT`/`RIGHT` Joins, `UNION`, `INTERSECT`, and subqueries with sample data tables, Python code, generated raw SQL, and exact output data.
 - **Easy-to-Understand Explanations**: Real-world analogies (e.g. Apartment building analogy for Bench, Sites, Apps, DocTypes in Chapter 01) and step-by-step troubleshooting matrices.
 - **Header Navbar Simplicity**: Clean header featuring instant search modal, GitHub logo link, and dark/light theme switcher toggle.
-- **Strict Sequential Sidebar Navigation**: Organized into 30 sequential chapters (`01` through `30`) covering the complete developer journey.
+- **Strict Sequential Sidebar Navigation**: Organized into 30 sequential chapters (`01` through `30`) plus an unnumbered Open Source Ecosystem section covering the complete developer journey.
 - **Scrollable & Sticky Tables**: All data matrices and parameter tables feature horizontal scrollability and sticky/floating table headers (`th`).
 - **Exhaustive Document Event Hooks (`doc_events`)**: 18-row reference table detailing execution lifecycle stage, `docstatus`, allowed actions, and anti-patterns to avoid.
 - **13 Production Recipes (Chapter 22)**: Practical cookbook featuring copy-pasteable real-world examples (PDF generation, controller overrides, cron tasks, cache invalidation, client form mapping).
 - **Complete Reports Guide (Chapter 18)**: Deep technical breakdown of Standard Reports, Query Reports, Script Reports, Tree Reports, Frappe Charts, KPI Summary Cards, MultiSelect filters, and Prepared Reports.
-- **Custom Buttons & UI Customization**: `frm.add_custom_button`, dropdown button groups, button styling (`primary`, `danger`), disabling save (`frm.disable_save()`), and form locking (`frm.disable_form()`).
-- **Session, User Permissions & Roles**: Detailed reference for `frappe.session.user`, `frappe.get_roles()`, `frappe.has_role()`, `frappe.permissions.get_user_permissions()`, `frappe.user.has_role()`, and `frappe.user_roles`.
-- **Tabbed DevOps Installation Guide (Chapter 25)**: Tabbed terminal commands (`macOS & Linux`, `Windows (WSL2)`, `Package Managers`, `Docker`) for Node.js, Python, MariaDB, Redis, wkhtmltopdf, Git, and Bench CLI.
-- **Production Operations & Load Relief (Chapter 26)**: Supervisor status monitoring (`supervisorctl status`), service restarts, MariaDB process inspection, killing long queries, clearing Redis load (`redis-cli -p 13000 FLUSHDB`), purging dead RQ worker jobs.
-- **Production Frappe Docker (Chapter 27)**: Container architecture breakdown, Docker Compose setup (`compose.yaml`), minimal setup (`pwd.yml`), building custom app images (`Containerfile`), and Kubernetes Helm charts.
-- **Searchable API Index (Chapter 24)**: Alphabetical index of all public Frappe Framework v15 functions and methods.
+- **Searchable API Index (Chapter 24)**: Alphabetical index of all public Frappe Framework v15 functions, server APIs, and client script JavaScript methods.
 
 ---
 
@@ -68,23 +65,18 @@ npm run docs:build
 
 Static HTML, CSS, JavaScript, and local full-text search indexes will be generated inside `docs/.vitepress/dist`.
 
-### Preview Production Build
-
-```bash
-npm run docs:preview
-```
-
 ---
 
 ## 📜 Version History & Changelog Summary
 
 | Version | Release Stage | Highlights |
 | :--- | :--- | :--- |
-| **v1.2.0 (v1.2)** | **Current Release** | Added easy-to-understand explanations across all chapters, step-by-step setup troubleshooting, real-world analogies, complete `doc_events` table, client document mapping, REST uploads, and 13 cookbook recipes. |
+| **v1.3.0 (v1.3)** | **Current Release** | Added exhaustive Client JS API Matrix (Section 10 in Chapter 11), updated Searchable API Index under Section F, and created unnumbered Open Source Ecosystem section (`opensource-projects`) for ERPNext, HRMS, and India Compliance. |
+| **v1.2.0 (v1.2)** | **Exhaustive Expansion** | Added easy-to-understand explanations across all chapters, setup troubleshooting, real-world analogies, complete `doc_events` table, client document mapping, REST uploads, and 13 cookbook recipes. |
 | **v1.1.0 (v1.1)** | **GitHub & ORM Masterclass** | Added GitHub navbar integration, hero action buttons, and Chapter 30: Frappe ORM Masterclass (`SELECT`, `WHERE`, `LIMIT`, `GROUP BY`, `HAVING`, `JOINs`, `UNION`, `INTERSECT`). |
 | **v1.0.0 (v1.0)** | **Initial Baseline** | Initial release of Frappe Framework v15 Developer Documentation. |
 
-For detailed revision history, see [Chapter 29: Version History & Changelog](docs/29-version-history/index.md).
+For detailed revision history, see [Version History & Changelog](docs/29-version-history/index.md).
 
 ---
 
@@ -92,7 +84,7 @@ For detailed revision history, see [Chapter 29: Version History & Changelog](doc
 
 ```text
 frappe-docs/
-├── package.json                          # Package scripts & dependencies (v1.2.0)
+├── package.json                          # Package scripts & dependencies (v1.3.0)
 ├── README.md                             # Project documentation & guide
 └── docs/
     ├── .vitepress/
@@ -112,7 +104,7 @@ frappe-docs/
     ├── 08-hooks/                         # Complete hooks.py reference & doc_events table
     ├── 09-server-api/                    # Python frappe.* API reference & data-fetching decision matrix
     ├── 10-database/                      # frappe.db, Query Builder & SQL
-    ├── 11-client-api/                    # frappe.ui.form, custom buttons & disabling save
+    ├── 11-client-api/                    # frappe.ui.form, custom buttons, & Client JS API Matrix
     ├── 12-child-tables/                  # Child table APIs (Python & JS)
     ├── 13-rest-api/                      # REST & RPC endpoints reference
     ├── 14-authentication-permissions/    # Auth, session.user, roles & User Permissions
@@ -131,7 +123,8 @@ frappe-docs/
     ├── 27-frappe-docker/                 # Production Frappe Docker, compose.yaml, Kubernetes
     ├── 28-views-desk-customization/      # Desk Views, List, Tree, Calendar & Custom Scripts
     ├── 29-version-history/               # Documentation Version History & Changelog
-    └── 30-frappe-orm/                    # Frappe ORM Masterclass (SELECT, WHERE, JOINs, UNION)
+    ├── 30-frappe-orm/                    # Frappe ORM Masterclass (SELECT, WHERE, JOINs, UNION)
+    └── opensource-projects/              # Open Source Ecosystem Projects (ERPNext, HRMS, India Compliance)
 ```
 
 ---
