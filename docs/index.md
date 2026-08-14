@@ -9,6 +9,12 @@ hero:
     - theme: brand
       text: Get Started
       link: /01-getting-started/
+    - theme: brand
+      text: Frappe ORM Guide
+      link: /30-frappe-orm/
+    - theme: alt
+      text: GitHub Repository
+      link: https://github.com/ParitoshChaudhari/Frappe-Docs
     - theme: alt
       text: DevOps Setup
       link: /25-devops-installation/
@@ -20,6 +26,12 @@ hero:
       link: /24-api-index/
 
 features:
+  - title: Frappe ORM Masterclass
+    details: Deep dive into SELECT, WHERE, LIMIT, GROUP BY, HAVING, INNER/LEFT/RIGHT Joins, UNION & INTERSECT with sample table data and Python code outputs.
+    link: /30-frappe-orm/
+  - title: GitHub Repository
+    details: Explore source code, contribute, report issues, and star the official Frappe Framework v15 Developer Documentation on GitHub.
+    link: https://github.com/ParitoshChaudhari/Frappe-Docs
   - title: Database & Query Builder
     details: Complete reference for frappe.db.get_value, get_all, PyPika QueryBuilder, SQL parameters, savepoints, and transactions.
     link: /10-database/

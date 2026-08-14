@@ -19,6 +19,10 @@ export default defineConfig({
     siteTitle: 'Frappe v15 Reference',
     logo: '/logo.svg',
     
+    socialLinks: [
+      { icon: 'github', link: 'https://github.com/ParitoshChaudhari/Frappe-Docs' }
+    ],
+
     search: {
       provider: 'local',
       options: {
@@ -52,11 +56,12 @@ export default defineConfig({
         ]
       },
       {
-        text: 'Server-Side Python APIs',
+        text: 'Server-Side Python APIs & ORM',
         collapsible: true,
         items: [
           { text: '09. Server API (frappe.*)', link: '/09-server-api/' },
           { text: '10. Database, ORM & Query Builder', link: '/10-database/' },
+          { text: '30. Frappe ORM Masterclass', link: '/30-frappe-orm/' },
           { text: '15. Background Jobs & Scheduler', link: '/15-background-jobs-scheduler/' },
           { text: '16. Cache, Realtime, Email & Files', link: '/16-cache-realtime-email-files/' },
           { text: '19. Utilities Reference (frappe.utils)', link: '/19-utils/' }

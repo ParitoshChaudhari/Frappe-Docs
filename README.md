@@ -1,24 +1,31 @@
 # Frappe Framework v15 Complete Developer Documentation & Reference
 
-A fast, lightweight, static-first developer documentation website for **Frappe Framework v15**, built with **VitePress**.
+[![Documentation Version](https://img.shields.io/badge/version-v1.2.0-blue.svg)](https://github.com/ParitoshChaudhari/Frappe-Docs)
+[![Frappe Framework](https://img.shields.io/badge/frappe-v15-0052CC.svg)](https://frappeframework.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+A fast, lightweight, static-first developer documentation website and technical handbook for **Frappe Framework v15**, built with **VitePress**.
+
+🔗 **GitHub Repository**: [https://github.com/ParitoshChaudhari/Frappe-Docs](https://github.com/ParitoshChaudhari/Frappe-Docs)
 
 ---
 
 ## 🌟 Key Features & Documentation Highlights
 
-- **Frappe v15 Engine Specific**: Tailored strictly to Frappe Framework v15 APIs, controllers, database ORM, Query Builder, hooks, and Bench CLI commands.
-- **Header Navbar Simplicity**: Clean header featuring instant search modal and dark/light theme switcher toggle.
-- **Strict Sequential Sidebar Navigation**: Organized into 27 sequential chapters (`01` through `27`) covering the complete developer journey.
+- **Navbar GitHub Integration**: Instant link to the GitHub repository directly to the left of the theme toggle switch in the top navigation bar.
+- **Chapter 30: Frappe ORM Masterclass**: Comprehensive, 5-part guide covering `SELECT`, `WHERE`, `LIMIT`, `GROUP BY`, `HAVING`, `INNER`/`LEFT`/`RIGHT` Joins, `UNION`, `INTERSECT`, and subqueries with sample data tables, Python code, generated raw SQL, and exact output data.
+- **Easy-to-Understand Explanations**: Real-world analogies (e.g. Apartment building analogy for Bench, Sites, Apps, DocTypes in Chapter 01) and step-by-step troubleshooting matrices.
+- **Header Navbar Simplicity**: Clean header featuring instant search modal, GitHub logo link, and dark/light theme switcher toggle.
+- **Strict Sequential Sidebar Navigation**: Organized into 30 sequential chapters (`01` through `30`) covering the complete developer journey.
 - **Scrollable & Sticky Tables**: All data matrices and parameter tables feature horizontal scrollability and sticky/floating table headers (`th`).
-- **Data-Fetching Strategy Decision Matrix**: Clear guidelines on when, why, and how to use `frappe.get_all`, `frappe.get_list`, `frappe.get_doc`, `frappe.db.get_value`, `frappe.db.get_single_value`, and `frappe.qb`.
 - **Exhaustive Document Event Hooks (`doc_events`)**: 18-row reference table detailing execution lifecycle stage, `docstatus`, allowed actions, and anti-patterns to avoid.
-- **Complete Reports Guide (Chapter 18)**: Deep technical breakdown of Standard Reports (Report Builder), Query Reports (SQL), Script Reports (Python + JS), Tree Reports (hierarchical tree grid), Frappe Charts, KPI Summary Cards, MultiSelect filters, and Prepared Reports.
-- **Custom Buttons & UI Customization**: `frm.add_custom_button`, button styling (`primary`, `danger`), dropdown button groups, and APIs for disabling standard save/form inputs (`frm.disable_save()`, `frm.disable_form()`, `frm.page.hide_menu()`, `frm.page.remove_menu_item()`).
+- **13 Production Recipes (Chapter 22)**: Practical cookbook featuring copy-pasteable real-world examples (PDF generation, controller overrides, cron tasks, cache invalidation, client form mapping).
+- **Complete Reports Guide (Chapter 18)**: Deep technical breakdown of Standard Reports, Query Reports, Script Reports, Tree Reports, Frappe Charts, KPI Summary Cards, MultiSelect filters, and Prepared Reports.
+- **Custom Buttons & UI Customization**: `frm.add_custom_button`, dropdown button groups, button styling (`primary`, `danger`), disabling save (`frm.disable_save()`), and form locking (`frm.disable_form()`).
 - **Session, User Permissions & Roles**: Detailed reference for `frappe.session.user`, `frappe.get_roles()`, `frappe.has_role()`, `frappe.permissions.get_user_permissions()`, `frappe.user.has_role()`, and `frappe.user_roles`.
 - **Tabbed DevOps Installation Guide (Chapter 25)**: Tabbed terminal commands (`macOS & Linux`, `Windows (WSL2)`, `Package Managers`, `Docker`) for Node.js, Python, MariaDB, Redis, wkhtmltopdf, Git, and Bench CLI.
-- **Production Operations & Load Relief (Chapter 26)**: Supervisor status monitoring (`supervisorctl status`), service restarts, MariaDB process inspection (`SHOW PROCESSLIST;`), killing long queries, clearing Redis load (`redis-cli -p 13000 FLUSHDB`), purging dead RQ worker jobs.
+- **Production Operations & Load Relief (Chapter 26)**: Supervisor status monitoring (`supervisorctl status`), service restarts, MariaDB process inspection, killing long queries, clearing Redis load (`redis-cli -p 13000 FLUSHDB`), purging dead RQ worker jobs.
 - **Production Frappe Docker (Chapter 27)**: Container architecture breakdown, Docker Compose setup (`compose.yaml`), minimal setup (`pwd.yml`), building custom app images (`Containerfile`), and Kubernetes Helm charts.
-- **20+ Production Recipes**: Practical cookbook with copy-pasteable real-world examples.
 - **Searchable API Index (Chapter 24)**: Alphabetical index of all public Frappe Framework v15 functions and methods.
 
 ---
@@ -34,8 +41,8 @@ A fast, lightweight, static-first developer documentation website for **Frappe F
 
 ```bash
 # Clone the repository
-git clone https://github.com/myorg/frappe-v15-docs.git
-cd frappe-docs
+git clone https://github.com/ParitoshChaudhari/Frappe-Docs.git
+cd Frappe-Docs
 
 # Install dependencies
 npm install
@@ -69,12 +76,23 @@ npm run docs:preview
 
 ---
 
+## 📜 Version History & Changelog Summary
+
+| Version | Release Stage | Highlights |
+| :--- | :--- | :--- |
+| **v1.2.0 (v1.2)** | **Current Release** | Added easy-to-understand explanations across all chapters, step-by-step setup troubleshooting, real-world analogies, complete `doc_events` table, client document mapping, REST uploads, and 13 cookbook recipes. |
+| **v1.1.0 (v1.1)** | **GitHub & ORM Masterclass** | Added GitHub navbar integration, hero action buttons, and Chapter 30: Frappe ORM Masterclass (`SELECT`, `WHERE`, `LIMIT`, `GROUP BY`, `HAVING`, `JOINs`, `UNION`, `INTERSECT`). |
+| **v1.0.0 (v1.0)** | **Initial Baseline** | Initial release of Frappe Framework v15 Developer Documentation. |
+
+For detailed revision history, see [Chapter 29: Version History & Changelog](docs/29-version-history/index.md).
+
+---
+
 ## 📁 Repository Directory Structure
 
 ```text
 frappe-docs/
-├── package.json                          # Package scripts & dependencies
-├── .gitignore                            # Git ignore rule specifications
+├── package.json                          # Package scripts & dependencies (v1.2.0)
 ├── README.md                             # Project documentation & guide
 └── docs/
     ├── .vitepress/
@@ -105,24 +123,16 @@ frappe-docs/
     ├── 19-utils/                         # frappe.utils helper function matrix
     ├── 20-testing-debugging/             # FrappeTestCase, bench run-tests, Error Log
     ├── 21-security-performance/          # SQLi prevention, N+1 queries & anti-patterns
-    ├── 22-cookbook/                      # 20+ copy-pasteable practical recipes
+    ├── 22-cookbook/                      # 13 copy-pasteable practical recipes
     ├── 23-client-vs-server/              # Side-by-side Client vs Server matrix
     ├── 24-api-index/                     # Alphabetical searchable API index
     ├── 25-devops-installation/           # Tabbed OS installation guide (Node, Python, DB, Redis)
     ├── 26-devops-operations/             # Supervisor monitoring, restarting DB, load relief
     ├── 27-frappe-docker/                 # Production Frappe Docker, compose.yaml, Kubernetes
-    └── _templates/                       # Contribution templates (api, tutorial, recipe)
+    ├── 28-views-desk-customization/      # Desk Views, List, Tree, Calendar & Custom Scripts
+    ├── 29-version-history/               # Documentation Version History & Changelog
+    └── 30-frappe-orm/                    # Frappe ORM Masterclass (SELECT, WHERE, JOINs, UNION)
 ```
-
----
-
-## 📄 Contribution Guidelines
-
-To add new documentation pages or extend existing chapters, use the templates in `docs/_templates/`:
-
-1. Use `docs/_templates/api.md` for documenting new API methods.
-2. Use `docs/_templates/recipe.md` for adding new practical cookbook recipes.
-3. Update `docs/.vitepress/config.mjs` sidebar list if introducing new markdown files.
 
 ---
 
