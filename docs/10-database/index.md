@@ -69,12 +69,62 @@ frappe.db.set_value(
 ### `frappe.db.exists` & `frappe.db.count`
 
 ```python
-# Check record existence (Returns document name string or None)
-if frappe.db.exists("User", {"email": "user@example.com"}):
-    pass
+# 1. Check record existence (Returns document name string or None)
+name = frappe.db.exists("User", {"email": "john@example.com"})
+print("Result:", name)
+# Output:
+# Result: john@example.com
 
-# Count total matching records
+# 2. Count total matching records
 open_task_count = frappe.db.count("Task", filters={"status": "Open"})
+print("Open Tasks:", open_task_count)
+# Output:
+# Open Tasks: 42
+```
+
+---
+
+### `frappe.db.get_single_value`
+
+Retrieves a field value from a **Single DocType** (such as `System Settings` or `Global Defaults`).
+
+```python
+# Fetch system default currency from System Settings
+currency = frappe.db.get_single_value("System Settings", "default_currency")
+print("System Currency:", currency)
+# Output:
+# System Currency: USD
+```
+
+---
+
+### `frappe.db.delete`
+
+Performs direct SQL row deletion based on filter conditions without instantiating document objects.
+
+```python
+# Direct deletion of temporary log records
+frappe.db.delete("Activity Log", {
+    "creation": ["<", "2026-01-01"],
+    "status": "Success"
+})
+```
+
+---
+
+### Schema Inspection & Maintenance (`table_exists`, `has_column`, `touch`)
+
+```python
+# 1. Check if database table exists
+if frappe.db.table_exists("tabTask"):
+    print("Table exists!")
+
+# 2. Check if table column exists
+if frappe.db.has_column("tabTask", "custom_priority"):
+    print("Column exists!")
+
+# 3. Touch document modified timestamp
+frappe.db.touch("Task", "TASK-2026-00001")
 ```
 
 ---
@@ -91,6 +141,10 @@ result = frappe.db.sql("""
     WHERE status = %s AND priority = %s
     ORDER BY creation DESC
 """, ("Open", "High"), as_dict=True)
+
+print("Fetched SQL Rows:", result)
+# Output:
+# Fetched SQL Rows: [{'name': 'TASK-2026-00001', 'subject': 'Fix Bug', 'status': 'Open'}]
 ```
 
 > [!CAUTION]
@@ -115,7 +169,43 @@ except Exception:
 
 ---
 
-## 2. Query Builder (`frappe.qb`)
+## 2. DocType Metadata & Request Context APIs
+
+### `frappe.get_meta`
+
+Returns the `Meta` structure object for a given DocType.
+
+```python
+meta = frappe.get_meta("Customer")
+
+# Inspect field definitions
+has_field = meta.has_field("tax_id")
+field = meta.get_field("customer_name")
+link_fields = meta.get_link_fields()
+
+print("Has Tax ID:", has_field)
+print("Field Type:", field.fieldtype)
+# Output:
+# Has Tax ID: True
+# Field Type: Data
+```
+
+---
+
+### `frappe.local` Request Context
+
+`frappe.local` holds thread-local contextual variables for the active Werkzeug HTTP request.
+
+| Attribute | Description | Output Example |
+| :--- | :--- | :--- |
+| `frappe.local.site` | Active site name | `'site1.localhost'` |
+| `frappe.local.session.user` | Logged in user email | `'john@company.com'` |
+| `frappe.local.form_dict` | Parsed HTTP request query parameters & body | `{'doctype': 'Task', 'status': 'Open'}` |
+| `frappe.local.request` | Werkzeug HTTP request object | `<Request 'http://localhost/api/method/...' [POST]>` |
+
+---
+
+## 3. Query Builder (`frappe.qb`)
 
 Frappe v15 integrates **PyPika** into `frappe.qb` to generate type-safe, programmatic, cross-database SQL queries.
 
@@ -135,6 +225,9 @@ query = (
 )
 
 results = query.run(as_dict=True)
+print("Query Results:", results)
+# Output:
+# Query Results: [{'name': 'TASK-001', 'subject': 'Setup Redis', 'priority': 'High'}]
 ```
 
 ---
@@ -164,7 +257,7 @@ data = query.run(as_dict=True)
 
 ---
 
-## 3. Database Strategy Comparison Matrix
+## 4. Database Strategy Comparison Matrix
 
 | Criteria | Document API (`frappe.get_doc`) | DB API (`frappe.db.get_all`) | Query Builder (`frappe.qb`) | Raw SQL (`frappe.db.sql`) |
 | :--- | :--- | :--- | :--- | :--- |
@@ -181,3 +274,4 @@ data = query.run(as_dict=True)
 - [06. Document API & Lifecycle](/06-documents/)
 - [09. Server API](/09-server-api/)
 - [21. Security & Performance](/21-security-performance/)
+

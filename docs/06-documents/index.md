@@ -152,20 +152,173 @@ doc.db_set("status", "Closed", update_modified=True)
 | `doc.get_doc_before_save()` | `Document` | Returns immutable snapshot of document state prior to `save()` |
 | `doc.as_dict()` | `dict` | Serializes document and child tables to plain Python dictionary |
 | `doc.append(fieldname, dict_values)` | `Document` | Appends a new child table row to `fieldname` |
+| `doc.run_method(method, *args)` | `Any` | Programmatically executes a method on the document instance |
+| `doc.get_db_value(fieldname)` | `Any` | Reads single field directly from DB disk bypassing memory cache |
+| `doc.get_formatted(fieldname)` | `str` | Returns human-formatted string of field (e.g. currency `$500.00`) |
+| `doc.add_comment(type, text)` | `Document` | Appends timeline comment (e.g., `'Comment'`, `'Info'`, `'Assigned'`) |
+| `doc.add_tag("Urgent")` | `None` | Attaches a tag string to document |
+| `doc.remove_tag("Urgent")` | `None` | Removes tag string from document |
+| `doc.get_tags()` | `str` | Returns comma-separated string of assigned tags |
+| `doc.queue_action(action)` | `None` | Enqueues action (e.g., `'submit'`, `'cancel'`) for background worker |
 
 ```python
-# Child table append example
+# 1. Child table append example
 doc.append("items", {
     "item_code": "CPU-INTEL-I9",
     "qty": 2,
     "rate": 450.00
 })
 doc.save()
+
+# 2. Convert document instance to dictionary
+doc_dict = doc.as_dict()
+# Output:
+# {
+#     "name": "TASK-2026-00001",
+#     "doctype": "Task",
+#     "subject": "Deploy Production Server",
+#     "status": "Open",
+#     "items": [{"item_code": "CPU-INTEL-I9", "qty": 2, "rate": 450.0}]
+# }
+
+# 3. Add timeline comment and tag
+doc.add_comment("Comment", "Reviewed architecture specs with team.")
+doc.add_tag("High-Priority")
+print("Tags:", doc.get_tags())
+# Output:
+# Tags: High-Priority
 ```
 
 ---
 
-## 3. Save, Submit & Cancel Execution Lifecycles
+## 3. Document Flags (`doc.flags`)
+
+Flags are temporary runtime properties set on a Document instance (`doc.flags.<flag_name> = True`) to control document behavior during `insert()`, `save()`, `submit()`, or `cancel()`. Flags are **not saved** to the database.
+
+| Flag Name | Description / When to Use |
+| :--- | :--- |
+| `doc.flags.ignore_permissions` | Bypasses user permission checks. Allows background tasks/scripts to save/submit documents without permission errors. |
+| `doc.flags.ignore_mandatory` | Suppresses errors for missing mandatory fields. Useful for saving partial drafts during data migration. |
+| `doc.flags.ignore_links` | Skips validation checking if linked document primary keys exist in database. |
+| `doc.flags.ignore_validate` | Bypasses execution of controller `validate()` and `before_save()` hooks. |
+| `doc.flags.ignore_if_duplicate` | Silently ignores duplicate primary key insertion instead of throwing `DuplicateEntryError`. |
+| `doc.flags.in_insert` | Read-only flag set automatically by engine while document is executing `insert()`. |
+| `doc.flags.in_update` | Read-only flag set automatically by engine while document is updating. |
+
+### Example: Bypassing Permissions and Mandatory Validation
+
+```python
+# Create task programmatically without user session permissions
+task = frappe.new_doc("Task")
+task.subject = "System Automated Maintenance"
+
+# Set runtime flags
+task.flags.ignore_permissions = True
+task.flags.ignore_mandatory = True
+
+task.insert()
+print("Created Task:", task.name)
+# Output:
+# Created Task: TASK-2026-00042
+```
+
+---
+
+## 4. Model Helper APIs (`frappe.model.*`)
+
+Frappe provides utility functions under the `frappe.model` module for naming, mapping, deleting, and renaming documents across the database.
+
+---
+
+### `frappe.model.naming.make_autoname`
+
+Generates auto-incremented or formatted primary keys based on naming rules.
+
+#### Example
+
+```python
+from frappe.model.naming import make_autoname
+
+# Format rule: PREFIX-YYYY-MM-.#####
+new_name = make_autoname("INV-.2026.-.MM.-.#####")
+print("Generated Name:", new_name)
+# Output:
+# Generated Name: INV-2026-08-00001
+```
+
+---
+
+### `frappe.model.mapper.get_mapped_doc`
+
+Maps values from a source document to create a target document based on a mapping rule dictionary (used for converting Sales Orders to Sales Invoices, etc.).
+
+#### Syntax & Example
+
+```python
+from frappe.model.mapper import get_mapped_doc
+
+doc = get_mapped_doc("Sales Order", "SO-2026-00001", {
+    "Sales Order": {
+        "doctype": "Sales Invoice",
+        "field_map": {
+            "name": "sales_order"
+        }
+    },
+    "Sales Order Item": {
+        "doctype": "Sales Invoice Item",
+        "field_map": {
+            "parent": "sales_order"
+        }
+    }
+})
+
+print("Mapped Target DocType:", doc.doctype)
+print("Items Count:", len(doc.items))
+# Output:
+# Mapped Target DocType: Sales Invoice
+# Items Count: 3
+```
+
+---
+
+### `frappe.model.delete_doc`
+
+Programmatically deletes a document, removes linked child tables, deletes file attachments, and handles trash logs.
+
+```python
+frappe.model.delete_doc(
+    doctype="Task",
+    name="TASK-2026-00042",
+    force=True,                 # Ignore status checks
+    ignore_permissions=True,    # Bypass permission check
+    delete_permanently=False    # Move to Deleted Document log
+)
+# Output:
+# Removes TASK-2026-00042 from DB and creates record in Deleted Document
+```
+
+---
+
+### `frappe.model.rename_doc`
+
+Renames the primary key (`name`) of a document and automatically updates foreign key references in all linked tables throughout MariaDB.
+
+```python
+new_name = frappe.model.rename_doc(
+    doctype="Customer",
+    old="Acme Inc",
+    new="Acme International",
+    merge=False,                # If True, merges record into existing target
+    ignore_permissions=True
+)
+print("Updated Primary Key:", new_name)
+# Output:
+# Updated Primary Key: Acme International
+```
+
+---
+
+## 5. Save, Submit & Cancel Execution Lifecycles
 
 ```
                ┌──────────────────────────────┐
@@ -209,3 +362,4 @@ doc.save()
 - [05. DocTypes & Fields](/05-doctypes/)
 - [07. Controllers & Events](/07-controllers/)
 - [10. Database API](/10-database/)
+

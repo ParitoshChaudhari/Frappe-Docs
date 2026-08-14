@@ -41,6 +41,8 @@ frappe.enqueue(
 | `is_async` | `bool` | `True` | If `False`, executes synchronously in main thread (for testing) |
 | `now` | `bool` | `False` | Executes function inline immediately |
 | `enqueue_after_commit` | `bool` | `False` | Delays pushing job to Redis until `frappe.db.commit()` succeeds |
+| `at_front` | `bool` | `False` | Inserts job at the front (head) of the queue for priority execution |
+| `deduplicate` | `bool` | `False` | Prevents pushing duplicate job if an identical job is already queued |
 | `job_name` | `str` | `None` | Custom identifier to prevent duplicate job enqueuing |
 | `**kwargs` | keyword args | — | Keyword arguments passed to target function |
 

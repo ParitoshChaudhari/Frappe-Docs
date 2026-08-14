@@ -86,6 +86,55 @@ bench drop-site [site-name] --root-password <db-root-password>
 
 ---
 
+### `bench backup` & `bench restore`
+
+```bash
+# 1. Create database and file attachments backup
+bench --site site1.localhost backup --with-files
+
+# Output:
+# Backup created at ./site1.localhost/private/backups/20260814_145500-site1_localhost-db.sql.gz
+
+# 2. Restore site from SQL database backup file
+bench --site site1.localhost restore /path/to/backup-db.sql.gz --with-public-files /path/to/public.tar --with-private-files /path/to/private.tar
+```
+
+---
+
+### `bench set-config` & `bench get-config`
+
+Modifies `site_config.json` or `common_site_config.json` configurations programmatically.
+
+```bash
+# Set maintenance mode on site
+bench --site site1.localhost set-config maintenance_mode 1
+
+# Disable maintenance mode
+bench --site site1.localhost set-config maintenance_mode 0
+```
+
+---
+
+### `bench reinstall`
+
+Wipes all existing site data and reinstalls a clean database for the site.
+
+```bash
+bench --site site1.localhost reinstall --admin-password admin
+```
+
+---
+
+### `bench export-fixtures`
+
+Exports JSON fixtures configured in `hooks.py` into your app's `fixtures/` folder.
+
+```bash
+bench --site site1.localhost export-fixtures --app my_custom_app
+```
+
+---
+
 ### `bench migrate`
 
 Executes pending database schema modifications, runs `patches.txt` migration scripts, syncs DocTypes, and updates site assets.

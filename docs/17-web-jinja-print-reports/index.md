@@ -73,7 +73,16 @@ def get_context(context):
 
 ---
 
-## 2. Jinja Print Formats
+## 2. Web Forms DocType
+
+**Web Forms** allow non-authenticated public users or portal clients to fill out dynamic multi-step forms on the web that map directly to backend DocTypes (such as Job Applications, Lead Capture, or Support Tickets).
+
+- Configured via Desk UI (**Web Form** DocType).
+- Supports dynamic client-side scripting (`web_form.js`).
+
+---
+
+## 3. Jinja Print Formats & Built-In Filters
 
 Custom Print Formats render PDF and print documents using Jinja HTML templates:
 
@@ -83,6 +92,17 @@ Custom Print Formats render PDF and print documents using Jinja HTML templates:
 - `frappe.format(val, df, doc)`: Formats data according to field metadata rules
 - `frappe.db.get_value(dt, dn, fn)`: Queries database field from Jinja
 - `frappe.format_date(date)`: Formats date to user preference
+
+<div v-pre>
+
+### Built-in Jinja Filters Matrix
+
+| Jinja Filter | Usage Example | Description |
+| :--- | :--- | :--- |
+| `_()` | `{{ _("Invoice Status") }}` | Translates text to active user session language |
+| `money_in_words` | `{{ doc.grand_total \| money_in_words }}` | Converts currency number into words (e.g. *"Five Hundred USD Only"*) |
+| `global_date_format` | `{{ doc.posting_date \| global_date_format }}` | Formats ISO date to global system date format |
+| `format_currency` | `{{ doc.amount \| format_currency(doc.currency) }}` | Formats numeric value as currency string with symbol |
 
 ```jinja
 <div class="print-format">
@@ -116,8 +136,14 @@ Custom Print Formats render PDF and print documents using Jinja HTML templates:
             {% endfor %}
         </tbody>
     </table>
+
+    <div class="mt-3">
+        <p><strong>Amount in Words:</strong> {{ doc.grand_total | money_in_words }}</p>
+    </div>
 </div>
 ```
+
+</div>
 
 ---
 
@@ -125,3 +151,4 @@ Custom Print Formats render PDF and print documents using Jinja HTML templates:
 
 - [18. Complete Reports Guide](/18-reports/)
 - [19. Utilities Reference](/19-utils/)
+

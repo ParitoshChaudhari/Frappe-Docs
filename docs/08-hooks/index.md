@@ -179,24 +179,70 @@ has_permission = {
 Injects custom JavaScript and CSS bundles into Frappe Desk.
 
 ```python
-# Include JS in specific DocType Form View
+# Include JS in specific DocType Views
 doctype_js = {
     "Task": "public/js/task_custom.js"
 }
 
-# Include JS in specific Desk Page
-page_js = {
-    "workspace": "public/js/workspace_custom.js"
+doctype_list_js = {
+    "Task": "public/js/task_list.js"
+}
+
+doctype_tree_js = {
+    "Account": "public/js/account_tree.js"
+}
+
+doctype_calendar_js = {
+    "Event": "public/js/event_calendar.js"
 }
 
 # Global Desk JS & CSS inclusions
 app_include_js = "/assets/my_custom_app/js/my_custom_app.js"
 app_include_css = "/assets/my_custom_app/css/my_custom_app.css"
+
+# Global Web/Portal JS & CSS inclusions
+web_include_js = "/assets/my_custom_app/js/portal.js"
+web_include_css = "/assets/my_custom_app/css/portal.css"
 ```
 
 ---
 
-## 6. Fixtures Export
+## 6. Jinja Templating & Session Extensions
+
+```python
+# Extend Jinja template engine with custom methods & filters
+jinja = {
+    "methods": [
+        "my_custom_app.utils.format_currency_symbol"
+    ],
+    "filters": [
+        "my_custom_app.utils.custom_slugify"
+    ]
+}
+
+# Extend bootinfo dictionary sent to desk client on login
+boot_session = "my_custom_app.utils.boot_session_handler"
+```
+
+---
+
+## 7. Website Route Rules & Portal Customizations
+
+```python
+# Rewrite web routes cleanly
+website_route_rules = [
+    {"from_route": "/projects/<project_id>", "to_route": "project_detail"},
+]
+
+# Add custom portal menu links in /me page
+portal_menu_items = [
+    {"title": "My Support Tickets", "route": "/tickets", "role": "Customer"}
+]
+```
+
+---
+
+## 8. Fixtures Export
 
 Exports specific database records (e.g. Custom Fields, Property Setters, Print Formats) as JSON files inside your app directory to be automatically imported on other sites during `bench migrate`.
 
@@ -215,7 +261,7 @@ fixtures = [
 
 ---
 
-## 7. Request & Job Middleware Hooks
+## 9. Request & Job Middleware Hooks
 
 ```python
 # Executed on every HTTP request before processing
@@ -238,3 +284,4 @@ after_job = ["my_custom_app.middleware.clear_job_context"]
 - [07. Controllers & Events](/07-controllers/)
 - [14. Authentication & Permissions](/14-authentication-permissions/)
 - [15. Background Jobs](/15-background-jobs-scheduler/)
+

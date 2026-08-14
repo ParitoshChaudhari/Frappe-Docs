@@ -37,7 +37,8 @@ export default defineConfig({
           { text: '01. Getting Started', link: '/01-getting-started/' },
           { text: '02. Frappe Architecture', link: '/02-architecture/' },
           { text: '03. Bench CLI Reference', link: '/03-bench-cli/' },
-          { text: '04. Apps & Sites Structure', link: '/04-apps-and-sites/' }
+          { text: '04. Apps & Sites Structure', link: '/04-apps-and-sites/' },
+          { text: '29. Version History & Changelog', link: '/29-version-history/' }
         ]
       },
       {
@@ -67,7 +68,8 @@ export default defineConfig({
         items: [
           { text: '11. Client API (frappe.ui.form & JS)', link: '/11-client-api/' },
           { text: '12. Child Tables (Python & JS)', link: '/12-child-tables/' },
-          { text: '23. Client vs Server API Matrix', link: '/23-client-vs-server/' }
+          { text: '23. Client vs Server API Matrix', link: '/23-client-vs-server/' },
+          { text: '28. Desk Views & Customization', link: '/28-views-desk-customization/' }
         ]
       },
       {

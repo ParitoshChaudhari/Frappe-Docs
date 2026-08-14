@@ -78,16 +78,40 @@ random_key = random_string(16)  # 'a8f9c2d1e4b7019a'
 
 ---
 
-## 4. Validation Utilities
+## 5. Internationalization & Translation (`frappe._`)
+
+Frappe Framework includes built-in multi-language translation support. Strings wrapped in `frappe._()` or `__()` (in JS) are extracted during translation build and mapped to site user session language.
 
 ```python
-from frappe.utils import validate_email_address, validate_url
+import frappe
+from frappe import _
 
-# Validate email address format
-is_valid_email = validate_email_address("user@example.com", throw=False)
+# 1. Simple String Translation
+translated_msg = _("Task status has been updated")
 
-# Validate URL string
-is_valid_url = validate_url("https://frappe.io", throw=False)
+# 2. String Formatting with Positional Placeholders
+# Note: Always place .format() OUTSIDE of the _() translation wrapper!
+formatted_msg = _("Task {0} allocated to {1}").format(doc.name, doc.allocated_to)
+
+# 3. Contextual Translation (Disambiguating identical words with different meanings)
+lead_sales = _("Lead", context="Sales")
+lead_metal = _("Lead", context="Chemistry")
+```
+
+> [!IMPORTANT]
+> Never format strings inside the translation call (`_ (f"Task {doc.name}")`)! This prevents the string extractor from discovering static translation keys.
+
+### Translation CSV Files & CLI Commands
+
+- App translations are stored in `apps/<app_name>/<app_name>/translations/<lang_code>.csv` (e.g. `hi.csv`, `de.csv`, `es.csv`).
+- CSV Format: `"English Source String","Target Language Translation"`
+
+```bash
+# Extract untranslated strings across your application
+bench get-untranslated hi apps/my_custom_app/my_custom_app/translations/hi.csv
+
+# Update and sync translation files
+bench update-translations hi apps/my_custom_app/my_custom_app/translations/hi.csv
 ```
 
 ---
@@ -96,3 +120,4 @@ is_valid_url = validate_url("https://frappe.io", throw=False)
 
 - [09. Server API](/09-server-api/)
 - [10. Database API](/10-database/)
+

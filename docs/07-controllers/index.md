@@ -58,7 +58,57 @@ Frappe provides 15+ controller lifecycle methods executed in exact chronological
 | `on_cancel` | Right after cancellation | Reversing GL & Stock ledger entries | Calling `doc.submit()` |
 | `before_update_after_submit` | Prior to editing submittable doc fields | Validating editable submittable fields | Changing core document fields |
 | `on_update_after_submit` | After editing submittable doc fields | Audit logging | Re-submitting document |
+| `before_trash` | Prior to document deletion process | Blocking deletion of referenced records | Modifying document fields |
 | `after_delete` | Right after database row deletion | Cleaning external file attachments | Dereferencing `self` in database |
+| `on_change` | Triggers on save/submit/cancel state change | Dispatching state notification webhooks | Calling `self.save()` |
+
+### Complete Lifecycle Code Example
+
+```python
+import frappe
+from frappe import _
+from frappe.model.document import Document
+
+class CustomTask(Document):
+    def before_insert(self):
+        """1. Executed before initial insert into database."""
+        self.status = "Open"
+        print("[LIFECYCLE] 1. before_insert: Set default status to Open")
+
+    def validate(self):
+        """2. Executed on every save/submit validation."""
+        if not self.subject:
+            frappe.throw(_("Subject is mandatory!"))
+        print("[LIFECYCLE] 2. validate: Passed subject validation")
+
+    def before_save(self):
+        """3. Executed right before saving to DB."""
+        self.subject = self.subject.strip()
+        print("[LIFECYCLE] 3. before_save: Trimmed subject string")
+
+    def on_update(self):
+        """4. Executed right after DB save commit."""
+        print(f"[LIFECYCLE] 4. on_update: Saved document {self.name}")
+
+    def before_trash(self):
+        """5. Executed before deletion starts."""
+        if self.status == "Closed":
+            frappe.throw(_("Cannot delete Closed tasks!"))
+        print(f"[LIFECYCLE] 5. before_trash: Validated task deletion")
+
+    def after_delete(self):
+        """6. Executed after database record removal."""
+        print(f"[LIFECYCLE] 6. after_delete: Cleaned up task {self.name}")
+```
+
+#### Expected Log Output on Save
+
+```text
+[LIFECYCLE] 1. before_insert: Set default status to Open
+[LIFECYCLE] 2. validate: Passed subject validation
+[LIFECYCLE] 3. before_save: Trimmed subject string
+[LIFECYCLE] 4. on_update: Saved document TASK-2026-00001
+```
 
 ---
 
@@ -106,3 +156,4 @@ class Task(Document):
 - [06. Document API & Lifecycle](/06-documents/)
 - [08. Hooks Reference](/08-hooks/)
 - [15. Background Jobs](/15-background-jobs-scheduler/)
+

@@ -28,7 +28,12 @@ cache.set_value("system_metrics_summary", {"active_users": 42}, expires_in_sec=3
 # 2. Retrieve cached key value
 metrics = cache.get_value("system_metrics_summary")
 
-# 3. Delete specific key or pattern
+# 3. Hash Map Caching Operations
+cache.hset("user_settings", "user_123", {"theme": "dark"})
+user_theme = cache.hget("user_settings", "user_123")
+cache.hdel("user_settings", "user_123")
+
+# 4. Delete specific key or pattern
 cache.delete_value("system_metrics_summary")
 cache.delete_keys("user_permissions:*")
 ```
@@ -42,21 +47,28 @@ currency = frappe.get_cached_value("Company", "Acme Corp", "default_currency")
 
 ---
 
-## 2. Realtime WebSocket Events (`frappe.publish_realtime`)
+## 2. Realtime WebSocket Events (`frappe.publish_realtime` & `frappe.publish_progress`)
 
 Publishes real-time events to connected browser clients via Node.js Socket.IO server.
 
-### Server Publishing
+### Server Event & Progress Publishing
 
 ```python
-# Publish event to specific user
+# 1. Publish custom event to specific user
 frappe.publish_realtime(
     event="task_progress_update",
     message={"progress": 85, "task_id": "TASK-00001"},
     user=frappe.session.user
 )
 
-# Publish event to all users viewing a specific DocType record
+# 2. Publish progress bar directly to Desk header
+frappe.publish_progress(
+    percent=60,
+    title="Exporting Data...",
+    description="Processing row 60 of 100"
+)
+
+# 3. Publish event to all users viewing a specific DocType record
 frappe.publish_realtime(
     event="doc_update",
     message={"status": "Approved"},
@@ -70,7 +82,7 @@ frappe.publish_realtime(
 ```javascript
 frappe.realtime.on("task_progress_update", (data) => {
     console.log("Progress Update:", data.progress);
-    frappe.show_progress(__("Task Processing"), data.progress, 100);
+    frappe.show_alert({ message: __("Progress: {0}%", [data.progress]), indicator: "blue" });
 });
 ```
 

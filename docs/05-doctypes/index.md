@@ -14,7 +14,7 @@ In Frappe Framework v15, a **DocType** (Document Type) is the foundational model
 
 ## 1. DocType Classifications
 
-Frappe supports 4 primary DocType classifications:
+Frappe supports 5 primary DocType classifications:
 
 | Classification | DB Table | Purpose & Description | Example |
 | :--- | :--- | :--- | :--- |
@@ -22,12 +22,53 @@ Frappe supports 4 primary DocType classifications:
 | **Submittable DocType** | `tab<DocType>` | Documents supporting immutable workflow state (`0: Draft`, `1: Submitted`, `2: Cancelled`). | `Sales Invoice`, `Purchase Order` |
 | **Child Table** | `tab<DocType>` | Embedded sub-records parented to a main DocType. | `Sales Invoice Item`, `Task Assignee` |
 | **Single DocType** | Single row in `tabSingles` | System-wide settings or configuration dashboards (no dedicated DB table). | `System Settings`, `Global Defaults` |
+| **Virtual DocType** | None | Data source backed by external REST APIs, S3, or SQLite (`is_virtual=1`). | `Stripe Customer`, `S3 File Log` |
+
+---
+
+### Virtual DocTypes (`is_virtual=1`)
+
+Virtual DocTypes allow developers to create standard Frappe forms and lists that interact with external data sources without creating database tables in MariaDB.
+
+To create a Virtual DocType, enable **Is Virtual** in the DocType schema and override standard ORM methods in your Python class:
+
+```python
+import frappe
+import requests
+from frappe.model.document import Document
+
+class ExternalTask(Document):
+    def db_insert(self, *args, **kwargs):
+        # Called when inserting new record -> POST to external API
+        res = requests.post("https://api.external.com/v1/tasks", json=self.as_dict())
+        self.name = res.json().get("id")
+
+    def load_from_db(self):
+        # Called when fetching single record -> GET from external API
+        res = requests.get(f"https://api.external.com/v1/tasks/{self.name}")
+        data = res.json()
+        super(Document, self).__init__(data)
+
+    def db_update(self, *args, **kwargs):
+        # Called when saving changes -> PUT/PATCH external API
+        requests.put(f"https://api.external.com/v1/tasks/{self.name}", json=self.as_dict())
+
+    def delete(self):
+        # Called when deleting record -> DELETE external API
+        requests.delete(f"https://api.external.com/v1/tasks/{self.name}")
+```
+
+---
+
+### Tree DocTypes (`is_tree=1`)
+
+Tree DocTypes represent hierarchical parent-child trees (such as Chart of Accounts or Territory Tree) using nested set storage (`lft`, `rgt`, `is_group`, `parent_field`, `old_parent`).
 
 ---
 
 ## 2. Frappe Field Types Reference
 
-Frappe v15 provides over 30 built-in field types:
+Frappe v15 provides over 35 built-in field types:
 
 ### Relational & Link Fields
 
@@ -48,6 +89,7 @@ Frappe v15 provides over 30 built-in field types:
 | `Text` | `LONGTEXT` | Large plain text area |
 | `Text Editor` | `LONGTEXT` | Rich text HTML editor (Quill / TipTap) |
 | `Code` | `LONGTEXT` | Code editor with syntax highlighting (Monaco / Ace) |
+| `Markdown Editor`| `LONGTEXT` | Markdown editor with live HTML preview |
 | `Password` | `TEXT` | Encrypted password storage |
 
 ### Numeric & Currency Fields
@@ -58,6 +100,8 @@ Frappe v15 provides over 30 built-in field types:
 | `Float` | `DECIMAL(21, 9)` | Floating point number |
 | `Currency` | `DECIMAL(21, 9)` | Formatted monetary value bound to currency symbol |
 | `Percent` | `DECIMAL(21, 9)` | Percentage value |
+| `Rating` | `DECIMAL(3, 2)` | Star rating input (1 to 5 stars) |
+| `Duration` | `DECIMAL(21, 9)` | Time duration input (e.g. `2d 4h 30m`) |
 | `Check` | `INT(1)` | Boolean checkbox (`0` or `1`) |
 
 ### Date, Time & Media Fields
@@ -71,6 +115,19 @@ Frappe v15 provides over 30 built-in field types:
 | `Attach Image` | `TEXT` | Image upload attachment path with preview |
 | `Signature` | `LONGTEXT` | Base64 canvas signature input |
 | `Color` | `VARCHAR(140)` | Hex color picker |
+| `Geolocation` | `LONGTEXT` | Leaflet map geo-JSON coordinates picker |
+| `Barcode` | `VARCHAR(140)` | Barcode / QR Code scanner field |
+
+### Layout & Structural Fields
+
+| Field Type | DB Type | Description |
+| :--- | :--- | :--- |
+| `Section Break` | — | Group fields into horizontal sections (can collapse/expand) |
+| `Column Break` | — | Splitting fields inside a Section into columns |
+| `Tab Break` | — | Multi-tab form layout navigation |
+| `HTML` | — | Dynamic custom HTML container rendered on form |
+| `Button` | — | Form field button executing client script triggers |
+| `Fold` | — | Hide preceding fields behind a "More Info" expander |
 
 ---
 
@@ -87,17 +144,22 @@ Field behaviors are controlled via JSON metadata attributes:
   "unique": 1,
   "read_only": 0,
   "hidden": 0,
+  "fetch_from": "customer.email_id",
+  "depends_on": "eval:doc.status=='Closed'",
   "in_list_view": 1,
-  "in_standard_filter": 1,
-  "options": "Email"
+  "in_standard_filter": 1
 }
 ```
 
 - `reqd` (`1`/`0`): Mandatory field validation.
 - `read_only` (`1`/`0`): Prevents client edit.
 - `hidden` (`1`/`0`): Hides field from desk form.
+- `fetch_from`: Automates fetching linked document field (`<link_fieldname>.<remote_fieldname>`).
+- `fetch_if_empty`: Only populates fetched value if local field is empty.
+- `depends_on`: JS evaluation string for dynamic visibility (`eval:doc.amount > 5000`).
+- `mandatory_depends_on`: JS evaluation string for dynamic mandatory requirement.
+- `read_only_depends_on`: JS evaluation string for dynamic read-only toggling.
 - `in_list_view` (`1`/`0`): Displays column in Desk ListView table.
-- `in_standard_filter` (`1`/`0`): Adds quick filter in Desk ListView header.
 - `unique` (`1`/`0`): Enforces database-level unique constraint.
 
 ---
@@ -164,3 +226,4 @@ class CustomTask(Document):
 - [06. Document API & Lifecycle](/06-documents/)
 - [07. Controllers & Events](/07-controllers/)
 - [12. Child Tables](/12-child-tables/)
+

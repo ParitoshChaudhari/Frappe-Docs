@@ -133,7 +133,79 @@ print(response.json())
 
 ---
 
+## 4. File Upload via REST API (`upload_file`)
+
+Uploading attachment files via REST API is executed by invoking the whitelisted endpoint `/api/method/upload_file` using `multipart/form-data`.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `file` | `binary` | Yes | Binary file content stream |
+| `filename` | `string` | Yes | Target file name (e.g. `'receipt.pdf'`) |
+| `doctype` | `string` | Optional | Target DocType name to attach file to |
+| `docname` | `string` | Optional | Target document primary key |
+| `is_private` | `integer` | Optional | Set `1` for private storage, `0` for public |
+
+### Python Client Code Example
+
+```python
+import requests
+
+url = "https://site1.localhost/api/method/upload_file"
+headers = {
+    "Authorization": "token 4c89a0b12e:9f2d1847c0"
+}
+files = {
+    "file": ("spec.pdf", open("/path/to/spec.pdf", "rb"), "application/pdf")
+}
+data = {
+    "doctype": "Task",
+    "docname": "TASK-2026-00001",
+    "is_private": "1"
+}
+
+response = requests.post(url, headers=headers, files=files, data=data)
+print("Upload Response:", response.json())
+# Output:
+# Upload Response: {
+#     "message": {
+#         "name": "09a1f28b7e",
+#         "file_name": "spec.pdf",
+#         "file_url": "/private/files/spec.pdf",
+#         "is_private": 1
+#     }
+# }
+```
+
+---
+
+## 5. REST Error Response Payload Structure
+
+When an exception occurs during REST execution, Frappe returns appropriate HTTP status codes alongside a structured JSON error body containing exception tracebacks (`exc`) and translated user messages (`_server_messages`).
+
+### HTTP Status Codes
+
+- `200 OK`: Successful request.
+- `401 Unauthorized`: Missing or invalid `Authorization: token` / session cookie.
+- `403 Forbidden`: User lacks permission (`read`/`write`/`create`) for the target DocType.
+- `404 Not Found`: Target DocType or document primary key does not exist.
+- `409 Conflict`: Duplicate entry or conflicting primary key insertion error.
+- `500 Internal Server Error`: Unhandled server-side Python exception.
+
+### Sample Error JSON Payload (`403 Forbidden`)
+
+```json
+{
+  "exc": "[\"Traceback (most recent call last):\\n  File \\\"/apps/frappe/frappe/app.py\\\", line 69, in application\\n    frappe.permissions.check_doctype_permission(doctype, 'read')\\nfrappe.exceptions.PermissionError: User john@company.com lacks Read permission for Task\"]",
+  "_server_messages": "[\"{\\\"message\\\": \\\"No permission for Task\\\", \\\"title\\\": \\\"Permission Error\\\"}\"]"
+}
+```
+
+---
+
 ## Related Topics
 
 - [09. Server API](/09-server-api/)
 - [14. Authentication & Permissions](/14-authentication-permissions/)
+

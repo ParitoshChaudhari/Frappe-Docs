@@ -221,7 +221,48 @@ def get_task_query_conditions(user=None):
 
 ---
 
-## 5. Web Security: CSRF & CORS Configuration
+---
+
+## 5. Document Sharing API (`frappe.share`)
+
+The Document Sharing API allows programmatically sharing specific document instances with users who otherwise would not have role-based read/write access.
+
+```python
+import frappe
+
+# 1. Share document with specific user
+frappe.share.add(
+    doctype="Task",
+    name="TASK-2026-00001",
+    user="colleague@company.com",
+    read=1,
+    write=1,
+    share=0,
+    notify=1
+)
+
+# 2. Get list of users a document is shared with
+shared_users = frappe.share.get_users("Task", "TASK-2026-00001")
+print("Shared With:", shared_users)
+# Output:
+# Shared With: ['colleague@company.com']
+
+# 3. Remove sharing permission
+frappe.share.remove("Task", "TASK-2026-00001", "colleague@company.com")
+```
+
+---
+
+## 6. Field-Level Permission Levels (`permlevel`)
+
+Frappe allows restricting specific fields within a single DocType to distinct roles using **Permission Levels** (`permlevel` 0 through 9).
+
+- **Level 0**: Default permission level assigned to all fields.
+- **Level 1–9**: Elevated permission levels. Fields assigned `permlevel: 1` (e.g. `salary` or `discount_amount`) require explicit Role Permission Manager entries for Level 1 read/write permissions.
+
+---
+
+## 7. Web Security: CSRF & CORS Configuration
 
 - **CSRF Protection**: Frappe automatically injects CSRF token `X-Frappe-CSRF-Token` headers into form submissions and client RPC calls.
 - **CORS Setup**: Configure allowed origins in `site_config.json`:
@@ -241,3 +282,4 @@ def get_task_query_conditions(user=None):
 - [11. Client API](/11-client-api/)
 - [13. REST API & RPC](/13-rest-api/)
 - [21. Security & Performance](/21-security-performance/)
+
