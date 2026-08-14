@@ -1,0 +1,27 @@
+{
+  "name": "frappe-docs",
+  "version": "1.0.0",
+  "description": "Complete Developer Documentation for Frappe Framework v15",
+  "type": "module",
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "dev": "vitepress dev docs",
+    "build": "vitepress build docs",
+    "preview": "vitepress preview docs"
+  },
+  "keywords": [
+    "frappe",
+    "erpnext",
+    "v15",
+    "documentation",
+    "vitepress",
+    "api-reference"
+  ],
+  "author": "Frappe Developer Community",
+  "license": "MIT",
+  "devDependencies": {
+    "vitepress": "^1.6.4"
+  }
+}
