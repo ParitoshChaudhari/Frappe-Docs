@@ -69,7 +69,7 @@ The table below details every document event hook supported by Frappe v15, its e
 | **`on_trash`** | Right before document row is deleted from DB. | `docstatus` varies | Preventing deletion of critical business documents. | ✅ Check dependent records & throw.<br>❌ Don't delete linked docs manually. |
 | **`after_delete`** | Immediately after database row deletion. | Deleted from DB | Cleaning up external file attachments or S3 assets. | ✅ Remove attached S3 files.<br>❌ Don't dereference `doc` in DB. |
 | **`on_change`** | Triggered whenever document workflow state changes. | `docstatus` varies | Global audit tracking & webhooks. | ✅ Enqueue webhook notifications.<br>❌ Avoid blocking main HTTP thread. |
-| **`on_rollback`** | Triggered if database transaction rolls back. | Transaction failed | Reverting non-database side effects (e.g. temp files). | ✅ Cleanup temporary disk files.<br>❌ Don't perform DB queries. |
+| **`on_rollback`** | Triggered if the active database transaction is rolled back (e.g., on server error or `frappe.db.rollback()`). | Transaction failed / rolled back | Reverting any non-database side effects that were performed during the request (e.g., deleting temp files, reversing external API calls). | ✅ Cleanup temporary disk files or reverse external API state.<br>❌ Don't perform DB queries inside this handler — the transaction is already rolled back. |
 
 ---
 

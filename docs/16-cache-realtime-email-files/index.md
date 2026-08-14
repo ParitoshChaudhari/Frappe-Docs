@@ -54,20 +54,42 @@ Publishes real-time events to connected browser clients via Node.js Socket.IO se
 ### Server Event & Progress Publishing
 
 ```python
-# 1. Publish custom event to specific user
+# Server-side (Python): Publish event to connected user clients
 frappe.publish_realtime(
-    event="task_progress_update",
-    message={"progress": 85, "task_id": "TASK-00001"},
-    user=frappe.session.user
+    event="task_progress",
+    message={"task_id": "TASK-00001", "progress": 75},
+    user=frappe.session.user  # Target specific user or omit for all users
 )
 
-# 2. Publish progress bar directly to Desk header
+# Publish progress bar update to Desk UI
 frappe.publish_progress(
-    percent=60,
+    percent=75,
     title="Exporting Data...",
-    description="Processing row 60 of 100"
+    description="Processing row 750 of 1000"
 )
+```
 
+### Client-Side WebSockets Subscription (`frappe.realtime`)
+
+In browser Client Scripts, subscribe to events emitted by `frappe.publish_realtime`:
+
+```javascript
+// 1. Listen for custom server-push event
+frappe.realtime.on("task_progress", (data) => {
+    console.log("Progress update received:", data.progress);
+    frappe.show_alert({
+        message: __("Task Progress: {0}%", [data.progress]),
+        indicator: "blue"
+    });
+});
+
+// 2. Emit event from client to server (if socket listener exists)
+frappe.realtime.emit("ping_server", { client_timestamp: Date.now() });
+```
+
+### Broad-Scope Publishing
+
+```python
 # 3. Publish event to all users viewing a specific DocType record
 frappe.publish_realtime(
     event="doc_update",

@@ -72,7 +72,7 @@ frappe.ui.form.on("Task", {
                 frm.save();
             });
             
-            # Style custom button with CSS class ('btn-primary', 'btn-danger', 'btn-warning', 'btn-info')
+            // Style custom button with CSS class ('btn-primary', 'btn-danger', 'btn-warning', 'btn-info')
             frm.change_custom_button_type(__("Quick Close"), null, "primary");
 
             // 2. Add Nested Buttons Under Dropdown Group ("Actions")
@@ -663,6 +663,98 @@ frappe.model.clear_doc("Task", frm.doc.name);
 frappe.model.with_doctype("Task", () => {
     console.log("Task DocType schema ready!");
 });
+
+// 5. Client-Side Permission Verification
+if (frappe.model.can_read("Task")) {
+    console.log("User can read Tasks");
+}
+if (frappe.model.can_create("Task")) {
+    console.log("User can create new Tasks");
+}
+if (frappe.model.can_write("Task")) {
+    console.log("User can edit Tasks");
+}
+if (frappe.model.can_delete("Task")) {
+    console.log("User can delete Tasks");
+}
+if (frappe.model.can_submit("Task")) {
+    console.log("User can submit Tasks");
+}
+```
+
+---
+
+### 7. Form Header & Toolbar Controls (`frm.page.*`)
+
+The `frm.page` object allows you to control page headers, titles, status indicators, and inner secondary toolbars.
+
+```javascript
+frappe.ui.form.on("Task", {
+    refresh(frm) {
+        // 1. Dynamic page title & status indicator badge
+        frm.page.set_title(__("Custom Task View"));
+        frm.page.set_indicator(__("Urgent Action"), "red");
+
+        // 2. Add button to inner secondary toolbar
+        frm.page.add_inner_button(__("Quick Action"), () => {
+            frappe.msgprint("Inner action clicked!");
+        }, __("Utilities")); // Optional group dropdown
+
+        // 3. Add custom option to standard 'Actions' menu
+        frm.page.add_action_item(__("Export Summary"), () => {
+            console.log("Exporting summary...");
+        });
+
+        // 4. Add custom option to standard 'Menu' dropdown
+        frm.page.add_menu_item(__("Print Special Ticket"), () => {
+            window.print();
+        });
+
+        // 5. Override primary action button in header
+        frm.page.set_primary_action(__("Approve Task"), () => {
+            frm.set_value("status", "Completed");
+            frm.save();
+        }, "check");
+    }
+});
+```
+
+---
+
+### 8. Additional Form & Child Table Helpers (`frm.*`)
+
+```javascript
+// 1. Scoped RPC Call (Automatically passes doctype and docname parameters)
+frm.call("my_custom_app.tasks.process_task", { notify: 1 }).then(r => {
+    console.log("Server response:", r.message);
+});
+
+// 2. Programmatically fire form or field event handlers
+frm.trigger("status");
+
+// 3. Child Table Operations
+frm.clear_table("items"); // Remove all child rows
+let new_row = frm.add_child("items", {
+    item_code: "ITEM-001",
+    qty: 2
+});
+frm.refresh_field("items");
+
+// 4. Auto-Fetch related values from Link field
+// When 'customer' link field is selected, fetch 'territory' from Customer doc into 'territory' field
+frm.add_fetch("customer", "territory", "territory");
+
+// 5. Scroll viewport smoothly to field
+frm.scroll_to_field("closing_notes");
+
+// 6. Form Banner Intro
+frm.set_intro(__("Please review all mandatory fields before submitting."), "blue");
+
+// 7. Form Editing Controls
+frm.disable_save();   // Hide Save button
+frm.enable_save();    // Show Save button
+frm.disable_form();   // Make all fields read-only and disable save
+frm.enable_form();    // Re-enable editing
 ```
 
 ---

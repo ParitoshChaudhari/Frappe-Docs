@@ -120,27 +120,35 @@ Exhaustive alphabetical reference index of all public functions, methods, hooks,
 - [`frappe.cache()`](/16-cache-realtime-email-files/#1-redis-caching-api-frappe-cache) — Access site Redis Cache connection wrapper instance.
 - [`frappe.call()`](/11-client-api/#7-asynchronous-server-rpc-frappe-call) — Executes client-side AJAX RPC call to server method.
 - [`frappe.confirm()`](/11-client-api/#8-ui-dialogs-user-prompting-apis) — Displays client confirmation modal dialog.
-- [`frappe.datetime.add_days()`](/11-client-api/#date-time-helpers-frappe-datetime) — Client JS helper adding days to date.
-- [`frappe.datetime.add_months()`](/11-client-api/#date-time-helpers-frappe-datetime) — Client JS helper adding months to date.
-- [`frappe.datetime.get_diff()`](/11-client-api/#date-time-helpers-frappe-datetime) — Client JS helper calculating day difference between dates.
-- [`frappe.datetime.get_today()`](/11-client-api/#date-time-helpers-frappe-datetime) — Client JS helper returning today's date string.
-- [`frappe.datetime.now_datetime()`](/11-client-api/#date-time-helpers-frappe-datetime) — Client JS helper returning current datetime string.
+- [`frappe.copy_doc()`](/06-documents/#frappe-copy_doc) — Duplicates existing document in memory without saving to DB.
+- [`frappe.datetime.add_days()`](/19-utils/#2-client-side-javascript-datetime-utilities-frappe-datetime-frappe-utils) — Client JS helper adding days to date.
+- [`frappe.datetime.add_months()`](/19-utils/#2-client-side-javascript-datetime-utilities-frappe-datetime-frappe-utils) — Client JS helper adding months to date.
+- [`frappe.datetime.get_diff()`](/19-utils/#2-client-side-javascript-datetime-utilities-frappe-datetime-frappe-utils) — Client JS helper calculating day difference between dates.
+- [`frappe.datetime.get_today()`](/19-utils/#2-client-side-javascript-datetime-utilities-frappe-datetime-frappe-utils) — Client JS helper returning today's date string (`YYYY-MM-DD`).
+- [`frappe.datetime.now_datetime()`](/19-utils/#2-client-side-javascript-datetime-utilities-frappe-datetime-frappe-utils) — Client JS helper returning current datetime string.
+- [`frappe.datetime.pretty_date()`](/19-utils/#2-client-side-javascript-datetime-utilities-frappe-datetime-frappe-utils) — Client JS helper returning human-friendly relative date string.
+- [`frappe.datetime.str_to_user()`](/19-utils/#2-client-side-javascript-datetime-utilities-frappe-datetime-frappe-utils) — Client JS helper formatting system date string to active user format.
 - [`frappe.db.commit()`](/10-database/#database-transactions-commit-rollback-savepoint) — Explicitly commits current database transaction.
-- [`frappe.db.count()`](/10-database/#frappe-db-exists-frappe-db-count) — Counts matching database records without instantiating objects.
+- [`frappe.db.count()`](/10-database/#5-client-side-database-proxy-frappe-db-in-javascript) — Counts matching database records without instantiating objects (Server & Client JS).
 - [`frappe.db.delete()`](/10-database/#frappe-db-delete) — Performs direct SQL row deletion based on filter conditions.
-- [`frappe.db.delete_doc()`](/11-client-api/#4-client-side-database-apis-frappe-db-in-js) — Client-side Promise API deleting document record.
-- [`frappe.db.exists()`](/10-database/#frappe-db-exists-frappe-db-count) — Checks record existence in database (returns primary key name or `None`).
+- [`frappe.db.delete_doc()`](/10-database/#5-client-side-database-proxy-frappe-db-in-javascript) — Client-side Promise API deleting document record.
+- [`frappe.db.exists()`](/10-database/#5-client-side-database-proxy-frappe-db-in-javascript) — Checks record existence in database (Server & Client JS).
 - [`frappe.db.get_all()`](/09-server-api/#frappe-get-all-frappe-get-list) — Fetches record list bypassing user permissions.
-- [`frappe.db.get_doc()`](/11-client-api/#4-client-side-database-apis-frappe-db-in-js) — Client-side Promise API fetching document instance object.
-- [`frappe.db.get_list()`](/09-server-api/#frappe-get-all-frappe-get-list) — Fetches record list enforcing user permissions.
-- [`frappe.db.get_single_value()`](/10-database/#frappe-db-get_single_value) — Retrieves field value from Single DocType.
-- [`frappe.db.get_value()`](/10-database/#1-frappe-db-api-reference) — Queries single or multiple field values efficiently.
-- [`frappe.db.has_column()`](/10-database/#schema-inspection-maintenance-table_exists-has_column-touch) — Verifies table column existence in database.
-- [`frappe.db.insert()`](/11-client-api/#client-side-database-apis-frappe-db-in-javascript) — Client-side Promise document insertion API.
-- [`frappe.db.rollback()`](/10-database/#database-transactions-commit-rollback-savepoint) — Reverts pending database transaction.
-- [`frappe.db.set_value()`](/10-database/#1-frappe-db-api-reference) — Direct SQL field update bypassing validation hooks.
+- [`frappe.db.get_default()`](/10-database/#frappedbget_default-frappedbset_default) — Retrieves user/system default value setting.
+- [`frappe.db.get_doc()`](/10-database/#5-client-side-database-proxy-frappe-db-in-javascript) — Client-side Promise API fetching document instance object.
+- [`frappe.db.get_list()`](/10-database/#5-client-side-database-proxy-frappe-db-in-javascript) — Fetches record list enforcing user permissions (Server & Client JS).
+- [`frappe.db.get_single_value()`](/10-database/#frappedbget_values-frappedbget_single_value) — Retrieves field value from Single DocType.
+- [`frappe.db.get_value()`](/10-database/#5-client-side-database-proxy-frappe-db-in-javascript) — Queries single or multiple field values efficiently (Server & Client JS).
+- [`frappe.db.get_values()`](/10-database/#frappedbget_values-frappedbget_single_value) — Queries field values across multiple records.
+- [`frappe.db.has_column()`](/10-database/#schema-inspection-table_exists-has_column) — Verifies table column existence in database.
+- [`frappe.db.insert()`](/10-database/#5-client-side-database-proxy-frappe-db-in-javascript) — Client-side Promise document insertion API.
+- [`frappe.db.rollback()`](/10-database/#transaction-controls-frappedbsavepoint-frappedbrollback) — Reverts pending database transaction or rolls back to savepoint.
+- [`frappe.db.savepoint()`](/10-database/#transaction-controls-frappedbsavepoint-frappedbrollback) — Creates named database transaction savepoint.
+- [`frappe.db.set_default()`](/10-database/#frappedbget_default-frappedbset_default) — Sets user or system default setting value.
+- [`frappe.db.set_single_value()`](/10-database/#frappedbget_values-frappedbget_single_value) — Updates field value on Single DocType.
+- [`frappe.db.set_value()`](/10-database/#5-client-side-database-proxy-frappe-db-in-javascript) — Direct SQL field update bypassing validation hooks (Server & Client JS).
 - [`frappe.db.sql()`](/10-database/#frappe-db-sql-raw-sql-execution) — Executes raw SQL queries with mandatory parameter binding.
-- [`frappe.db.table_exists()`](/10-database/#schema-inspection-maintenance-table_exists-has_column-touch) — Verifies database table existence.
+- [`frappe.db.table_exists()`](/10-database/#schema-inspection-table_exists-has_column) — Verifies database table existence.
 - [`frappe.db.touch()`](/10-database/#schema-inspection-maintenance-table_exists-has_column-touch) — Updates document `modified` timestamp without field edits.
 - [`frappe.defaults.get_user_default()`](/14-authentication-permissions/#client-side-user-defaults-permissions-javascript) — Retrieves client user default setting.
 - [`frappe.defaults.get_user_permissions()`](/14-authentication-permissions/#client-side-user-defaults-permissions-javascript) — Retrieves user permission restrictions array.
@@ -148,6 +156,29 @@ Exhaustive alphabetical reference index of all public functions, methods, hooks,
 - [`frappe.format()`](/11-client-api/#5-client-schema-field-formatting-frappe-meta-frappe-format) — Universal field value formatter helper based on field metadata.
 - [`frappe.get_all()`](/09-server-api/#frappe-get-all-frappe-get-list) — Fetches records list bypassing user permissions.
 - [`frappe.get_cached_doc()`](/06-documents/#frappe-get-cached-doc) — Retrieves document from Redis cache.
+- [`frappe.model.can_create()`](/11-client-api/#6-client-model-memory-helpers-frappemodel) — Checks if active user has permission to create records for DocType.
+- [`frappe.model.can_delete()`](/11-client-api/#6-client-model-memory-helpers-frappemodel) — Checks if active user has delete permission for DocType.
+- [`frappe.model.can_read()`](/11-client-api/#6-client-model-memory-helpers-frappemodel) — Checks if active user has read permission for DocType.
+- [`frappe.model.can_submit()`](/11-client-api/#6-client-model-memory-helpers-frappemodel) — Checks if active user has submit permission for DocType.
+- [`frappe.model.can_write()`](/11-client-api/#6-client-model-memory-helpers-frappemodel) — Checks if active user has write/edit permission for DocType.
+- [`frappe.realtime.emit()`](/16-cache-realtime-email-files/#client-side-websockets-subscription-frapperealtime) — Emits client-side Socket.IO WebSockets event to server.
+- [`frappe.realtime.on()`](/16-cache-realtime-email-files/#client-side-websockets-subscription-frapperealtime) — Subscribes client-side Socket.IO WebSockets to server events.
+- [`frm.add_child()`](/11-client-api/#8-additional-form-child-table-helpers-frm) — Programmatically adds child table row on active form.
+- [`frm.add_fetch()`](/11-client-api/#8-additional-form-child-table-helpers-frm) — Configures auto-fetching of field values when Link field changes.
+- [`frm.clear_table()`](/11-client-api/#8-additional-form-child-table-helpers-frm) — Clears all rows from child table field on active form.
+- [`frm.disable_form()`](/11-client-api/#8-additional-form-child-table-helpers-frm) — Makes all fields read-only and disables save on form.
+- [`frm.disable_save()`](/11-client-api/#8-additional-form-child-table-helpers-frm) — Hides standard Save button on form.
+- [`frm.enable_form()`](/11-client-api/#8-additional-form-child-table-helpers-frm) — Re-enables form editing and inputs.
+- [`frm.enable_save()`](/11-client-api/#8-additional-form-child-table-helpers-frm) — Re-enables standard Save button on form.
+- [`frm.page.add_action_item()`](/11-client-api/#7-form-header-toolbar-controls-frmpage) — Adds custom action item into Desk Actions dropdown.
+- [`frm.page.add_inner_button()`](/11-client-api/#7-form-header-toolbar-controls-frmpage) — Adds secondary button into page inner toolbar.
+- [`frm.page.add_menu_item()`](/11-client-api/#7-form-header-toolbar-controls-frmpage) — Adds option into standard Menu dropdown.
+- [`frm.page.set_indicator()`](/11-client-api/#7-form-header-toolbar-controls-frmpage) — Sets colored status indicator badge in page header.
+- [`frm.page.set_primary_action()`](/11-client-api/#7-form-header-toolbar-controls-frmpage) — Overrides primary action button in page header.
+- [`frm.page.set_title()`](/11-client-api/#7-form-header-toolbar-controls-frmpage) — Sets dynamic page header title.
+- [`frm.scroll_to_field()`](/11-client-api/#8-additional-form-child-table-helpers-frm) — Scrolls viewport smoothly to specified field.
+- [`frm.set_intro()`](/11-client-api/#8-additional-form-child-table-helpers-frm) — Sets banner intro alert message at top of form.
+- [`frm.trigger()`](/11-client-api/#8-additional-form-child-table-helpers-frm) — Programmatically triggers form or field event handler.
 - [`frappe.get_cached_value()`](/16-cache-realtime-email-files/#high-performance-value-caching-frappe-get_cached_value) — Retrieves field value from Redis cache if present.
 - [`frappe.get_doc()`](/06-documents/#frappe-get-doc) — Instantiates Document ORM object from database or dictionary.
 - [`frappe.get_list()`](/09-server-api/#frappe-get-all-frappe-get-list) — Fetches records list enforcing active user permissions.

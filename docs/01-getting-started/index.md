@@ -23,7 +23,7 @@ Imagine Frappe as a modern apartment complex:
 
 | Layer | Technology | Key Responsibility | Why It Matters |
 | :--- | :--- | :--- | :--- |
-| **Database** | MariaDB 10.6+ / PostgreSQL 14+ | Persistent relational storage, automatic migrations | You define models in JSON; Frappe auto-creates SQL tables. |
+| **Database** | MariaDB 10.6+ *(primary & recommended)*; PostgreSQL 14+ *(experimental)* | Persistent relational storage, automatic migrations | You define models in JSON; Frappe auto-creates SQL tables. MariaDB is the only fully supported database. |
 | **Server** | Python 3.10+ / WSGI | Business logic, Document controllers, REST API, ORM | Clean, Pythonic backend code with auto-generated APIs. |
 | **In-Memory Cache & Queues** | Redis (Cache & Queue) | Session management, caching, RQ background workers | Keeps web requests fast by offloading heavy work to background workers. |
 | **Client Desk** | JavaScript (ES6+), jQuery, Vue 3 | Dynamic auto-generated UI, Form scripts, Controls | Renders beautiful, fully interactive forms directly from JSON schemas. |
@@ -123,6 +123,7 @@ Frappe is **multi-tenant**. A single bench instance can host multiple websites (
 ```bash
 bench new-site site1.localhost \
   --admin-password admin \
+  --mariadb-root-password root \
   --db-name site1_db
 ```
 

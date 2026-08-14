@@ -131,10 +131,14 @@ frappe.db.touch("Task", "TASK-2026-00001")
 
 ### `frappe.db.sql` (Raw SQL Execution)
 
-Executes raw SQL queries with mandatory parameterized variable binding to prevent SQL injection vulnerabilities.
+Executes raw SQL queries directly against the database. **Always use parameterized binding** to prevent SQL injection vulnerabilities.
+
+Frappe supports two binding styles:
+
+#### Style 1: Positional Parameters (`%s`)
 
 ```python
-# ALWAYS use SQL parameter binding (%s for MariaDB/PostgreSQL)!
+# Pass a tuple/list of values matching each %s placeholder in order
 result = frappe.db.sql("""
     SELECT name, subject, status
     FROM `tabTask`
@@ -142,13 +146,39 @@ result = frappe.db.sql("""
     ORDER BY creation DESC
 """, ("Open", "High"), as_dict=True)
 
-print("Fetched SQL Rows:", result)
-# Output:
-# Fetched SQL Rows: [{'name': 'TASK-2026-00001', 'subject': 'Fix Bug', 'status': 'Open'}]
+print(result)
+# Output: [{'name': 'TASK-2026-00001', 'subject': 'Fix Bug', 'status': 'Open'}]
+```
+
+#### Style 2: Named Parameters (`%(key)s`) — Recommended
+
+Named parameters improve readability and are safer for complex queries with many values because you cannot accidentally mix up the order.
+
+```python
+# Pass a dict where keys match the %(key)s placeholders in the SQL
+result = frappe.db.sql("""
+    SELECT name, subject, status
+    FROM `tabTask`
+    WHERE status = %(status)s
+      AND priority = %(priority)s
+      AND creation BETWEEN %(date_from)s AND %(date_to)s
+    ORDER BY creation DESC
+""", {
+    "status": "Open",
+    "priority": "High",
+    "date_from": "2026-01-01",
+    "date_to": "2026-12-31"
+}, as_dict=True)
 ```
 
 > [!CAUTION]
-> Never use Python string interpolation (`f"SELECT ... WHERE name = '{name}'"`) inside `frappe.db.sql()`! This creates critical SQL injection security vulnerabilities.
+> **NEVER** use Python string interpolation or f-strings to inject values into SQL. Both patterns below create critical **SQL injection vulnerabilities**:
+> ```python
+> # DANGEROUS — never do this:
+> frappe.db.sql(f"SELECT ... WHERE name = '{name}'")
+> frappe.db.sql("SELECT ... WHERE name = '%s'" % name)
+> ```
+> Always pass values through the `values` argument using `%s` or `%(key)s` placeholders.
 
 ---
 
@@ -266,6 +296,131 @@ data = query.run(as_dict=True)
 | **Applies Permissions** | Optional (`check_permission`) | Yes (`get_list`) / No (`get_all`) | Manual | Manual |
 | **Complex Joins / Subqueries**| No | Limited | Full Support | Full Support |
 | **Type Safety & Security** | Maximum | High | High (Injection-proof) | Requires Manual Binding |
+
+---
+
+### `frappe.db.get_values` & `frappe.db.get_single_value`
+
+Fetch values across multiple records or from Single DocTypes.
+
+```python
+# Fetch multiple fields across records
+tasks = frappe.db.get_values(
+    "Task",
+    {"status": "Open"},
+    ["name", "subject", "priority"],
+    as_dict=True
+)
+
+# Fetch field value from a Single DocType (e.g. System Settings)
+timezone = frappe.db.get_single_value("System Settings", "time_zone")
+frappe.db.set_single_value("System Settings", "time_zone", "UTC")
+```
+
+---
+
+### `frappe.db.get_default` & `frappe.db.set_default`
+
+Manage user or system defaults stored in Frappe.
+
+```python
+# Set a default fiscal year for the current session/user
+frappe.db.set_default("fiscal_year", "2026-2027")
+
+# Retrieve a default value
+fiscal_year = frappe.db.get_default("fiscal_year")
+```
+
+---
+
+### Transaction Controls: `frappe.db.savepoint` & `frappe.db.rollback`
+
+Manage nested transaction savepoints to safely execute risky operations with targeted rollback.
+
+```python
+try:
+    frappe.db.savepoint("before_bulk_update")
+    frappe.db.set_value("Task", "TASK-00001", "status", "Completed")
+    # Simulate partial failure
+    raise Exception("Something went wrong")
+except Exception:
+    # Revert database transaction back to the savepoint without cancelling the whole HTTP request
+    frappe.db.rollback(save_point="before_bulk_update")
+```
+
+---
+
+### Schema Inspection: `table_exists` & `has_column`
+
+Inspect the underlying database schema programmatically.
+
+```python
+# Check if table exists
+if frappe.db.table_exists("Task"):
+    print("Table tabTask exists")
+
+# Check if column exists on table
+if frappe.db.has_column("Task", "priority"):
+    columns = frappe.db.get_table_columns("Task")
+    print("Columns:", columns)
+```
+
+---
+
+## 5. Client-Side Database Proxy (`frappe.db` in JavaScript)
+
+In browser-side Client Scripts, `frappe.db` provides asynchronous, Promise-based helper functions that proxy database queries to the backend while enforcing user permissions.
+
+```javascript
+// 1. Fetch document by primary key
+frappe.db.get_doc("Task", "TASK-00001").then(doc => {
+    console.log("Fetched Task:", doc.subject);
+});
+
+// 2. Fetch specific field value
+frappe.db.get_value("Customer", "CUST-001", "customer_name").then(r => {
+    if (r && r.customer_name) {
+        console.log("Customer Name:", r.customer_name);
+    }
+});
+
+// 3. Fetch list of records
+frappe.db.get_list("Task", {
+    filters: { status: "Open" },
+    fields: ["name", "subject", "priority"],
+    limit: 10
+}).then(tasks => {
+    console.log("Open Tasks:", tasks);
+});
+
+// 4. Update field value directly from client
+frappe.db.set_value("Task", "TASK-00001", "status", "Completed").then(r => {
+    frappe.show_alert({ message: __("Task completed"), indicator: "green" });
+});
+
+// 5. Insert new document from client
+frappe.db.insert({
+    doctype: "Task",
+    subject: "Task created from client JS",
+    status: "Open"
+}).then(doc => {
+    console.log("Created doc name:", doc.name);
+});
+
+// 6. Check record existence and count records
+frappe.db.exists("Task", "TASK-00001").then(exists => {
+    console.log("Does task exist?:", exists);
+});
+
+frappe.db.count("Task", { status: "Open" }).then(count => {
+    console.log("Open Task Count:", count);
+});
+
+// 7. Delete document from client
+frappe.db.delete_doc("Task", "TASK-00001").then(() => {
+    frappe.show_alert("Task deleted");
+});
+```
 
 ---
 

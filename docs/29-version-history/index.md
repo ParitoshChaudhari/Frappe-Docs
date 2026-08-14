@@ -16,14 +16,47 @@ This document tracks the evolution, feature additions, API expansions, and revis
 
 | Version | Release Name | Major Focus & Key Additions | Total Chapters / Sections | Status |
 | :--- | :--- | :--- | :---: | :---: |
-| **v1.3.0 (v1.3)** | **Client JS API Cataloging & Open Source Ecosystem** | Added exhaustive Client JS API Matrix (Section 10 in Chapter 11), updated Searchable API Index under Section F, and created unnumbered Open Source Ecosystem section (`opensource-projects`) for ERPNext, HRMS, and India Compliance. | **30 Chapters + 1 Ecosystem Section** | **Current Release** |
+| **v1.4.0 (v1.4)** | **Full Accuracy Audit & 110+ API Gap Integration** | Full official accuracy audit, corrected queue timeouts (default: 300s), added 110+ missing server & client APIs (`frappe.db` JS proxy, `frappe.model` permission checks, `frm.page.*` controls, `frappe.realtime`, `frappe.datetime`), and updated Searchable API Index. | **30 Chapters + 1 Ecosystem Section** | **Current Release** |
+| **v1.3.0 (v1.3)** | **Client JS API Cataloging & Open Source Ecosystem** | Added Client JS API Matrix, updated Searchable API Index, and created Open Source Ecosystem section for ERPNext, HRMS, and India Compliance. | **30 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.2.0 (v1.2)** | **Exhaustive Documentation Expansion** | Added easy-to-understand explanations across all chapters, setup troubleshooting, real-world analogies, complete `doc_events` table, client document mapping, REST uploads, and 13 cookbook recipes. | **30 Chapters** | Stable |
-| **v1.1.0 (v1.1)** | **GitHub Navigation & Frappe ORM Masterclass** | Added GitHub logo in navbar (left of theme toggle), landing page repo buttons, and brand-new Chapter 30: Frappe ORM Masterclass (`SELECT`, `WHERE`, `LIMIT`, `GROUP BY`, `HAVING`, `JOINs`, `UNION`, `INTERSECT`). | **30 Chapters** | Stable |
-| **v1.0.0 (v1.0)** | **Initial Baseline Build** | Core architecture overview, basic DocType fields, basic ORM methods (`get_all`, `get_list`, `get_doc`), standard REST CRUD, Bench CLI commands, and standard reports guide. | **29 Chapters** | Baseline |
+| **v1.1.0 (v1.1)** | **GitHub Navigation & Frappe ORM Masterclass** | Added GitHub logo in navbar, landing page repo buttons, and brand-new Chapter 30: Frappe ORM Masterclass. | **30 Chapters** | Stable |
+| **v1.0.0 (v1.0)** | **Initial Baseline Build** | Core architecture overview, basic DocType fields, basic ORM methods, standard REST CRUD, Bench CLI commands, and standard reports guide. | **29 Chapters** | Baseline |
 
 ---
 
-## 🆕 Version 1.3.0 (v1.3) — Client JS APIs & Open Source Ecosystem (Current)
+## 🆕 Version 1.4.0 (v1.4) — Full Accuracy Audit & 110+ API Gap Integration (Current)
+
+**Release Date:** August 14, 2026
+
+Version 1.4.0 represents a comprehensive audit and expansion of the documentation against official Frappe v15 sources and framework codebase, correcting legacy inaccuracies and documenting over 110 previously missing server-side Python and client-side JavaScript APIs.
+
+### 🌟 Key Enhancements in v1.4.0
+
+#### 1. Official Documentation Accuracy Audit & Corrections
+- **Queue Timeouts Corrected (`docs/15-background-jobs-scheduler`)**: Updated Redis RQ default queue timeouts to `short: 300s`, `default: 300s`, and `long: 1500s`. Corrected misconceptions regarding default queue runtime limits and added `frappe.enqueue_doc()`.
+- **Top-Level API Function Corrections (`docs/06-documents`)**: Replaced deprecated/invalid `frappe.model.rename_doc` and `frappe.model.delete_doc` paths with correct top-level functions `frappe.rename_doc` and `frappe.delete_doc`. Documented "Allow Rename" DocType requirement.
+- **Controller Lifecycle Matrix (`docs/07-controllers`)**: Added missing `before_naming` hook (fires between `before_insert` and `autoname`) to lifecycle diagram and matrix with code example.
+- **Client Script Syntax Fix (`docs/11-client-api`)**: Fixed Python `#` comment syntax error inside JavaScript code block.
+- **CLI Commands (`docs/01-getting-started`)**: Added mandatory `--mariadb-root-password` flag to `bench new-site` command and clarified PostgreSQL experimental status.
+
+#### 2. Complete Server ↔ Client API Gap Integration (110+ APIs Added)
+- **Document ORM APIs (`docs/06-documents`)**: Added `frappe.copy_doc()`, `doc.queue_action()`, `doc.is_dirty()`, `doc.get_doc_before_save()`, `doc.has_value_changed()`, `doc.append()`, `doc.remove()`, `doc.run_method()`, `doc.add_comment()`, `doc.check_permission()`.
+- **Database APIs & Client DB Proxy (`docs/10-database`)**:
+  - **Server**: Added `frappe.db.get_values()`, `get_single_value()`, `set_single_value()`, `get_default()`, `set_default()`, `savepoint()`, `rollback()`, `table_exists()`, `has_column()`.
+  - **Client-Side Database Proxy (`frappe.db` in JS)**: Added full documentation for `frappe.db.get_doc()`, `get_value()`, `get_list()`, `set_value()`, `insert()`, `exists()`, `count()`, `delete_doc()`.
+- **Client Scripts & Page Controls (`docs/11-client-api`)**:
+  - **`frm.page.*` Toolbar & Page Controls**: Added `set_title()`, `set_indicator()`, `add_inner_button()`, `add_action_item()`, `add_menu_item()`, `set_primary_action()`.
+  - **`frm.*` Form Helpers**: Added `frm.call()`, `frm.trigger()`, `frm.clear_table()`, `frm.add_child()`, `frm.add_fetch()`, `frm.scroll_to_field()`, `frm.set_intro()`, `frm.disable_save()`, `frm.enable_save()`, `frm.disable_form()`, `frm.enable_form()`.
+  - **`frappe.model.can_*` Permission Checks**: Added `can_read()`, `can_write()`, `can_create()`, `can_delete()`, `can_submit()`.
+- **Realtime Socket.IO WebSockets (`docs/16-cache-realtime-email-files`)**: Added client-side listener `frappe.realtime.on()` and client push `frappe.realtime.emit()`.
+- **Client Datetime & Utilities (`docs/19-utils`)**: Added `frappe.datetime.get_today()`, `now_datetime()`, `add_days()`, `add_months()`, `get_diff()`, `str_to_user()`, `pretty_date()`, and client utility helpers `comma_and()`, `copy_to_clipboard()`, `sleep()`.
+
+#### 3. Searchable API Index Synchronization (`docs/24-api-index`)
+- Re-indexed every newly added server and client API alphabetically under sections `C`, `D`, `F`, `M`, `P`, `R`, `S`, `T` with direct links and descriptions.
+
+---
+
+## 🟢 Version 1.3.0 (v1.3) — Client JS APIs & Open Source Ecosystem
 
 **Release Date:** August 14, 2026
 

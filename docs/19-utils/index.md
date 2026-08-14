@@ -36,7 +36,26 @@ days_remaining = date_diff(due_date, start_date) # 30
 
 ---
 
-## 2. Type Conversion & Safe Casting
+## 2. Client-Side JavaScript Datetime & Utilities (`frappe.datetime` & `frappe.utils`)
+
+In browser scripts, Frappe provides `frappe.datetime` for date calculations and formatting without server calls.
+
+| Function | Description | Example |
+| :--- | :--- | :--- |
+| `frappe.datetime.get_today()` | Returns current date (`YYYY-MM-DD`) | `let today = frappe.datetime.get_today();` |
+| `frappe.datetime.now_datetime()` | Returns current datetime string | `let now = frappe.datetime.now_datetime();` |
+| `frappe.datetime.add_days(date, n)` | Adds/subtracts N days from date string | `let due = frappe.datetime.add_days(today, 7);` |
+| `frappe.datetime.add_months(date, n)` | Adds/subtracts N months from date string | `let next_month = frappe.datetime.add_months(today, 1);` |
+| `frappe.datetime.get_diff(d1, d2)` | Day difference (`d1 - d2`) | `let diff = frappe.datetime.get_diff("2026-12-31", today);` |
+| `frappe.datetime.str_to_user(date)` | Converts `YYYY-MM-DD` to user's date format | `let user_fmt = frappe.datetime.str_to_user(today);` |
+| `frappe.datetime.pretty_date(date)` | Returns relative time string (e.g. "2 hours ago") | `let ago = frappe.datetime.pretty_date("2026-08-14 10:00:00");` |
+| `frappe.utils.comma_and(array)` | Formats array into human string ("A, B and C") | `let txt = frappe.utils.comma_and(["Apple", "Banana", "Orange"]);` |
+| `frappe.utils.copy_to_clipboard(val)` | Copies text to system clipboard | `frappe.utils.copy_to_clipboard("Text to copy");` |
+| `frappe.utils.sleep(ms)` | Async Promise sleep delay | `await frappe.utils.sleep(1000);` |
+
+---
+
+## 3. Type Conversion & Safe Casting
 
 | Function | Signature | Return Type | Behavior on Failure |
 | :--- | :--- | :--- | :--- |
