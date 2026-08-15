@@ -16,7 +16,8 @@ This document tracks the evolution, feature additions, API expansions, and revis
 
 | Version | Release Name | Major Focus & Key Additions | Total Chapters / Sections | Status |
 | :--- | :--- | :--- | :---: | :---: |
-| **v1.4.0 (v1.4)** | **Full Accuracy Audit & 110+ API Gap Integration** | Full official accuracy audit, corrected queue timeouts (default: 300s), added 110+ missing server & client APIs (`frappe.db` JS proxy, `frappe.model` permission checks, `frm.page.*` controls, `frappe.realtime`, `frappe.datetime`), and updated Searchable API Index. | **30 Chapters + 1 Ecosystem Section** | **Current Release** |
+| **v1.5.0 (v1.5)** | **Sub-Heading TOC Navigation, Complete Notifications & Navbar Search Expansion** | Added deep sub-heading navigation (`outline: [2, 6]`), complete System Notification & Email Notification guides (Desk Bell, Toasts, Msgprint, Confirm, Prompt, Rule Notifications, Email API), and expanded navbar search bar up to 560px. | **30 Chapters + 1 Ecosystem Section** | **Current Release** |
+| **v1.4.0 (v1.4)** | **Full Accuracy Audit & 110+ API Gap Integration** | Full official accuracy audit, corrected queue timeouts (default: 300s), added 110+ missing server & client APIs (`frappe.db` JS proxy, `frappe.model` permission checks, `frm.page.*` controls, `frappe.realtime`, `frappe.datetime`), and updated Searchable API Index. | **30 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.3.0 (v1.3)** | **Client JS API Cataloging & Open Source Ecosystem** | Added Client JS API Matrix, updated Searchable API Index, and created Open Source Ecosystem section for ERPNext, HRMS, and India Compliance. | **30 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.2.0 (v1.2)** | **Exhaustive Documentation Expansion** | Added easy-to-understand explanations across all chapters, setup troubleshooting, real-world analogies, complete `doc_events` table, client document mapping, REST uploads, and 13 cookbook recipes. | **30 Chapters** | Stable |
 | **v1.1.0 (v1.1)** | **GitHub Navigation & Frappe ORM Masterclass** | Added GitHub logo in navbar, landing page repo buttons, and brand-new Chapter 30: Frappe ORM Masterclass. | **30 Chapters** | Stable |
@@ -24,7 +25,33 @@ This document tracks the evolution, feature additions, API expansions, and revis
 
 ---
 
-## 🆕 Version 1.4.0 (v1.4) — Full Accuracy Audit & 110+ API Gap Integration (Current)
+## 🆕 Version 1.5.0 (v1.5) — Sub-Heading TOC Navigation, Complete Notifications & Navbar Search Expansion (Current)
+
+**Release Date:** August 15, 2026
+
+Version 1.5.0 introduces deep right-side Table of Contents (TOC) sub-heading navigation, a complete multi-layered reference for System & Email Notifications, and an expanded top navbar search bar layout.
+
+### 🌟 Key Enhancements in v1.5.0
+
+#### 1. Deep Sub-Heading TOC Navigation (`outline: [2, 6]`)
+- **Right Sidebar Sub-Heading Support (`docs/.vitepress/config.mjs`)**: Configured `themeConfig.outline` to `level: [2, 6]`.
+- **Sub-Section Anchoring**: Users can now view and click all sub-headings (`###`, `####`, `#####`, `######`) directly from the right-hand "On this page" sidebar to jump straight to specific sub-parts of any documentation page.
+
+#### 2. Complete System & Email Notifications Guide (`docs/16-cache-realtime-email-files`)
+- **In-App Desk Bell Notifications (`Notification Log` DocType)**: Server-side Python code to trigger persistent bell notifications, user mentions, assignments, and doc sharing.
+- **Desk Toast Alerts (`frappe.show_alert`)**: Client-Side JS toast notifications with indicator colors (`green`, `blue`, `orange`, `red`), display durations, and custom action links.
+- **Dialog Alerts & Popups (`frappe.msgprint` & `frappe.throw`)**: Server & Client informational popup dialogs, primary action buttons, non-blocking vs modal popups, and exception throwing (`frappe.throw`).
+- **Interactive Confirmation & Prompt Modals (`frappe.confirm` & `frappe.prompt`)**: Client-side JS confirmation modals and dynamic multi-field prompts for user input before executing actions.
+- **Rule-Based Automatic Notifications (`Notification` DocType)**: Document event-triggered notifications (New, Save, Submit, Cancel, Value Change) sent via Email, System Bell, Slack, or WhatsApp webhooks.
+- **Transactional Email API (`frappe.sendmail` & `Communication`)**: Standard & HTML emails, Jinja Templated emails, PDF Print Format attachments, async background queuing (`now=False`), and Communication timeline logging.
+- **Notification Type Summary Matrix**: Comprehensive comparison table covering triggers, target audience, visual presentation, and primary use cases.
+
+#### 3. Expanded Navbar Search Bar (`docs/.vitepress/theme/custom.css`)
+- **Expanded Width**: Custom CSS for `.VPNavBarSearch` and `.VPNavBarSearchButton` to expand the navbar search bar width up to **560px** on desktop (`1280px+`), **480px** on laptops (`1024px+`), and **360px** on tablets (`768px+`).
+
+---
+
+## 🟢 Version 1.4.0 (v1.4) — Full Accuracy Audit & 110+ API Gap Integration
 
 **Release Date:** August 14, 2026
 

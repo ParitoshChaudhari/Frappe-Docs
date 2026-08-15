@@ -19,6 +19,11 @@ export default defineConfig({
     siteTitle: 'Frappe v15 Reference',
     logo: '/logo.svg',
     
+    outline: {
+      level: [2, 6],
+      label: 'On this page'
+    },
+    
     socialLinks: [
       { icon: 'github', link: 'https://github.com/ParitoshChaudhari/Frappe-Docs' }
     ],
@@ -63,7 +68,7 @@ export default defineConfig({
           { text: '10. Database, ORM & Query Builder', link: '/10-database/' },
           { text: '30. Frappe ORM Masterclass', link: '/30-frappe-orm/' },
           { text: '15. Background Jobs & Scheduler', link: '/15-background-jobs-scheduler/' },
-          { text: '16. Cache, Realtime, Email & Files', link: '/16-cache-realtime-email-files/' },
+          { text: '16. Cache, Realtime, Notifications, Email & Files', link: '/16-cache-realtime-email-files/' },
           { text: '19. Utilities Reference (frappe.utils)', link: '/19-utils/' }
         ]
       },
