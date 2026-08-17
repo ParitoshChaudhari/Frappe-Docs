@@ -1,6 +1,6 @@
 # Frappe Framework v15 Complete Developer Documentation & Reference
 
-[![Documentation Version](https://img.shields.io/badge/version-v1.6.0-blue.svg)](https://github.com/ParitoshChaudhari/Frappe-Docs)
+[![Documentation Version](https://img.shields.io/badge/version-v1.7.0-blue.svg)](https://github.com/ParitoshChaudhari/Frappe-Docs)
 [![Frappe Framework](https://img.shields.io/badge/frappe-v15-0052CC.svg)](https://frappeframework.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -12,6 +12,7 @@ A fast, lightweight, static-first developer documentation website and technical 
 
 ## 🌟 Key Features & Documentation Highlights
 
+- **Exhaustive Bench CLI Reference Expansion**: Added `bench --site <site-name> list-apps`, `bench list-sites`, `bench set-admin-password`, `bench mariadb`/`postgres`, `bench reset-perms`, `bench scheduler` (`status`, `enable`, `disable`), `bench build-search-index`, `bench remove-app`, `bench update`, `bench restart`, `bench setup`, `bench doctor`, `bench worker`, `bench schedule`, and `bench version`.
 - **Chapter 31: Frappe Data Types & Custom Containers Reference**: Comprehensive reference covering `frappe._dict` (dot-accessible dictionary, KeyError safety, parameter typing), `Document` ORM classes, `DF` synthetic IDE type stubs (`frappe.types`), `frappe.form_dict`, thread-local `frappe.local` context, DB query return types, null-safe primitives (`cint`, `flt`, `cstr`), and developer type annotation cheat sheets.
 - **Open Source Ecosystem**: Dedicated unnumbered section (`opensource-projects`) providing project tables, descriptions, GitHub links, and Bench CLI installation commands for **ERPNext**, **Frappe HR (HRMS)**, and **India Compliance**.
 - **Exhaustive Client Script JS API Matrix**: Detailed reference in Chapter 11 for missing client script methods (`frm.trigger()`, `frm.refresh_fields()`, `frappe.msgprint`, `frappe.warn`, `frappe.show_progress`, `frappe.get_route`, `frappe.db.*`, `frappe.meta.*`, `frappe.format`, `frappe.model.*`, `frappe.ui.form.MultiSelectDialog`).
@@ -70,7 +71,8 @@ Static HTML, CSS, JavaScript, and local full-text search indexes will be generat
 
 | Version | Release Stage | Highlights |
 | :--- | :--- | :--- |
-| **v1.6.0 (v1.6)** | **Current Release** | Added Chapter 31: Frappe Data Types & Custom Containers Reference (`frappe._dict`, `Document`, `DF` type stubs, `frappe.local`, query return types, null-safe primitives, type annotation cheat sheet). |
+| **v1.7.0 (v1.7)** | **Current Release** | Added `bench --site <site-name> list-apps`, `list-sites`, `remove-app`, `set-admin-password`, `mariadb`/`postgres`, `reset-perms`, `scheduler`, `build-search-index`, `update`, `restart`, `setup`, `doctor`, `worker`/`schedule`, `version`, and updated API Index. |
+| **v1.6.0 (v1.6)** | **Data Types & Custom Containers** | Added Chapter 31: Frappe Data Types & Custom Containers Reference (`frappe._dict`, `Document`, `DF` type stubs, `frappe.local`, query return types, null-safe primitives, type annotation cheat sheet). |
 | **v1.5.0 (v1.5)** | **Notifications & Search** | Added sub-heading TOC navigation (`outline: [2, 6]`), complete System & Email Notifications guide, and expanded navbar search bar to 560px. |
 | **v1.4.0 (v1.4)** | **Accuracy Audit & 110+ APIs** | Full official accuracy audit, corrected queue timeouts, added 110+ missing APIs (`frappe.db` JS proxy, `frm.page.*`, `frappe.realtime`), and updated API Index. |
 | **v1.3.0 (v1.3)** | **Client JS & Ecosystem** | Added Client JS API Matrix, updated Searchable API Index, and created Open Source Ecosystem section for ERPNext, HRMS, and India Compliance. |
@@ -86,7 +88,7 @@ For detailed revision history, see [Version History & Changelog](docs/29-version
 
 ```text
 frappe-docs/
-├── package.json                          # Package scripts & dependencies (v1.6.0)
+├── package.json                          # Package scripts & dependencies (v1.7.0)
 ├── README.md                             # Project documentation & guide
 └── docs/
     ├── .vitepress/

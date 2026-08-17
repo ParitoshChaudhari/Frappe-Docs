@@ -16,7 +16,8 @@ This document tracks the evolution, feature additions, API expansions, and revis
 
 | Version | Release Name | Major Focus & Key Additions | Total Chapters / Sections | Status |
 | :--- | :--- | :--- | :---: | :---: |
-| **v1.6.0 (v1.6)** | **Frappe Data Types, Custom Containers (`frappe._dict`) & Type System Reference** | Added Chapter 31: Frappe Data Types & Custom Containers Reference (`frappe._dict`, `Document`, `DF` type stubs, `frappe.local`, query return types, null-safe primitives, type annotation cheat sheet). | **31 Chapters + 1 Ecosystem Section** | **Current Release** |
+| **v1.7.0 (v1.7)** | **Bench CLI Expansion & Comprehensive Command Coverage** | Added `bench --site <site-name> list-apps`, `list-sites`, `remove-app`, `set-admin-password`, `mariadb`/`postgres`, `reset-perms`, `scheduler`, `build-search-index`, `update`, `restart`, `setup`, `doctor`, `worker`/`schedule`, `version`, and updated API Index. | **31 Chapters + 1 Ecosystem Section** | **Current Release** |
+| **v1.6.0 (v1.6)** | **Frappe Data Types, Custom Containers (`frappe._dict`) & Type System Reference** | Added Chapter 31: Frappe Data Types & Custom Containers Reference (`frappe._dict`, `Document`, `DF` type stubs, `frappe.local`, query return types, null-safe primitives, type annotation cheat sheet). | **31 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.5.0 (v1.5)** | **Sub-Heading TOC Navigation, Complete Notifications & Navbar Search Expansion** | Added deep sub-heading navigation (`outline: [2, 6]`), complete System Notification & Email Notification guides (Desk Bell, Toasts, Msgprint, Confirm, Prompt, Rule Notifications, Email API), and expanded navbar search bar up to 560px. | **30 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.4.0 (v1.4)** | **Full Accuracy Audit & 110+ API Gap Integration** | Full official accuracy audit, corrected queue timeouts (default: 300s), added 110+ missing server & client APIs (`frappe.db` JS proxy, `frappe.model` permission checks, `frm.page.*` controls, `frappe.realtime`, `frappe.datetime`), and updated Searchable API Index. | **30 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.3.0 (v1.3)** | **Client JS API Cataloging & Open Source Ecosystem** | Added Client JS API Matrix, updated Searchable API Index, and created Open Source Ecosystem section for ERPNext, HRMS, and India Compliance. | **30 Chapters + 1 Ecosystem Section** | Stable |
@@ -26,7 +27,28 @@ This document tracks the evolution, feature additions, API expansions, and revis
 
 ---
 
-## 🆕 Version 1.6.0 (v1.6) — Frappe Data Types, Custom Containers (`frappe._dict`) & Type System Reference (Current)
+## 🆕 Version 1.7.0 (v1.7) — Bench CLI Expansion & Comprehensive Command Coverage (Current)
+
+**Release Date:** August 17, 2026
+
+Version 1.7.0 expands the **Bench CLI Command Reference (Chapter 03)** with exhaustive command parameters, flags, real-world syntax examples, and synchronizes the global Searchable API Index.
+
+### 🌟 Key Enhancements in v1.7.0
+
+#### 1. Detailed Site App Inspection (`bench --site <site-name> list-apps`)
+- **Site-Level App Listing**: Documented `bench --site <site-name> list-apps` to list installed applications per site database context alongside `bench list-apps` for bench environment installed applications.
+
+#### 2. Comprehensive Bench CLI Commands Expansion (Chapter 03)
+- **Site Management Commands**: Added `bench list-sites`, `bench set-admin-password`, `bench mariadb` / `bench postgres` CLI interactive shell prompts, `bench reset-perms`, `bench scheduler` (`status`, `enable`, `disable`), and `bench build-search-index`.
+- **App Lifecycle Commands**: Added `bench remove-app` to remove application directories and uninstall Python packages from the virtual environment.
+- **Operations & Production Services**: Added `bench update` (`--pull`, `--patch`, `--requirements`), `bench restart`, `bench setup` (`production`, `nginx`, `add-domain`, `remove-domain`), `bench doctor`, `bench worker` & `bench schedule`, and `bench version`.
+
+#### 3. Searchable API Index Synchronization (Chapter 24)
+- **Global Index Integration**: Added all 13 newly documented Bench CLI commands under Section **B** in [`docs/24-api-index/index.md`](/24-api-index/) with direct deep links.
+
+---
+
+## 🟢 Version 1.6.0 (v1.6) — Frappe Data Types, Custom Containers (`frappe._dict`) & Type System Reference
 
 **Release Date:** August 17, 2026
 

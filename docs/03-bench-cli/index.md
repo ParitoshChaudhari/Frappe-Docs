@@ -1,6 +1,6 @@
 ---
 title: Bench CLI Reference for Frappe v15
-description: Complete reference for Bench CLI commands - init, new-site, new-app, install-app, migrate, update, build, console, execute, and troubleshooting.
+description: Complete reference for Bench CLI commands - init, new-site, list-apps, install-app, migrate, update, build, mariadb, console, execute, setup, and troubleshooting.
 version: v15
 category: Overview & Basics
 status: Stable
@@ -40,6 +40,16 @@ bench init --frappe-branch version-15 --python python3.11 frappe-bench
 
 ---
 
+### `bench version`
+
+Displays current versions of `bench` CLI tool and all installed Frappe applications in the bench.
+
+```bash
+bench version
+```
+
+---
+
 ## 2. Site Management Commands
 
 ### `bench new-site`
@@ -62,6 +72,16 @@ bench new-site [options] <site-name>
 ```bash
 # Example
 bench new-site site1.localhost --admin-password admin --db-name site1_db
+```
+
+---
+
+### `bench list-sites`
+
+Lists all sites configured in the current bench environment (`sites/` directory).
+
+```bash
+bench list-sites
 ```
 
 ---
@@ -115,6 +135,21 @@ bench --site site1.localhost set-config maintenance_mode 0
 
 ---
 
+### `bench set-admin-password`
+
+Updates the `Administrator` user password for a specified site directly.
+
+```bash
+bench --site <site-name> set-admin-password <new-password>
+```
+
+```bash
+# Example
+bench --site site1.localhost set-admin-password new_secure_password
+```
+
+---
+
 ### `bench reinstall`
 
 Wipes all existing site data and reinstalls a clean database for the site.
@@ -162,6 +197,57 @@ bench --site site1.localhost clear-cache
 
 ---
 
+### `bench mariadb` / `bench postgres`
+
+Opens an interactive CLI database prompt (MariaDB or PostgreSQL) pre-authenticated with site credentials.
+
+```bash
+# Connect to MariaDB CLI prompt for site1.localhost
+bench --site site1.localhost mariadb
+
+# Connect to PostgreSQL CLI prompt (for Postgres sites)
+bench --site site1.localhost postgres
+```
+
+---
+
+### `bench reset-perms`
+
+Resets user permissions for all DocTypes on a site back to standard definition defaults configured in code.
+
+```bash
+bench --site site1.localhost reset-perms
+```
+
+---
+
+### `bench scheduler`
+
+Enables, disables, or checks the status of the background task job scheduler for a site.
+
+```bash
+# Check scheduler status
+bench --site site1.localhost scheduler status
+
+# Enable background job scheduler
+bench --site site1.localhost scheduler enable
+
+# Disable background job scheduler
+bench --site site1.localhost scheduler disable
+```
+
+---
+
+### `bench build-search-index`
+
+Rebuilds the global full-text search index for a site database.
+
+```bash
+bench --site site1.localhost build-search-index
+```
+
+---
+
 ## 3. App Lifecycle Commands
 
 ### `bench new-app`
@@ -171,6 +257,8 @@ Generates the boilerplate directory structure for a new Frappe v15 application.
 ```bash
 bench new-app <app-name>
 ```
+
+---
 
 ### `bench get-app`
 
@@ -184,6 +272,32 @@ bench get-app <git-url-or-app-name> [--branch <branch-name>]
 # Example
 bench get-app https://github.com/frappe/erpnext --branch version-15
 ```
+
+---
+
+### `bench list-apps` / `bench --site list-apps`
+
+Lists all applications installed in the bench environment or on a specific site database.
+
+```bash
+# List all apps installed on a specific site
+bench --site <site-name> list-apps
+
+# List all apps installed in the bench environment
+bench list-apps
+```
+
+```bash
+# Example: List apps installed on site1.localhost
+bench --site site1.localhost list-apps
+
+# Output:
+# frappe
+# erpnext
+# hrms
+```
+
+---
 
 ### `bench install-app` / `bench uninstall-app`
 
@@ -199,6 +313,21 @@ bench --site site1.localhost uninstall-app erpnext
 
 ---
 
+### `bench remove-app`
+
+Completely removes an app from the bench environment and uninstalls it from the Python virtual environment.
+
+```bash
+bench remove-app <app-name>
+```
+
+```bash
+# Example
+bench remove-app my_custom_app
+```
+
+---
+
 ## 4. Development & Process Commands
 
 ### `bench start`
@@ -208,6 +337,8 @@ Starts all development server processes defined in `Procfile` (WSGI server, Redi
 ```bash
 bench start
 ```
+
+---
 
 ### `bench build`
 
@@ -222,6 +353,77 @@ bench build --watch
 
 # Build specific app assets
 bench build --app my_custom_app
+```
+
+---
+
+### `bench update`
+
+Updates the bench environment, pulls latest git changes for all apps, runs database migrations, and rebuilds frontend static assets.
+
+```bash
+# Full update (git pull, migrate, build assets)
+bench update
+
+# Run database migrations and rebuild assets only (skip git pull)
+bench update --patch
+
+# Update Python and Node package dependencies only
+bench update --requirements
+```
+
+---
+
+### `bench restart`
+
+Restarts production services (Supervisor, Gunicorn WSGI processes, background workers) running for the bench.
+
+```bash
+bench restart
+```
+
+---
+
+### `bench setup`
+
+Generates infrastructure and web server configuration files (Nginx, Supervisor, Let's Encrypt SSL, domain routing).
+
+```bash
+# Setup production environment (Nginx & Supervisor) for a system user
+sudo bench setup production <user>
+
+# Generate Nginx web server configuration
+bench setup nginx
+
+# Map a custom domain name to a site
+bench setup add-domain --site site1.localhost example.com
+
+# Remove custom domain mapping
+bench setup remove-domain --site site1.localhost example.com
+```
+
+---
+
+### `bench doctor`
+
+Inspects bench environment health, worker process status, Redis queue connection state, and stuck background jobs.
+
+```bash
+bench doctor
+```
+
+---
+
+### `bench worker` & `bench schedule`
+
+Runs background RQ worker queues and schedule runner in standalone background process mode.
+
+```bash
+# Start background worker handling short, default, and long queues
+bench worker --queue short,default,long
+
+# Start background periodic task scheduler
+bench schedule
 ```
 
 ---
@@ -242,6 +444,8 @@ In [1]: frappe.db.get_value("User", "Administrator", "email")
 Out[1]: 'admin@example.com'
 ```
 
+---
+
 ### `bench execute`
 
 Executes a specific Python dotted path function directly from terminal.
@@ -254,6 +458,8 @@ bench --site site1.localhost execute <python.dotted.path.function_name> [--args 
 # Example: Trigger daily scheduled tasks manually
 bench --site site1.localhost execute frappe.celery.nightly.daily
 ```
+
+---
 
 ### `bench run-tests`
 
@@ -286,3 +492,4 @@ bench new-site site1.localhost --root-password YOUR_MARIADB_ROOT_PASSWORD
 
 - [01. Getting Started](/01-getting-started/)
 - [04. Apps & Sites Structure](/04-apps-and-sites/)
+

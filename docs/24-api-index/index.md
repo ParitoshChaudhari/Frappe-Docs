@@ -51,10 +51,11 @@ Exhaustive alphabetical reference index of all public functions, methods, hooks,
 - [`before_submit()`](/07-controllers/#2-complete-lifecycle-events-reference-matrix) <span class="badge server">Server</span> — Controller hook executed prior to document submission checks.
 - [`before_trash()`](/07-controllers/#2-complete-lifecycle-events-reference-matrix) <span class="badge server">Server</span> — Controller hook executed prior to starting document deletion.
 - [`bench backup`](/03-bench-cli/#bench-backup-bench-restore) <span class="badge server">Server</span> — Backup site database, public files, and private attachments.
-- [`bench build`](/03-bench-cli/#4-development-process-commands) <span class="badge server">Server</span> — Compile static frontend assets (JS/CSS) using Esbuild.
+- [`bench build`](/03-bench-cli/#bench-build) <span class="badge server">Server</span> — Compile static frontend assets (JS/CSS) using Esbuild.
+- [`bench build-search-index`](/03-bench-cli/#bench-build-search-index) <span class="badge server">Server</span> — Rebuild global search index for site database.
 - [`bench clear-cache`](/03-bench-cli/#bench-clear-cache-bench-clear-website-cache) <span class="badge server">Server</span> — Flush Redis site cache, session keys, and Jinja web pages.
 - [`bench console`](/03-bench-cli/#bench-console) <span class="badge server">Server</span> — Launch interactive IPython REPL pre-loaded with Frappe site context.
-- [`bench doctor`](/03-bench-cli/#4-monitoring-background-jobs-workers) <span class="badge server">Server</span> — Monitor status of Redis queues, workers, and background jobs.
+- [`bench doctor`](/03-bench-cli/#bench-doctor) <span class="badge server">Server</span> — Monitor status of Redis queues, workers, and background jobs.
 - [`bench drop-site`](/03-bench-cli/#bench-drop-site) <span class="badge server">Server</span> — Delete a site directory and drop its associated MariaDB/PostgreSQL database.
 - [`bench execute`](/03-bench-cli/#bench-execute) <span class="badge server">Server</span> — Run Python dotted path function directly from CLI terminal.
 - [`bench export-fixtures`](/03-bench-cli/#bench-export-fixtures) <span class="badge server">Server</span> — Export JSON fixtures configured in `hooks.py` into application directory.
@@ -63,17 +64,28 @@ Exhaustive alphabetical reference index of all public functions, methods, hooks,
 - [`bench get-untranslated`](/19-utils/#translation-csv-files-cli-commands) <span class="badge server">Server</span> — Extract untranslated strings into language CSV file.
 - [`bench init`](/03-bench-cli/#1-bench-initialization-environment-commands) <span class="badge server">Server</span> — Initialize new Bench environment directory with Python virtualenv.
 - [`bench install-app`](/03-bench-cli/#bench-install-app-bench-uninstall-app) <span class="badge server">Server</span> — Install Frappe application onto target site database.
+- [`bench list-apps`](/03-bench-cli/#bench-list-apps-bench--site-list-apps) <span class="badge server">Server</span> — List applications installed in bench or on a specific site.
+- [`bench list-sites`](/03-bench-cli/#bench-list-sites) <span class="badge server">Server</span> — List all site directories configured in bench workspace.
+- [`bench mariadb`](/03-bench-cli/#bench-mariadb-bench-postgres) <span class="badge server">Server</span> — Open interactive MariaDB database prompt pre-connected to site.
 - [`bench migrate`](/03-bench-cli/#bench-migrate) <span class="badge server">Server</span> — Execute database schema migrations, patches, and sync DocType schemas.
 - [`bench new-app`](/03-bench-cli/#3-app-lifecycle-commands) <span class="badge server">Server</span> — Generate boilerplate directory structure for a new Frappe app.
 - [`bench new-site`](/03-bench-cli/#2-site-management-commands) <span class="badge server">Server</span> — Create new site with fresh MariaDB/PostgreSQL database.
 - [`bench reinstall`](/03-bench-cli/#bench-reinstall) <span class="badge server">Server</span> — Wipe existing site database and reinstall clean initial schema.
+- [`bench remove-app`](/03-bench-cli/#bench-remove-app) <span class="badge server">Server</span> — Remove application directory and uninstall package from virtualenv.
+- [`bench reset-perms`](/03-bench-cli/#bench-reset-perms) <span class="badge server">Server</span> — Reset site DocType permissions to standard code defaults.
+- [`bench restart`](/03-bench-cli/#bench-restart) <span class="badge server">Server</span> — Restart production background workers, Gunicorn, and supervisor services.
 - [`bench restore`](/03-bench-cli/#bench-backup-bench-restore) <span class="badge server">Server</span> — Restore site database and file archives from SQL dump.
 - [`bench run-tests`](/03-bench-cli/#bench-run-tests) <span class="badge server">Server</span> — Execute unittest suite for installed applications.
+- [`bench scheduler`](/03-bench-cli/#bench-scheduler) <span class="badge server">Server</span> — Enable, disable, or check status of background job scheduler.
+- [`bench set-admin-password`](/03-bench-cli/#bench-set-admin-password) <span class="badge server">Server</span> — Change Administrator account password on site.
 - [`bench set-config`](/03-bench-cli/#bench-set-config-bench-get-config) <span class="badge server">Server</span> — Modify `site_config.json` configuration values programmatically.
+- [`bench setup`](/03-bench-cli/#bench-setup) <span class="badge server">Server</span> — Configure production services, Nginx, Supervisor, and domain routes.
 - [`bench start`](/03-bench-cli/#4-development-process-commands) <span class="badge server">Server</span> — Start all development background processes defined in Procfile.
+- [`bench update`](/03-bench-cli/#bench-update) <span class="badge server">Server</span> — Update bench repositories, run migrations, and rebuild static assets.
 - [`bench update-translations`](/19-utils/#translation-csv-files-cli-commands) <span class="badge server">Server</span> — Sync and update application translation CSV files.
 - [`bench use`](/03-bench-cli/#bench-use) <span class="badge server">Server</span> — Set default active site for subsequent bench commands.
-- [`bench worker`](/15-background-jobs-scheduler/#4-monitoring-background-jobs-workers) <span class="badge server">Server</span> — Start background RQ worker process daemon.
+- [`bench version`](/03-bench-cli/#bench-version) <span class="badge server">Server</span> — Display installed versions of bench tool and apps.
+- [`bench worker`](/03-bench-cli/#bench-worker-bench-schedule) <span class="badge server">Server</span> — Start background RQ worker process daemon.
 - [`boot_session`](/08-hooks/#6-jinja-templating-session-extensions) <span class="badge server">Server</span> — Extend `bootinfo` dictionary sent to Desk client upon user login.
 
 ---
