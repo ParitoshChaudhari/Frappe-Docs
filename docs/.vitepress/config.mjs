@@ -9,10 +9,31 @@ export default defineConfig({
   
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
+    ['link', { rel: 'canonical', href: 'https://frappe-docs.paritoshchaudhari.in/' }],
+    ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
+    ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
     ['meta', { name: 'theme-color', content: '#0052CC' }],
-    ['meta', { name: 'og:type', content: 'website' }],
-    ['meta', { name: 'og:title', content: 'Frappe Framework v15 Complete Developer Documentation' }],
-    ['meta', { name: 'og:description', content: 'Comprehensive developer-focused reference for Frappe Framework v15 - APIs, DocTypes, Hooks, Query Builder, JS SDK, REST API, Security, DevOps, Docker & Cookbook.' }]
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:site_name', content: 'Frappe v15 Reference' }],
+    ['meta', { property: 'og:title', content: 'Frappe Framework v15 Complete Developer Documentation' }],
+    ['meta', { property: 'og:description', content: 'Definitive technical reference for Frappe v15 — APIs, DocTypes, Hooks, Query Builder, JS SDK, REST, Realtime, Security & DevOps.' }],
+    ['meta', { property: 'og:url', content: 'https://frappe-docs.paritoshchaudhari.in/' }],
+    ['meta', { property: 'og:image', content: 'https://frappe-docs.paritoshchaudhari.in/og-image.png' }],
+    ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+    ['meta', { name: 'twitter:title', content: 'Frappe Framework v15 Complete Developer Documentation' }],
+    ['meta', { name: 'twitter:description', content: 'Definitive technical reference for Frappe v15 — APIs, DocTypes, Hooks, Query Builder, JS SDK, REST, Realtime, Security & DevOps.' }],
+    ['meta', { name: 'twitter:image', content: 'https://frappe-docs.paritoshchaudhari.in/og-image.png' }],
+    [
+      'script',
+      { type: 'application/ld+json' },
+      JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        'name': 'Frappe v15 Reference',
+        'url': 'https://frappe-docs.paritoshchaudhari.in/',
+        'description': 'Definitive technical reference for Frappe v15 — APIs, DocTypes, Hooks, Query Builder, JS SDK, REST, Realtime, Security & DevOps.'
+      })
+    ]
   ],
 
   themeConfig: {
