@@ -60,8 +60,8 @@ features:
 <!-- Release Pill Banner -->
 <div style="text-align: center; margin-bottom: 2.5rem;">
   <a href="/29-version-history/" class="hero-pill" style="text-decoration: none;">
-    <span style="background: #36b37e; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem;">NEW v1.4.0</span>
-    <span>Full Official Accuracy Audit & 110+ API Gap Integration</span>
+    <span style="background: #36b37e; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem;">NEW v1.6.0</span>
+    <span>Frappe Data Types, Custom Containers (frappe._dict) & Type System Guide</span>
     <span style="opacity: 0.6;">→</span>
   </a>
 </div>
@@ -69,7 +69,7 @@ features:
 <!-- Key Performance Stats Banner -->
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 3.5rem;">
   <div class="stat-box">
-    <div style="font-size: 2.4rem; font-weight: 800; color: var(--vp-c-brand-1);">30+</div>
+    <div style="font-size: 2.4rem; font-weight: 800; color: var(--vp-c-brand-1);">31+</div>
     <div style="font-size: 0.88rem; font-weight: 600; color: var(--vp-c-text-2); margin-top: 0.25rem;">Technical Chapters</div>
   </div>
   <div class="stat-box">

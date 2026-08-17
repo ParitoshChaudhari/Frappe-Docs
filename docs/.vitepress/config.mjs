@@ -67,6 +67,7 @@ export default defineConfig({
           { text: '09. Server API (frappe.*)', link: '/09-server-api/' },
           { text: '10. Database, ORM & Query Builder', link: '/10-database/' },
           { text: '30. Frappe ORM Masterclass', link: '/30-frappe-orm/' },
+          { text: '31. Frappe Data Types & Containers', link: '/31-frappe-types/' },
           { text: '15. Background Jobs & Scheduler', link: '/15-background-jobs-scheduler/' },
           { text: '16. Cache, Realtime, Notifications, Email & Files', link: '/16-cache-realtime-email-files/' },
           { text: '19. Utilities Reference (frappe.utils)', link: '/19-utils/' }

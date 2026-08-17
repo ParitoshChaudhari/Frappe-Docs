@@ -1,6 +1,6 @@
 # Frappe Framework v15 Complete Developer Documentation & Reference
 
-[![Documentation Version](https://img.shields.io/badge/version-v1.3.0-blue.svg)](https://github.com/ParitoshChaudhari/Frappe-Docs)
+[![Documentation Version](https://img.shields.io/badge/version-v1.6.0-blue.svg)](https://github.com/ParitoshChaudhari/Frappe-Docs)
 [![Frappe Framework](https://img.shields.io/badge/frappe-v15-0052CC.svg)](https://frappeframework.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -12,13 +12,12 @@ A fast, lightweight, static-first developer documentation website and technical 
 
 ## 🌟 Key Features & Documentation Highlights
 
+- **Chapter 31: Frappe Data Types & Custom Containers Reference**: Comprehensive reference covering `frappe._dict` (dot-accessible dictionary, KeyError safety, parameter typing), `Document` ORM classes, `DF` synthetic IDE type stubs (`frappe.types`), `frappe.form_dict`, thread-local `frappe.local` context, DB query return types, null-safe primitives (`cint`, `flt`, `cstr`), and developer type annotation cheat sheets.
 - **Open Source Ecosystem**: Dedicated unnumbered section (`opensource-projects`) providing project tables, descriptions, GitHub links, and Bench CLI installation commands for **ERPNext**, **Frappe HR (HRMS)**, and **India Compliance**.
 - **Exhaustive Client Script JS API Matrix**: Detailed reference in Chapter 11 for missing client script methods (`frm.trigger()`, `frm.refresh_fields()`, `frappe.msgprint`, `frappe.warn`, `frappe.show_progress`, `frappe.get_route`, `frappe.db.*`, `frappe.meta.*`, `frappe.format`, `frappe.model.*`, `frappe.ui.form.MultiSelectDialog`).
 - **Navbar GitHub Integration**: Instant link to the GitHub repository directly to the left of the theme toggle switch in the top navigation bar.
 - **Chapter 30: Frappe ORM Masterclass**: Comprehensive, 5-part guide covering `SELECT`, `WHERE`, `LIMIT`, `GROUP BY`, `HAVING`, `INNER`/`LEFT`/`RIGHT` Joins, `UNION`, `INTERSECT`, and subqueries with sample data tables, Python code, generated raw SQL, and exact output data.
-- **Easy-to-Understand Explanations**: Real-world analogies (e.g. Apartment building analogy for Bench, Sites, Apps, DocTypes in Chapter 01) and step-by-step troubleshooting matrices.
-- **Header Navbar Simplicity**: Clean header featuring instant search modal, GitHub logo link, and dark/light theme switcher toggle.
-- **Strict Sequential Sidebar Navigation**: Organized into 30 sequential chapters (`01` through `30`) plus an unnumbered Open Source Ecosystem section covering the complete developer journey.
+- **Strict Sequential Sidebar Navigation**: Organized into 31 sequential chapters (`01` through `31`) plus an unnumbered Open Source Ecosystem section covering the complete developer journey.
 - **Scrollable & Sticky Tables**: All data matrices and parameter tables feature horizontal scrollability and sticky/floating table headers (`th`).
 - **Exhaustive Document Event Hooks (`doc_events`)**: 18-row reference table detailing execution lifecycle stage, `docstatus`, allowed actions, and anti-patterns to avoid.
 - **13 Production Recipes (Chapter 22)**: Practical cookbook featuring copy-pasteable real-world examples (PDF generation, controller overrides, cron tasks, cache invalidation, client form mapping).
@@ -71,7 +70,10 @@ Static HTML, CSS, JavaScript, and local full-text search indexes will be generat
 
 | Version | Release Stage | Highlights |
 | :--- | :--- | :--- |
-| **v1.3.0 (v1.3)** | **Current Release** | Added exhaustive Client JS API Matrix (Section 10 in Chapter 11), updated Searchable API Index under Section F, and created unnumbered Open Source Ecosystem section (`opensource-projects`) for ERPNext, HRMS, and India Compliance. |
+| **v1.6.0 (v1.6)** | **Current Release** | Added Chapter 31: Frappe Data Types & Custom Containers Reference (`frappe._dict`, `Document`, `DF` type stubs, `frappe.local`, query return types, null-safe primitives, type annotation cheat sheet). |
+| **v1.5.0 (v1.5)** | **Notifications & Search** | Added sub-heading TOC navigation (`outline: [2, 6]`), complete System & Email Notifications guide, and expanded navbar search bar to 560px. |
+| **v1.4.0 (v1.4)** | **Accuracy Audit & 110+ APIs** | Full official accuracy audit, corrected queue timeouts, added 110+ missing APIs (`frappe.db` JS proxy, `frm.page.*`, `frappe.realtime`), and updated API Index. |
+| **v1.3.0 (v1.3)** | **Client JS & Ecosystem** | Added Client JS API Matrix, updated Searchable API Index, and created Open Source Ecosystem section for ERPNext, HRMS, and India Compliance. |
 | **v1.2.0 (v1.2)** | **Exhaustive Expansion** | Added easy-to-understand explanations across all chapters, setup troubleshooting, real-world analogies, complete `doc_events` table, client document mapping, REST uploads, and 13 cookbook recipes. |
 | **v1.1.0 (v1.1)** | **GitHub & ORM Masterclass** | Added GitHub navbar integration, hero action buttons, and Chapter 30: Frappe ORM Masterclass (`SELECT`, `WHERE`, `LIMIT`, `GROUP BY`, `HAVING`, `JOINs`, `UNION`, `INTERSECT`). |
 | **v1.0.0 (v1.0)** | **Initial Baseline** | Initial release of Frappe Framework v15 Developer Documentation. |
@@ -84,7 +86,7 @@ For detailed revision history, see [Version History & Changelog](docs/29-version
 
 ```text
 frappe-docs/
-├── package.json                          # Package scripts & dependencies (v1.3.0)
+├── package.json                          # Package scripts & dependencies (v1.6.0)
 ├── README.md                             # Project documentation & guide
 └── docs/
     ├── .vitepress/
@@ -124,6 +126,7 @@ frappe-docs/
     ├── 28-views-desk-customization/      # Desk Views, List, Tree, Calendar & Custom Scripts
     ├── 29-version-history/               # Documentation Version History & Changelog
     ├── 30-frappe-orm/                    # Frappe ORM Masterclass (SELECT, WHERE, JOINs, UNION)
+    ├── 31-frappe-types/                  # Frappe Data Types & Custom Containers (frappe._dict, Document, DF)
     └── opensource-projects/              # Open Source Ecosystem Projects (ERPNext, HRMS, India Compliance)
 ```
 

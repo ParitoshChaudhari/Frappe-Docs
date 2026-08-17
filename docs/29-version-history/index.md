@@ -16,7 +16,8 @@ This document tracks the evolution, feature additions, API expansions, and revis
 
 | Version | Release Name | Major Focus & Key Additions | Total Chapters / Sections | Status |
 | :--- | :--- | :--- | :---: | :---: |
-| **v1.5.0 (v1.5)** | **Sub-Heading TOC Navigation, Complete Notifications & Navbar Search Expansion** | Added deep sub-heading navigation (`outline: [2, 6]`), complete System Notification & Email Notification guides (Desk Bell, Toasts, Msgprint, Confirm, Prompt, Rule Notifications, Email API), and expanded navbar search bar up to 560px. | **30 Chapters + 1 Ecosystem Section** | **Current Release** |
+| **v1.6.0 (v1.6)** | **Frappe Data Types, Custom Containers (`frappe._dict`) & Type System Reference** | Added Chapter 31: Frappe Data Types & Custom Containers Reference (`frappe._dict`, `Document`, `DF` type stubs, `frappe.local`, query return types, null-safe primitives, type annotation cheat sheet). | **31 Chapters + 1 Ecosystem Section** | **Current Release** |
+| **v1.5.0 (v1.5)** | **Sub-Heading TOC Navigation, Complete Notifications & Navbar Search Expansion** | Added deep sub-heading navigation (`outline: [2, 6]`), complete System Notification & Email Notification guides (Desk Bell, Toasts, Msgprint, Confirm, Prompt, Rule Notifications, Email API), and expanded navbar search bar up to 560px. | **30 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.4.0 (v1.4)** | **Full Accuracy Audit & 110+ API Gap Integration** | Full official accuracy audit, corrected queue timeouts (default: 300s), added 110+ missing server & client APIs (`frappe.db` JS proxy, `frappe.model` permission checks, `frm.page.*` controls, `frappe.realtime`, `frappe.datetime`), and updated Searchable API Index. | **30 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.3.0 (v1.3)** | **Client JS API Cataloging & Open Source Ecosystem** | Added Client JS API Matrix, updated Searchable API Index, and created Open Source Ecosystem section for ERPNext, HRMS, and India Compliance. | **30 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.2.0 (v1.2)** | **Exhaustive Documentation Expansion** | Added easy-to-understand explanations across all chapters, setup troubleshooting, real-world analogies, complete `doc_events` table, client document mapping, REST uploads, and 13 cookbook recipes. | **30 Chapters** | Stable |
@@ -25,7 +26,39 @@ This document tracks the evolution, feature additions, API expansions, and revis
 
 ---
 
-## 🆕 Version 1.5.0 (v1.5) — Sub-Heading TOC Navigation, Complete Notifications & Navbar Search Expansion (Current)
+## 🆕 Version 1.6.0 (v1.6) — Frappe Data Types, Custom Containers (`frappe._dict`) & Type System Reference (Current)
+
+**Release Date:** August 17, 2026
+
+Version 1.6.0 introduces a brand-new, dedicated technical chapter (**Chapter 31: Frappe Data Types & Custom Containers Reference**) detailing every custom Python type, container class, synthetic IDE type hint, and database return structure used across Frappe Framework backend development.
+
+### 🌟 Key Enhancements in v1.6.0
+
+#### 1. Deep Dive on `frappe._dict` (Dot-Accessible Dictionary)
+- **What, Why, How & When**: Exhaustive breakdown of `frappe._dict`, why to use it over standard Python `dict` (attribute access `d.key`, KeyError safety returning `None`, visual consistency with `Document`), and how to instantiate it.
+- **Function Parameter Annotations**: Detailed examples for typing function parameters and return types (e.g. `def update_storage_in_main_item(self, current_item: str, struct_data: frappe._dict) -> str:`).
+- **Code Examples**: Full class method implementation, caller payload passing, and deep nested dictionary traversal.
+
+#### 2. Core ORM Classes (`Document` & `BaseDocument`)
+- Key attributes and helper methods (`doc.name`, `doc.docstatus`, `doc.is_new()`, `doc.as_dict()`, `doc.append()`, `doc.save()`).
+- Type annotation best practices for document parameters (`doc: Document`).
+
+#### 3. Synthetic IDE Type Hints (`DF` / `frappe.types`)
+- Documentation for type hints generated for DocType fields (`DF.Data`, `DF.Link`, `DF.Int`, `DF.Float`, `DF.Currency`, `DF.Check`, `DF.Table[T]`).
+- Visual IDE autocompletion and static type analysis setup for PyCharm, VS Code, Mypy, and Pyright.
+
+#### 4. Thread-Local Context & HTTP Request Parameters
+- **`frappe.form_dict`**: Safe parameter retrieval from GET query strings, POST form data, and REST JSON payloads inside `@frappe.whitelist()` endpoints.
+- **`frappe.local`**: Request-level context variables (`frappe.local.site`, `frappe.local.user`, `frappe.local.flags`).
+
+#### 5. Database Return Types Matrix & Null-Safe Primitives
+- **Query Return Types**: Data structure comparison matrix for `frappe.db.get_value()`, `frappe.get_all()`, `frappe.db.sql()`, `frappe.qb` with flags (`as_dict=True`, `pluck=True`, `as_list=True`).
+- **Null-Safe Casting Primitives**: `cint()`, `flt()`, `cstr()`, `to_timedelta()` in `frappe.utils`.
+- **Type Annotations Cheat Sheet**: Code snippets covering DocType controllers, whitelisted endpoints, background RQ job callbacks, and hook handlers (`doc, method=None`).
+
+---
+
+## 🟢 Version 1.5.0 (v1.5) — Sub-Heading TOC Navigation, Complete Notifications & Navbar Search Expansion
 
 **Release Date:** August 15, 2026
 
