@@ -15,8 +15,9 @@ This document tracks the evolution, feature additions, API expansions, and revis
 ## 🚀 Version Summary Matrix
 
 | Version | Release Name | Major Focus & Key Additions | Total Chapters / Sections | Status |
-| :--- | :--- | :--- | :---: | :---: |
-| **v1.7.0 (v1.7)** | **Bench CLI Expansion & Comprehensive Command Coverage** | Added `bench --site <site-name> list-apps`, `list-sites`, `remove-app`, `set-admin-password`, `mariadb`/`postgres`, `reset-perms`, `scheduler`, `build-search-index`, `update`, `restart`, `setup`, `doctor`, `worker`/`schedule`, `version`, and updated API Index. | **31 Chapters + 1 Ecosystem Section** | **Current Release** |
+| :--- | :--- | :--- | :--- | :---: |
+| **v1.8.0 (v1.8)** | **Conditional Date Filter Patterns & Validation in Script Reports** | Added conditional date requirement pattern in Chapter 18 (Reports Guide), client-side dynamic `on_change` requirement toggle (`df.reqd = 1`), server-side validation guard (`frappe.throw`), and multi-table parameterized SQL query examples. | **31 Chapters + 1 Ecosystem Section** | **Current Release** |
+| **v1.7.0 (v1.7)** | **Bench CLI Expansion & Comprehensive Command Coverage** | Added `bench --site <site-name> list-apps`, `list-sites`, `remove-app`, `set-admin-password`, `mariadb`/`postgres`, `reset-perms`, `scheduler`, `build-search-index`, `update`, `restart`, `setup`, `doctor`, `worker`/`schedule`, `version`, and updated API Index. | **31 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.6.0 (v1.6)** | **Frappe Data Types, Custom Containers (`frappe._dict`) & Type System Reference** | Added Chapter 31: Frappe Data Types & Custom Containers Reference (`frappe._dict`, `Document`, `DF` type stubs, `frappe.local`, query return types, null-safe primitives, type annotation cheat sheet). | **31 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.5.0 (v1.5)** | **Sub-Heading TOC Navigation, Complete Notifications & Navbar Search Expansion** | Added deep sub-heading navigation (`outline: [2, 6]`), complete System Notification & Email Notification guides (Desk Bell, Toasts, Msgprint, Confirm, Prompt, Rule Notifications, Email API), and expanded navbar search bar up to 560px. | **30 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.4.0 (v1.4)** | **Full Accuracy Audit & 110+ API Gap Integration** | Full official accuracy audit, corrected queue timeouts (default: 300s), added 110+ missing server & client APIs (`frappe.db` JS proxy, `frappe.model` permission checks, `frm.page.*` controls, `frappe.realtime`, `frappe.datetime`), and updated Searchable API Index. | **30 Chapters + 1 Ecosystem Section** | Stable |
@@ -27,7 +28,26 @@ This document tracks the evolution, feature additions, API expansions, and revis
 
 ---
 
-## 🆕 Version 1.7.0 (v1.7) — Bench CLI Expansion & Comprehensive Command Coverage (Current)
+## 🆕 Version 1.8.0 (v1.8) — Script Reports Dynamic Date Filtering & Conditional Validation (Current)
+
+**Release Date:** August 18, 2026
+
+Version 1.8.0 enhances the **Complete Reports Guide (Chapter 18)** with production-ready patterns for conditional date filtering in Script Reports, showcasing client-side dynamic requirement triggers and server-side validation guards.
+
+### 🌟 Key Enhancements in v1.8.0
+
+#### 1. Conditional Date Filter Patterns (Chapter 18)
+- **No Auto-Populated Default Dates**: Demonstrated how to leave date filters unpopulated on initial load by commenting out or omitting static default date values, allowing users to run unrestricted searches or specify custom intervals on demand.
+- **Client-Side Dynamic Requirement Trigger (`on_change`)**: Documented the JavaScript client controller pattern using `on_change` on the `to_date` filter to dynamically set `from_date_filter.df.reqd = 1` and trigger `from_date_filter.refresh()`, making `From Date` mandatory only when `To Date` is selected.
+- **Client-Side Guard Warning**: Added interactive validation check throwing `frappe.throw(__("Please set From Date as well since To Date is set"))` to prevent automatic query submission without required date boundaries.
+
+#### 2. Server-Side Validation & Parameterized SQL Querying
+- **Server Guard (`maintenance_schedule_report.py`)**: Added strict Python verification in `get_data()` to ensure `if filters.get("to_date") and not filters.get("from_date"): frappe.throw(...)` executes prior to running SQL.
+- **Multi-Table Relational JOINs**: Complete SQL query joining `Sales Order`, `Sales Invoice`, `Maintenance Schedule Item`, and `Maintenance Visit` with secure dictionary parameter binding (`%(from_date)s`, `%(to_date)s`).
+
+---
+
+## 🟢 Version 1.7.0 (v1.7) — Bench CLI Expansion & Comprehensive Command Coverage
 
 **Release Date:** August 17, 2026
 
