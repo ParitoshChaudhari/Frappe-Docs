@@ -16,7 +16,56 @@ This document tracks the evolution, feature additions, API expansions, and revis
 
 | Version | Release Name | Major Focus & Key Additions | Total Chapters / Sections | Status |
 | :--- | :--- | :--- | :--- | :---: |
-| **v1.8.0 (v1.8)** | **Conditional Date Filter Patterns & Validation in Script Reports** | Added conditional date requirement pattern in Chapter 18 (Reports Guide), client-side dynamic `on_change` requirement toggle (`df.reqd = 1`), server-side validation guard (`frappe.throw`), and multi-table parameterized SQL query examples. | **31 Chapters + 1 Ecosystem Section** | **Current Release** |
+| **v1.9.0 (v1.9)** | **Tree Reports, LoginManager, Nginx Port Assignment & Utilities Overhaul** | Added folded first-child Tree Report architecture in Chapter 18, LoginManager & custom signup/login APIs in Chapter 14, Nginx port assignment & port-based multi-tenancy in Chapter 03, complete Python/JS utilities expansion in Chapter 19, and synced API Index. | **31 Chapters + 1 Ecosystem Section** | **Current Release** |
+| **v1.8.0 (v1.8)** | **Conditional Date Filter Patterns & Validation in Script Reports** | Added conditional date requirement pattern in Chapter 18 (Reports Guide), client-side dynamic `on_change` requirement toggle (`df.reqd = 1`), server-side validation guard (`frappe.throw`), and multi-table parameterized SQL query examples. | **31 Chapters + 1 Ecosystem Section** | Stable |
+
+---
+
+## 🆕 Version 1.9.0 (v1.9) — Tree Reports, LoginManager Architecture, Port-Based Multi-Tenancy & Utilities Overhaul (Current)
+
+**Release Date:** September 28, 2026
+
+Version 1.9.0 delivers a major documentation expansion across five core areas: parent-child table Tree Report architectures, deep-dive authentication engineering with `LoginManager` and registration APIs, Nginx port assignment with port-based multi-tenancy in Bench CLI, exhaustive Python/JS utilities reference, and synchronized API indexing.
+
+### 🌟 Key Enhancements in v1.9.0
+
+#### 1. Parent-Child Table Tree Reports & Folded First-Child Pattern (Chapter 18)
+- **Folded First Child Architectural Pattern**: Documented the high-density layout where the first child record (`Nj Quality Readings`) is rendered on the same table row as the parent inspection (`NJ Quality Inspection`) at `indent: 0`, while all secondary and subsequent child readings (`rows[1:]`) expand as collapsible sub-rows at `indent: 1`.
+- **Synthetic Tree Keys (`row_key` & `parent_key`)**: Added hidden column patterns with JS controller properties `tree: true`, `name_field: "row_key"`, `parent_field: "parent_key"`, and `initial_depth: 3` to support nested records without primary key collisions.
+- **Dynamic Filter Validation & Metadata Loading**: Included client-side dynamic requirement triggers (`on_change` forcing `from_date` when `to_date` is selected) and dynamic select options loading in `onload` using `frappe.model.with_doctype`.
+
+#### 2. Authentication, LoginManager & User Signup Flows (Chapter 14)
+- **`LoginManager` Architecture (`frappe.auth.LoginManager`)**: Documented internal authentication pipeline, methods (`authenticate`, `post_login`, `login_as`, `logout`, `run_trigger`), and complete custom REST login endpoints.
+- **Programmatic Impersonation (`login_as`)**: Implementation patterns for system administrators and automation tasks to safely switch active user sessions without credentials.
+- **User Signup & Registration APIs (`frappe.core.doctype.user.user.sign_up`)**: Standard welcome email registration and headless custom signup endpoints with instant role assignment and direct password setting.
+- **Password Management & Cryptography**: Added `check_password`, `update_password` (with session termination flags), `reset_password`, and `get_decrypted_password` reference and import paths.
+- **Session Lifecycle & Expiry**: Session invalidation via `clear_sessions()`, database inspection of `tabSessions`, and `site_config.json` timeout parameters (`session_expiry`, `session_expiry_mobile`).
+- **Auth Lifecycle Hooks & API Tokens**: Implementation of `on_login`, `on_logout`, `after_login`, `on_session_creation` hooks, and HTTP Bearer/Token headers (`Authorization: token <key>:<secret>`).
+
+#### 3. Complete Python & JavaScript Utilities Overhaul (Chapter 19)
+- **Python Date & Time Utilities (`frappe.utils`)**: Added `formatdate`, `format_time`, `format_datetime`, `getdate`, `get_datetime`, `get_time`, `get_timedelta`, `now`, `nowdate`, `today`, `nowtime`, `now_datetime`, `add_to_date`, `add_days`, `add_months`, `add_years`, `date_diff`, `month_diff`, `time_diff_in_seconds`, `pretty_date`, `get_first_day`, `get_last_day`, `get_year_start`, `get_year_ending`, and `is_last_day_of_the_month`.
+- **Type Casting & Number Formatting**: Added `cint`, `flt`, `cstr`, `sbool`, `rounded`, `parse_val`, `fmt_money`, `money_in_words`, and `in_words`.
+- **Strings, Validation, Paths & JSON**: Added `strip_html`, `clean_whitespace`, `scrub`, `slug`, `random_string`, `get_abbr`, `markdown`, `escape_html`, `validate_email_address`, `split_emails`, `validate_url`, `get_url`, `get_url_to_form`, `get_url_to_list`, `get_site_path`, `get_files_path`, `get_bench_path`, `safe_json_loads`, `unique`, and `dictify`.
+- **Client-Side `frappe.datetime`**: Added `get_today`, `now_date`, `now_time`, `now_datetime`, `str_to_user`, `user_to_str`, `str_to_obj`, `obj_to_str`, `obj_to_user`, `add_days`, `add_months`, `get_diff`, `pretty_date`, `validate`, and `get_datetime_as_string`.
+- **Universal Field Formatter (`frappe.format`)**: Documented client-side formatting for Currency, Date, Datetime, Percent, Float, Int, Link, and Rating.
+- **Client-Side `frappe.utils`**: Added `copy_to_clipboard`, `get_url`, `get_form_link`, `comma_and`, `comma_or`, `escape_html`, `unescape_html`, `filter_dict`, `sleep`, `play_sound`, `is_empty`, `to_title_case`, and `icon`.
+
+#### 4. Bench CLI: Nginx Setup & Port-Based Multi-Tenancy (Chapter 03)
+- **`bench setup nginx`**: Detailed reverse-proxy configuration generation, symlinking, syntax testing (`sudo nginx -t`), and zero-downtime reloading.
+- **Port-Based Multi-Tenancy & Port Allocation**:
+  - Disabling DNS multi-tenancy (`bench config dns_multitenant off`).
+  - Assigning dedicated TCP ports (`bench set-nginx-port <site> <port>`).
+  - Regenerating Nginx server blocks and managing firewall allowances (`sudo ufw allow <port>/tcp`).
+  - Accessing isolated sites via `http://<server-ip>:<port>`.
+- **Internal Service Port Customization**: Overriding Gunicorn (`webserver_port`), Socket.IO (`socketio_port`), and file watcher ports in `common_site_config.json`.
+- **Automated Production & SSL**: Single-command deployment via `sudo bench setup production <user>` and automatic Let's Encrypt SSL provisioning (`sudo bench setup lets-encrypt`).
+
+#### 5. Searchable API Index Synchronization (Chapter 24)
+- Added over 45+ newly documented APIs, CLI commands, and utility helpers across letters A through W with direct deep links and execution environment badges (`Server`, `Client`, `Both`).
+
+---
+
+## 🟢 Version 1.8.0 (v1.8) — Script Reports Dynamic Date Filtering & Conditional Validation
 | **v1.7.0 (v1.7)** | **Bench CLI Expansion & Comprehensive Command Coverage** | Added `bench --site <site-name> list-apps`, `list-sites`, `remove-app`, `set-admin-password`, `mariadb`/`postgres`, `reset-perms`, `scheduler`, `build-search-index`, `update`, `restart`, `setup`, `doctor`, `worker`/`schedule`, `version`, and updated API Index. | **31 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.6.0 (v1.6)** | **Frappe Data Types, Custom Containers (`frappe._dict`) & Type System Reference** | Added Chapter 31: Frappe Data Types & Custom Containers Reference (`frappe._dict`, `Document`, `DF` type stubs, `frappe.local`, query return types, null-safe primitives, type annotation cheat sheet). | **31 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.5.0 (v1.5)** | **Sub-Heading TOC Navigation, Complete Notifications & Navbar Search Expansion** | Added deep sub-heading navigation (`outline: [2, 6]`), complete System Notification & Email Notification guides (Desk Bell, Toasts, Msgprint, Confirm, Prompt, Rule Notifications, Email API), and expanded navbar search bar up to 560px. | **30 Chapters + 1 Ecosystem Section** | Stable |

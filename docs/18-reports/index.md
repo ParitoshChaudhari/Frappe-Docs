@@ -825,6 +825,209 @@ def get_columns():
 
 ---
 
+### Example: Parent-Child Table Tree Report with Folded First Child & Helper Key Columns (`RF Quality Inspection Report`)
+
+This real-world example showcases a high-demand Frappe reporting architecture:
+1. **Folded First Child Pattern**: The first child record (`Nj Quality Readings`) is rendered directly on the **same row** as the parent inspection (`NJ Quality Inspection`, `indent: 0`), maximizing horizontal density.
+2. **Collapsible Sub-Rows**: Any secondary or subsequent child records (`rows[1:]`) are attached as nested expandable tree children (`indent: 1`).
+3. **Synthetic Tree Identifiers (`row_key` & `parent_key`)**: Using hidden columns configured with JS `name_field: "row_key"` and `parent_field: "parent_key"` so child rows get deterministic unique identifiers (`f"{p.name}-{c.idx}"`) pointing to the parent (`p.name`).
+4. **Conditional Date Bounds**: Dynamic `on_change` handler that forces `from_date` to be mandatory whenever `to_date` is selected, coupled with server-side validation.
+5. **Dynamic Filter Options in `onload`**: Automatically populating filter dropdown options from DocField metadata using `frappe.model.with_doctype`.
+
+#### Python Server Script (`rf_quality_inspection_report.py`)
+
+```python
+# Copyright (c) 2026, Bizmap Technologies Pvt Ltd and contributors
+# For license information, please see license.txt
+
+import frappe
+from frappe import _
+
+
+def execute(filters=None):
+    filters = frappe._dict(filters or {})
+    validate_filters(filters)
+    return get_columns(), get_data(filters)
+
+
+def validate_filters(filters):
+    if filters.to_date and not filters.from_date:
+        frappe.throw(_("From Date is required when To Date is selected"))
+    if filters.from_date and filters.to_date and filters.from_date > filters.to_date:
+        frappe.throw(_("From Date cannot be after To Date"))
+
+
+def get_columns():
+    return [
+        {"label": _("ID"), "fieldname": "name", "fieldtype": "Link",
+         "options": "NJ Quality Inspection", "width": 200},
+        {"label": _("Report Date"), "fieldname": "report_date", "fieldtype": "Date", "width": 110},
+        {"label": _("Inspection Type"), "fieldname": "inspection_type", "fieldtype": "Data", "width": 120},
+        {"label": _("Barcode"), "fieldname": "barcode", "fieldtype": "Data", "width": 130},
+        {"label": _("BIOS Serial Number"), "fieldname": "bios_serial_number", "fieldtype": "Data", "width": 130},
+        {"label": _("Lot No"), "fieldname": "lot_no", "fieldtype": "Data", "width": 130},
+        {"label": _("Asset Tag ID"), "fieldname": "custom_asset_tag_id", "fieldtype": "Data", "width": 130},
+        {"label": _("Status"), "fieldname": "status", "fieldtype": "Data", "width": 100},
+        {"label": _("Remarks"), "fieldname": "remarks", "fieldtype": "Data", "width": 160},
+        {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 130},
+        {"label": _("Item Name"), "fieldname": "item_name", "fieldtype": "Data", "width": 160},
+        {"label": _("Inspected By"), "fieldname": "inspected_by", "fieldtype": "Link", "options": "User", "width": 140},
+        {"label": _("Item Group"), "fieldname": "item_group", "fieldtype": "Link", "options": "Item Group", "width": 130},
+        # child columns
+        {"label": _("Reading Item Group"), "fieldname": "child_item_group", "fieldtype": "Link",
+         "options": "Item Group", "width": 140},
+        {"label": _("Total Score"), "fieldname": "total_score", "fieldtype": "Float", "width": 100},
+        {"label": _("Grade"), "fieldname": "grade", "fieldtype": "Data", "width": 90},
+        # hidden helper columns for the tree
+        {"label": "Row Key", "fieldname": "row_key", "fieldtype": "Data", "hidden": 1},
+        {"label": "Parent Key", "fieldname": "parent_key", "fieldtype": "Data", "hidden": 1},
+    ]
+
+
+def get_data(filters):
+    conditions = {}
+    if filters.get("rf_quality_inspection"):
+        conditions["name"] = filters.rf_quality_inspection
+    if filters.get("barcode"):
+        conditions["barcode"] = filters.barcode
+    if filters.get("item_code"):
+        conditions["item_code"] = filters.item_code
+    if filters.get("status"):
+        conditions["status"] = filters.status
+    if filters.get("lot_no"):
+        conditions["lot_no"] = filters.lot_no
+    if filters.get("from_date") and filters.get("to_date"):
+        conditions["report_date"] = ["between", [filters.from_date, filters.to_date]]
+    elif filters.get("from_date"):
+        conditions["report_date"] = [">=", filters.from_date]
+
+    parents = frappe.get_all(
+        "NJ Quality Inspection",
+        filters=conditions,
+        fields=["name", "report_date", "inspection_type", "barcode", "custom_asset_tag_id", "lot_no",
+                "bios_serial_number", "status", "remarks", "item_code", "item_name", "inspected_by", "item_group"],
+        order_by="report_date desc, name desc",
+    )
+    if not parents:
+        return []
+
+    children = frappe.get_all(
+        "Nj Quality Readings",
+        filters={
+            "parent": ["in", [p.name for p in parents]],
+            "parenttype": "NJ Quality Inspection",
+            "parentfield": "nj_quality_readings",
+        },
+        fields=["parent", "item_group", "grade", "total_score", "idx"],
+        order_by="parent, idx",
+    )
+    child_map = {}
+    for c in children:
+        child_map.setdefault(c.parent, []).append(c)
+
+    data = []
+    for p in parents:
+        rows = child_map.get(p.name, [])
+        row = dict(p)
+        row.update({"row_key": p.name, "parent_key": "", "indent": 0})
+
+        # first child goes on the SAME row as the parent
+        if rows:
+            first = rows[0]
+            row.update({
+                "child_item_group": first.item_group,
+                "grade": first.grade,
+                "total_score": first.total_score,
+            })
+        data.append(row)
+
+        # remaining children go below, collapsible under the parent
+        for c in rows[1:]:
+            data.append({
+                "row_key": f"{p.name}-{c.idx}",
+                "parent_key": p.name,
+                "indent": 1,
+                "child_item_group": c.item_group,
+                "grade": c.grade,
+                "total_score": c.total_score,
+            })
+    return data
+```
+
+#### JavaScript Client Controller (`rf_quality_inspection_report.js`)
+
+```javascript
+frappe.query_reports["RF Quality Inspection Report"] = {
+    tree: true,
+    name_field: "row_key",
+    parent_field: "parent_key",
+    initial_depth: 3,
+
+    filters: [
+        {
+            fieldname: "rf_quality_inspection",
+            label: __("RF Quality Inspection"),
+            fieldtype: "Link",
+            options: "NJ Quality Inspection",
+        },
+        {
+            fieldname: "barcode",
+            label: __("Barcode"),
+            fieldtype: "Data",
+        },
+        {
+            fieldname: "lot_no",
+            label: __("Lot No"),
+            fieldtype: "Data",
+        },
+        {
+            fieldname: "item_code",
+            label: __("Item Code"),
+            fieldtype: "Link",
+            options: "Item",
+        },
+        {
+            fieldname: "status",
+            label: __("Quality Inspection Status"),
+            fieldtype: "Select",
+            options: ["", "Accepted", "Rejected", "In-Progress"],
+        },
+        {
+            fieldname: "from_date",
+            label: __("From Date"),
+            fieldtype: "Date",
+        },
+        {
+            fieldname: "to_date",
+            label: __("To Date"),
+            fieldtype: "Date",
+            on_change: function () {
+                const from_filter = frappe.query_report.get_filter("from_date");
+                const has_to = !!frappe.query_report.get_filter_value("to_date");
+                from_filter.df.reqd = has_to ? 1 : 0;
+                from_filter.refresh();
+                frappe.query_report.refresh();
+            },
+        },
+    ],
+
+    onload: function (report) {
+        frappe.model.with_doctype("NJ Quality Inspection", () => {
+            const status_field = frappe.meta.get_docfield("NJ Quality Inspection", "status");
+            const status_filter = report.get_filter("status");
+
+            if (status_field && status_filter) {
+                // leading newline = blank option so the filter can be cleared
+                status_filter.df.options = "\n" + (status_field.options || "");
+                status_filter.refresh();
+            }
+        });
+    },
+};
+```
+
+---
+
 ## 6. Advanced JS Report Scripting: MultiSelect, Formatters & Indicators
 
 ### MultiSelect Filters & Dynamic Filter Triggers

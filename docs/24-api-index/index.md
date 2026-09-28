@@ -25,14 +25,15 @@ Exhaustive alphabetical reference index of all public functions, methods, hooks,
 
 ## A
 
-- [`_()`](/19-utils/#5-internationalization-translation-frappe-_) <span class="badge both">Both</span> — Multilingual translation function wrapper (`_()` in Python, `__()` / `frappe._()` in JS).
-- [`add_days()`](/19-utils/#1-date-time-utilities) <span class="badge both">Both</span> — Add or subtract N days from date string (`frappe.utils.add_days` in Python, `frappe.datetime.add_days` in JS).
-- [`add_months()`](/19-utils/#1-date-time-utilities) <span class="badge both">Both</span> — Add or subtract N months from date string (`frappe.utils.add_months` in Python, `frappe.datetime.add_months` in JS).
-- [`add_to_date()`](/19-utils/#1-date-time-utilities) <span class="badge server">Server</span> — Add date/time intervals (years, months, days, hours) to target date.
-- [`add_years()`](/19-utils/#1-date-time-utilities) <span class="badge server">Server</span> — Add or subtract N years from date string.
+- [`_()`](/19-utils/#10-internationalization-translation-frappe-_-__) <span class="badge both">Both</span> — Multilingual translation function wrapper (`_()` in Python, `__()` / `frappe._()` in JS).
+- [`add_days()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge both">Both</span> — Add or subtract N days from date string (`frappe.utils.add_days` in Python, `frappe.datetime.add_days` in JS).
+- [`add_months()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge both">Both</span> — Add or subtract N months from date string (`frappe.utils.add_months` in Python, `frappe.datetime.add_months` in JS).
+- [`add_to_date()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Add date/time intervals (years, months, days, hours) to target date.
+- [`add_years()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Add or subtract N years from date string.
 - [`after_delete()`](/07-controllers/#2-complete-lifecycle-events-reference-matrix) <span class="badge server">Server</span> — Controller lifecycle hook executed after database row deletion.
 - [`after_insert()`](/07-controllers/#2-complete-lifecycle-events-reference-matrix) <span class="badge server">Server</span> — Controller lifecycle hook executed immediately after initial DB row insertion.
 - [`after_job`](/08-hooks/#9-request-job-middleware-hooks) <span class="badge server">Server</span> — Background RQ job completion middleware hook in `hooks.py`.
+- [`after_login`](/14-authentication-permissions/#6-authentication-lifecycle-hooks-hooks-py) <span class="badge server">Server</span> — Hook executed after user login and session initialization (`hooks.py`).
 - [`after_request`](/08-hooks/#9-request-job-middleware-hooks) <span class="badge server">Server</span> — HTTP request completion middleware hook in `hooks.py`.
 - [`app_include_css`](/08-hooks/#5-client-desk-assets-script-inclusions) <span class="badge server">Server</span> — Include global custom CSS bundle in Desk interface (`hooks.py`).
 - [`app_include_js`](/08-hooks/#5-client-desk-assets-script-inclusions) <span class="badge server">Server</span> — Include global custom JS bundle in Desk interface (`hooks.py`).
@@ -79,7 +80,9 @@ Exhaustive alphabetical reference index of all public functions, methods, hooks,
 - [`bench scheduler`](/03-bench-cli/#bench-scheduler) <span class="badge server">Server</span> — Enable, disable, or check status of background job scheduler.
 - [`bench set-admin-password`](/03-bench-cli/#bench-set-admin-password) <span class="badge server">Server</span> — Change Administrator account password on site.
 - [`bench set-config`](/03-bench-cli/#bench-set-config-bench-get-config) <span class="badge server">Server</span> — Modify `site_config.json` configuration values programmatically.
-- [`bench setup`](/03-bench-cli/#bench-setup) <span class="badge server">Server</span> — Configure production services, Nginx, Supervisor, and domain routes.
+- [`bench set-nginx-port`](/03-bench-cli/#assigning-a-site-to-a-dedicated-port-port-based-multi-tenancy) <span class="badge server">Server</span> — Assigns dedicated TCP port to site for port-based multi-tenancy.
+- [`bench setup nginx`](/03-bench-cli/#bench-setup-nginx) <span class="badge server">Server</span> — Generates Nginx reverse-proxy configuration from site configurations.
+- [`bench setup production`](/03-bench-cli/#bench-setup-production) <span class="badge server">Server</span> — Configures Supervisor and Nginx for automated production deployments.
 - [`bench start`](/03-bench-cli/#4-development-process-commands) <span class="badge server">Server</span> — Start all development background processes defined in Procfile.
 - [`bench update`](/03-bench-cli/#bench-update) <span class="badge server">Server</span> — Update bench repositories, run migrations, and rebuild static assets.
 - [`bench update-translations`](/19-utils/#translation-csv-files-cli-commands) <span class="badge server">Server</span> — Sync and update application translation CSV files.
@@ -92,12 +95,21 @@ Exhaustive alphabetical reference index of all public functions, methods, hooks,
 
 ## C
 
-- [`cint()`](/19-utils/#2-type-conversion-safe-casting) <span class="badge both">Both</span> — Safe integer type conversion returning default on failure (Python &amp; JS).
-- [`cstr()`](/19-utils/#2-type-conversion-safe-casting) <span class="badge both">Both</span> — Safe string type conversion handling `None` safely (Python &amp; JS).
-- [`date_diff()`](/19-utils/#1-date-time-utilities) <span class="badge both">Both</span> — Calculate integer day difference between two dates (Python &amp; JS).
+- [`check_password()`](/14-authentication-permissions/#4-password-management-cryptography-utilities) <span class="badge server">Server</span> — Validates user password against hash in database (`frappe.utils.password.check_password`).
+- [`cint()`](/19-utils/#2-python-type-conversion-safe-casting-frappe-utils) <span class="badge both">Both</span> — Safe integer type conversion returning default on failure (Python &amp; JS).
+- [`clean_whitespace()`](/19-utils/#4-python-string-html-identifier-markdown-utilities-frappe-utils) <span class="badge server">Server</span> — Collapses consecutive whitespace, tabs, and newlines into single spaces.
+- [`clear_sessions()`](/14-authentication-permissions/#5-session-management-lifecycle-frappe-sessions) <span class="badge server">Server</span> — Invalidates active user sessions across devices in MariaDB and Redis.
+- [`cstr()`](/19-utils/#2-python-type-conversion-safe-casting-frappe-utils) <span class="badge both">Both</span> — Safe string type conversion handling `None` safely (Python &amp; JS).
+
+---
+
+## D
+
+- [`date_diff()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge both">Both</span> — Calculate integer day difference between two dates (Python &amp; JS).
 - [`db_insert()`](/05-doctypes/#virtual-doctypes-is_virtual-1) <span class="badge server">Server</span> — Controller override method for Virtual DocType database insertion.
 - [`db_update()`](/05-doctypes/#virtual-doctypes-is_virtual-1) <span class="badge server">Server</span> — Controller override method for Virtual DocType update.
 - [`delete()`](/05-doctypes/#virtual-doctypes-is_virtual-1) <span class="badge server">Server</span> — Controller override method for Virtual DocType record deletion.
+- [`dictify()`](/19-utils/#6-python-data-structure-collection-json-helpers-frappe-utils) <span class="badge server">Server</span> — Converts dictionary to `frappe._dict` allowing dot-notation key access.
 - [`doc.add_comment()`](/06-documents/#key-inspection-helper-methods) <span class="badge server">Server</span> — Appends activity timeline comment to document.
 - [`doc.add_tag()`](/06-documents/#key-inspection-helper-methods) <span class="badge server">Server</span> — Attaches tag string to document.
 - [`doc.append()`](/06-documents/#key-inspection-helper-methods) <span class="badge server">Server</span> — Appends new row to child table field.
@@ -130,27 +142,42 @@ Exhaustive alphabetical reference index of all public functions, methods, hooks,
 
 ---
 
+## E
+
+- [`escape_html()`](/19-utils/#4-python-string-html-identifier-markdown-utilities-frappe-utils) <span class="badge both">Both</span> — Escapes special HTML characters (`&`, `<`, `>`, `"`, `'`) to prevent XSS (Python &amp; JS).
+
+---
+
 ## F
 
-- [`flt()`](/19-utils/#2-type-conversion-safe-casting) <span class="badge both">Both</span> — Safe float type conversion with optional precision rounding (Python &amp; JS).
-- [`fmt_money()`](/19-utils/#3-formatting-text-manipulation) <span class="badge server">Server</span> — Formats numeric value into monetary currency string.
+- [`flt()`](/19-utils/#2-python-type-conversion-safe-casting-frappe-utils) <span class="badge both">Both</span> — Safe float type conversion with optional precision rounding (Python &amp; JS).
+- [`fmt_money()`](/19-utils/#3-python-currency-number-formatting-frappe-utils) <span class="badge server">Server</span> — Formats numeric value into monetary currency string.
 - [`format_currency`](/17-web-jinja-print-reports/#built-in-jinja-filters-matrix) <span class="badge server">Server</span> — Jinja template filter for currency formatting.
-- [`format_date()`](/19-utils/#1-date-time-utilities) <span class="badge server">Server</span> — Formats ISO date string to user system format.
-- [`format_datetime()`](/19-utils/#1-date-time-utilities) <span class="badge server">Server</span> — Formats ISO datetime string.
-- [`format_time()`](/19-utils/#1-date-time-utilities) <span class="badge server">Server</span> — Formats time string.
-- [`frappe._()`](/19-utils/#5-internationalization-translation-frappe-_) <span class="badge both">Both</span> — Multilingual translation function wrapper (Python &amp; JS).
+- [`format_date()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Formats ISO date string to user system format.
+- [`format_datetime()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Formats ISO datetime string to user-configured display format (`frappe.utils.format_datetime`).
+- [`format_time()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Formats time string to user localized format (`frappe.utils.format_time`).
+- [`formatdate()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Formats date string or date object to user localized date format (`frappe.utils.formatdate`).
+- [`frappe._()`](/19-utils/#10-internationalization-translation-frappe-_-__) <span class="badge both">Both</span> — Multilingual translation function wrapper (Python &amp; JS).
+- [`frappe.auth.LoginManager`](/14-authentication-permissions/#2-loginmanager-authentication-flow-frappe-auth-loginmanager) <span class="badge server">Server</span> — Core authentication, credential validation, 2FA, and session coordinator class.
 - [`frappe.breadcrumbs.add()`](/11-client-api/#3-client-navigation-route-inspection-breadcrumbs) <span class="badge client">Client</span> — Inject breadcrumb link into Desk header toolbar.
 - [`frappe.cache()`](/16-cache-realtime-email-files/#1-redis-caching-api-frappe-cache) <span class="badge server">Server</span> — Access site Redis Cache connection wrapper instance.
 - [`frappe.call()`](/11-client-api/#7-asynchronous-server-rpc-frappe-call) <span class="badge client">Client</span> — Executes client-side AJAX RPC call to server method.
 - [`frappe.confirm()`](/11-client-api/#8-ui-dialogs-user-prompting-apis) <span class="badge client">Client</span> — Displays client confirmation modal dialog.
 - [`frappe.copy_doc()`](/06-documents/#frappe-copy_doc) <span class="badge server">Server</span> — Duplicates existing document in memory without saving to DB.
-- [`frappe.datetime.add_days()`](/19-utils/#2-client-side-javascript-datetime-utilities-frappe-datetime-frappe-utils) <span class="badge client">Client</span> — Client JS helper adding days to date.
-- [`frappe.datetime.add_months()`](/19-utils/#2-client-side-javascript-datetime-utilities-frappe-datetime-frappe-utils) <span class="badge client">Client</span> — Client JS helper adding months to date.
-- [`frappe.datetime.get_diff()`](/19-utils/#2-client-side-javascript-datetime-utilities-frappe-datetime-frappe-utils) <span class="badge client">Client</span> — Client JS helper calculating day difference between dates.
-- [`frappe.datetime.get_today()`](/19-utils/#2-client-side-javascript-datetime-utilities-frappe-datetime-frappe-utils) <span class="badge client">Client</span> — Client JS helper returning today's date string (`YYYY-MM-DD`).
-- [`frappe.datetime.now_datetime()`](/19-utils/#2-client-side-javascript-datetime-utilities-frappe-datetime-frappe-utils) <span class="badge client">Client</span> — Client JS helper returning current datetime string.
-- [`frappe.datetime.pretty_date()`](/19-utils/#2-client-side-javascript-datetime-utilities-frappe-datetime-frappe-utils) <span class="badge client">Client</span> — Client JS helper returning human-friendly relative date string.
-- [`frappe.datetime.str_to_user()`](/19-utils/#2-client-side-javascript-datetime-utilities-frappe-datetime-frappe-utils) <span class="badge client">Client</span> — Client JS helper formatting system date string to active user format.
+- [`frappe.core.doctype.user.user.reset_password`](/14-authentication-permissions/#4-password-management-cryptography-utilities) <span class="badge server">Server</span> — Generates password recovery token and dispatches reset email.
+- [`frappe.core.doctype.user.user.sign_up`](/14-authentication-permissions/#3-user-signup-registration-api-sign_up) <span class="badge server">Server</span> — Registers new website user, creates confirmation key, and sends welcome email.
+- [`frappe.datetime.add_days()`](/19-utils/#7-client-side-javascript-datetime-utilities-frappe-datetime) <span class="badge client">Client</span> — Client JS helper adding days to date.
+- [`frappe.datetime.add_months()`](/19-utils/#7-client-side-javascript-datetime-utilities-frappe-datetime) <span class="badge client">Client</span> — Client JS helper adding months to date.
+- [`frappe.datetime.get_datetime_as_string()`](/19-utils/#7-client-side-javascript-datetime-utilities-frappe-datetime) <span class="badge client">Client</span> — Formats JavaScript Date object to standard datetime string.
+- [`frappe.datetime.get_diff()`](/19-utils/#7-client-side-javascript-datetime-utilities-frappe-datetime) <span class="badge client">Client</span> — Client JS helper calculating day difference between dates.
+- [`frappe.datetime.get_today()`](/19-utils/#7-client-side-javascript-datetime-utilities-frappe-datetime) <span class="badge client">Client</span> — Client JS helper returning today's date string (`YYYY-MM-DD`).
+- [`frappe.datetime.now_date()`](/19-utils/#7-client-side-javascript-datetime-utilities-frappe-datetime) <span class="badge client">Client</span> — Client JS helper returning current date (`YYYY-MM-DD`).
+- [`frappe.datetime.now_datetime()`](/19-utils/#7-client-side-javascript-datetime-utilities-frappe-datetime) <span class="badge client">Client</span> — Client JS helper returning current datetime string.
+- [`frappe.datetime.now_time()`](/19-utils/#7-client-side-javascript-datetime-utilities-frappe-datetime) <span class="badge client">Client</span> — Client JS helper returning current local time string (`HH:mm:ss`).
+- [`frappe.datetime.pretty_date()`](/19-utils/#7-client-side-javascript-datetime-utilities-frappe-datetime) <span class="badge client">Client</span> — Client JS helper returning human-friendly relative date string.
+- [`frappe.datetime.str_to_obj()`](/19-utils/#7-client-side-javascript-datetime-utilities-frappe-datetime) <span class="badge client">Client</span> — Parses date string into JavaScript Date/Moment object.
+- [`frappe.datetime.str_to_user()`](/19-utils/#7-client-side-javascript-datetime-utilities-frappe-datetime) <span class="badge client">Client</span> — Client JS helper formatting system date string to active user format.
+- [`frappe.datetime.user_to_str()`](/19-utils/#7-client-side-javascript-datetime-utilities-frappe-datetime) <span class="badge client">Client</span> — Converts localized user input date string back to database `YYYY-MM-DD`.
 - [`frappe.db.commit()`](/10-database/#database-transactions-commit-rollback-savepoint) <span class="badge server">Server</span> — Explicitly commits current database transaction.
 - [`frappe.db.count()`](/10-database/#5-client-side-database-proxy-frappe-db-in-javascript) <span class="badge both">Both</span> — Counts matching database records without instantiating objects (Server &amp; Client JS Promise).
 - [`frappe.db.delete()`](/10-database/#frappe-db-delete) <span class="badge server">Server</span> — Performs direct SQL row deletion based on filter conditions.
@@ -176,18 +203,18 @@ Exhaustive alphabetical reference index of all public functions, methods, hooks,
 - [`frappe.defaults.get_user_default()`](/14-authentication-permissions/#client-side-user-defaults-permissions-javascript) <span class="badge client">Client</span> — Retrieves client user default setting.
 - [`frappe.defaults.get_user_permissions()`](/14-authentication-permissions/#client-side-user-defaults-permissions-javascript) <span class="badge client">Client</span> — Retrieves user permission restrictions array.
 - [`frappe.enqueue()`](/15-background-jobs-scheduler/#1-asynchronous-execution-frappe-enqueue) <span class="badge server">Server</span> — Enqueues background RQ worker job with queue/timeout options.
-- [`frappe.format()`](/11-client-api/#5-client-schema-field-formatting-frappe-meta-frappe-format) <span class="badge client">Client</span> — Universal field value formatter helper based on field metadata.
+- [`frappe.format()`](/19-utils/#8-client-side-universal-field-formatter-frappe-format) <span class="badge client">Client</span> — Universal field value formatter helper based on field metadata.
 - [`frappe.get_all()`](/09-server-api/#frappe-get-all-frappe-get-list) <span class="badge server">Server</span> — Fetches records list bypassing user permissions.
 - [`frappe.get_cached_doc()`](/06-documents/#frappe-get-cached-doc) <span class="badge server">Server</span> — Retrieves document from Redis cache.
 - [`frappe.get_cached_value()`](/16-cache-realtime-email-files/#high-performance-value-caching-frappe-get_cached_value) <span class="badge server">Server</span> — Retrieves field value from Redis cache if present.
 - [`frappe.get_doc()`](/06-documents/#frappe-get-doc) <span class="badge server">Server</span> — Instantiates Document ORM object from database or dictionary.
 - [`frappe.get_list()`](/09-server-api/#frappe-get-all-frappe-get-list) <span class="badge server">Server</span> — Fetches records list enforcing active user permissions.
 - [`frappe.get_meta()`](/10-database/#2-doctype-metadata-request-context-apis) <span class="badge server">Server</span> — Returns Meta structure object for specified DocType.
-- [`frappe.get_roles()`](/14-authentication-permissions/#2-user-roles-api-get_roles-has_role) <span class="badge server">Server</span> — Fetches list of roles assigned to active user.
+- [`frappe.get_roles()`](/14-authentication-permissions/#8-user-roles-api-get_roles-has_role) <span class="badge server">Server</span> — Fetches list of roles assigned to active user.
 - [`frappe.get_route()`](/11-client-api/#3-client-navigation-route-inspection-breadcrumbs) <span class="badge client">Client</span> — Returns active browser route array.
 - [`frappe.get_route_str()`](/11-client-api/#3-client-navigation-route-inspection-breadcrumbs) <span class="badge client">Client</span> — Returns active browser route string.
 - [`frappe.has_permission()`](/14-authentication-permissions/#fetching-evaluating-user-permissions-python) <span class="badge server">Server</span> — Evaluates document permission for user programmatically.
-- [`frappe.has_role()`](/14-authentication-permissions/#2-user-roles-api-get_roles-has_role) <span class="badge server">Server</span> — Checks if user possesses specific role.
+- [`frappe.has_role()`](/14-authentication-permissions/#8-user-roles-api-get_roles-has_role) <span class="badge server">Server</span> — Checks if user possesses specific role.
 - [`frappe.hide_progress()`](/11-client-api/#2-user-notifications-warnings-progress-bars-frappe) <span class="badge client">Client</span> — Client JS helper hiding header progress bar.
 - [`frappe.local`](/10-database/#frappe-local-request-context) <span class="badge server">Server</span> — Thread-local HTTP request context object (`local.site`, `local.user`, `local.form_dict`).
 - [`frappe.log_error()`](/09-server-api/#frappe-log-error) <span class="badge server">Server</span> — Logs exception traceback to system Error Log.
@@ -222,9 +249,9 @@ Exhaustive alphabetical reference index of all public functions, methods, hooks,
 - [`frappe.session.user`](/14-authentication-permissions/#1-active-session-context-frappe-session) <span class="badge server">Server</span> — Returns active authenticated user email string.
 - [`frappe.set_route()`](/11-client-api/#navigation-route-state-frappe-set_route) <span class="badge client">Client</span> — Navigates Desk view to specified route array.
 - [`frappe.set_route_options()`](/11-client-api/#3-client-navigation-route-inspection-breadcrumbs) <span class="badge client">Client</span> — Sets route options object for target view navigation.
-- [`frappe.share.add()`](/14-authentication-permissions/#5-document-sharing-api-frappe-share) <span class="badge server">Server</span> — Shares specific document instance with user.
-- [`frappe.share.get_users()`](/14-authentication-permissions/#5-document-sharing-api-frappe-share) <span class="badge server">Server</span> — Gets list of users a document is shared with.
-- [`frappe.share.remove()`](/14-authentication-permissions/#5-document-sharing-api-frappe-share) <span class="badge server">Server</span> — Removes sharing permission from user.
+- [`frappe.share.add()`](/14-authentication-permissions/#11-document-sharing-api-frappe-share) <span class="badge server">Server</span> — Shares specific document instance with user.
+- [`frappe.share.get_users()`](/14-authentication-permissions/#11-document-sharing-api-frappe-share) <span class="badge server">Server</span> — Gets list of users a document is shared with.
+- [`frappe.share.remove()`](/14-authentication-permissions/#11-document-sharing-api-frappe-share) <span class="badge server">Server</span> — Removes sharing permission from user.
 - [`frappe.show_alert()`](/11-client-api/#toast-alerts-frappe-show_alert) <span class="badge client">Client</span> — Displays non-blocking temporary toast notification.
 - [`frappe.show_progress()`](/11-client-api/#2-user-notifications-warnings-progress-bars-frappe) <span class="badge client">Client</span> — Client JS helper displaying header progress bar.
 - [`frappe.throw()`](/09-server-api/#frappe-throw) <span class="badge both">Both</span> — Raises ValidationError and displays error alert message (Server &amp; Client JS).
@@ -233,8 +260,18 @@ Exhaustive alphabetical reference index of all public functions, methods, hooks,
 - [`frappe.ui.form.on()`](/11-client-api/#1-form-event-handlers-frappe-ui-form-on) <span class="badge client">Client</span> — Binds JS event handlers to form lifecycle triggers.
 - [`frappe.user.has_role()`](/14-authentication-permissions/#client-side-javascript-role-inspection-frappe-user-has_role) <span class="badge client">Client</span> — Checks role assignment on client browser.
 - [`frappe.user_roles`](/14-authentication-permissions/#client-side-javascript-role-inspection-frappe-user-has_role) <span class="badge client">Client</span> — Array of roles assigned to active client user.
-- [`frappe.utils.now()`](/19-utils/#1-date-time-utilities) <span class="badge server">Server</span> — Returns current datetime string.
-- [`frappe.utils.today()`](/19-utils/#1-date-time-utilities) <span class="badge server">Server</span> — Returns current date string (`YYYY-MM-DD`).
+- [`frappe.utils.copy_to_clipboard()`](/19-utils/#9-client-side-general-utilities-frappe-utils) <span class="badge client">Client</span> — Copies string to OS clipboard.
+- [`frappe.utils.filter_dict()`](/19-utils/#9-client-side-general-utilities-frappe-utils) <span class="badge client">Client</span> — Client JS helper filtering array of objects matching key-value properties.
+- [`frappe.utils.get_form_link()`](/19-utils/#9-client-side-general-utilities-frappe-utils) <span class="badge client">Client</span> — Generates HTML anchor tag linking to DocType form in Desk.
+- [`frappe.utils.get_url()`](/19-utils/#5-python-validation-url-path-utilities-frappe-utils) <span class="badge both">Both</span> — Resolves relative path against site base URL.
+- [`frappe.utils.is_empty()`](/19-utils/#9-client-side-general-utilities-frappe-utils) <span class="badge client">Client</span> — Checks if value is null, undefined, empty array, or empty string.
+- [`frappe.utils.now()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Returns current datetime string.
+- [`frappe.utils.now_datetime()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Returns current local datetime as Python `datetime.datetime` object.
+- [`frappe.utils.nowdate()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Returns current date string (`YYYY-MM-DD`).
+- [`frappe.utils.nowtime()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Returns current time string (`HH:mm:ss.uuuuuu`).
+- [`frappe.utils.password.check_password`](/14-authentication-permissions/#4-password-management-cryptography-utilities) <span class="badge server">Server</span> — Validates user password against database hash.
+- [`frappe.utils.password.update_password`](/14-authentication-permissions/#4-password-management-cryptography-utilities) <span class="badge server">Server</span> — Hashes and saves new password for user.
+- [`frappe.utils.today()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Returns current date string (`YYYY-MM-DD`).
 - [`frappe.warn()`](/11-client-api/#2-user-notifications-warnings-progress-bars-frappe) <span class="badge client">Client</span> — Displays client confirmation warning dialog with custom action button.
 - [`frm.add_child()`](/12-child-tables/#adding-clearing-editing-child-rows-in-desk-form) <span class="badge client">Client</span> — Appends new row to child table field on form.
 - [`frm.add_custom_button()`](/11-client-api/#2-custom-buttons-api-frm-add_custom_button) <span class="badge client">Client</span> — Adds custom button or dropdown group button to toolbar.
@@ -282,8 +319,20 @@ Exhaustive alphabetical reference index of all public functions, methods, hooks,
 
 ## G
 
-- [`get_datetime()`](/19-utils/#1-date-time-utilities) <span class="badge server">Server</span> — Parses datetime string into Python `datetime.datetime` object.
-- [`getdate()`](/19-utils/#1-date-time-utilities) <span class="badge server">Server</span> — Parses string into Python `datetime.date` object.
+- [`get_abbr()`](/19-utils/#4-python-string-html-identifier-markdown-utilities-frappe-utils) <span class="badge server">Server</span> — Generates uppercase acronym from string (`frappe.utils.get_abbr`).
+- [`get_datetime()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Parses datetime string into Python `datetime.datetime` object.
+- [`get_files_path()`](/19-utils/#5-python-validation-url-path-utilities-frappe-utils) <span class="badge server">Server</span> — Resolves absolute path to public/files (`frappe.utils.get_files_path`).
+- [`get_first_day()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Returns first date of month for given date (`frappe.utils.get_first_day`).
+- [`get_last_day()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Returns last date of month for given date (`frappe.utils.get_last_day`).
+- [`get_site_path()`](/19-utils/#5-python-validation-url-path-utilities-frappe-utils) <span class="badge server">Server</span> — Resolves absolute path inside site directory (`frappe.utils.get_site_path`).
+- [`get_time()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Parses time string into Python `datetime.time` object.
+- [`get_timedelta()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Parses string into Python `datetime.timedelta` object.
+- [`get_url()`](/19-utils/#5-python-validation-url-path-utilities-frappe-utils) <span class="badge both">Both</span> — Returns canonical site URL with optional path appended.
+- [`get_url_to_form()`](/19-utils/#5-python-validation-url-path-utilities-frappe-utils) <span class="badge server">Server</span> — Generates Desk URL to document form view.
+- [`get_url_to_list()`](/19-utils/#5-python-validation-url-path-utilities-frappe-utils) <span class="badge server">Server</span> — Generates Desk URL to DocType list view.
+- [`get_year_ending()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Returns ending date of year (`YYYY-12-31`).
+- [`get_year_start()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Returns first date of year (`YYYY-01-01`).
+- [`getdate()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Parses string into Python `datetime.date` object.
 - [`global_date_format`](/17-web-jinja-print-reports/#built-in-jinja-filters-matrix) <span class="badge server">Server</span> — Jinja template filter formatting ISO date to global format.
 
 ---
@@ -297,15 +346,36 @@ Exhaustive alphabetical reference index of all public functions, methods, hooks,
 
 ---
 
+## I
+
+- [`in_words()`](/19-utils/#3-python-currency-number-formatting-frappe-utils) <span class="badge server">Server</span> — Converts numeric amount to spoken English words (`frappe.utils.in_words`).
+- [`is_empty()`](/19-utils/#9-client-side-general-utilities-frappe-utils) <span class="badge client">Client</span> — Checks if value is null, undefined, empty array, or empty string.
+- [`is_last_day_of_the_month()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Checks if date is the last day of its month.
+
+---
+
 ## L
 
 - [`load_from_db()`](/05-doctypes/#virtual-doctypes-is_virtual-1) <span class="badge server">Server</span> — Controller override method for Virtual DocType record retrieval.
+- [`login_as()`](/14-authentication-permissions/#example-programmatic-impersonation-system-login-login_as) <span class="badge server">Server</span> — Programmatically switches session context to target user without password (`LoginManager.login_as`).
+- [`LoginManager`](/14-authentication-permissions/#2-loginmanager-authentication-flow-frappe-auth-loginmanager) <span class="badge server">Server</span> — Core authentication, credential validation, 2FA, and session coordinator (`frappe.auth.LoginManager`).
 
 ---
 
 ## M
 
+- [`markdown()`](/19-utils/#4-python-string-html-identifier-markdown-utilities-frappe-utils) <span class="badge server">Server</span> — Converts markdown text into sanitized HTML (`frappe.utils.markdown`).
 - [`money_in_words`](/17-web-jinja-print-reports/#built-in-jinja-filters-matrix) <span class="badge both">Both</span> — Jinja filter, server utility &amp; client formatter converting numeric amount to words.
+- [`month_diff()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Calculates difference in months between two dates (`frappe.utils.month_diff`).
+
+---
+
+## N
+
+- [`now()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Returns current datetime string (`frappe.utils.now`).
+- [`now_datetime()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge both">Both</span> — Returns current datetime as Python `datetime.datetime` object or JS string.
+- [`nowdate()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Returns current date string (`YYYY-MM-DD`) (`frappe.utils.nowdate`).
+- [`nowtime()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Returns current time string (`HH:mm:ss.uuuuuu`) (`frappe.utils.nowtime`).
 
 ---
 
@@ -313,7 +383,10 @@ Exhaustive alphabetical reference index of all public functions, methods, hooks,
 
 - [`on_cancel()`](/07-controllers/#2-complete-lifecycle-events-reference-matrix) <span class="badge server">Server</span> — Controller hook executed right after cancellation.
 - [`on_change()`](/07-controllers/#2-complete-lifecycle-events-reference-matrix) <span class="badge server">Server</span> — Controller hook executed whenever workflow status changes.
+- [`on_login`](/14-authentication-permissions/#6-authentication-lifecycle-hooks-hooks-py) <span class="badge server">Server</span> — Hook executed immediately after credential authentication (`hooks.py`).
+- [`on_logout`](/14-authentication-permissions/#6-authentication-lifecycle-hooks-hooks-py) <span class="badge server">Server</span> — Hook executed during user logout (`hooks.py`).
 - [`on_rollback()`](/08-hooks/#1-document-event-hooks-doc-events) <span class="badge server">Server</span> — Hook executed if database transaction rolls back (`hooks.py`).
+- [`on_session_creation`](/14-authentication-permissions/#6-authentication-lifecycle-hooks-hooks-py) <span class="badge server">Server</span> — Hook executed when new session is initialized (`hooks.py`).
 - [`on_submit()`](/07-controllers/#2-complete-lifecycle-events-reference-matrix) <span class="badge server">Server</span> — Controller hook executed right after submission.
 - [`on_trash()`](/07-controllers/#2-complete-lifecycle-events-reference-matrix) <span class="badge server">Server</span> — Controller hook executed right before database row deletion.
 - [`on_update()`](/07-controllers/#2-complete-lifecycle-events-reference-matrix) <span class="badge server">Server</span> — Controller hook executed right after SQL save commit.
@@ -325,37 +398,54 @@ Exhaustive alphabetical reference index of all public functions, methods, hooks,
 
 ## P
 
+- [`parse_val()`](/19-utils/#2-python-type-conversion-safe-casting-frappe-utils) <span class="badge server">Server</span> — Autodetects and casts string to int, float, date, or datetime (`frappe.utils.parse_val`).
 - [`permission_query_conditions`](/08-hooks/#4-permission-hooks) <span class="badge server">Server</span> — Injects dynamic SQL permission conditions (`hooks.py`).
 - [`portal_menu_items`](/08-hooks/#7-website-route-rules-portal-customizations) <span class="badge server">Server</span> — Registers custom client portal menu links (`hooks.py`).
+- [`post_login()`](/14-authentication-permissions/#2-loginmanager-authentication-flow-frappe-auth-loginmanager) <span class="badge server">Server</span> — Completes session setup and triggers on_login hooks (`LoginManager.post_login`).
+- [`pretty_date()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge both">Both</span> — Converts datetime to relative human-readable string ("2 hours ago") in Python and JS.
 
 ---
 
 ## R
 
-- [`random_string()`](/19-utils/#3-formatting-text-manipulation) <span class="badge server">Server</span> — Generates secure random string.
+- [`random_string()`](/19-utils/#4-python-string-html-identifier-markdown-utilities-frappe-utils) <span class="badge server">Server</span> — Generates secure random string (`frappe.utils.random_string`).
+- [`reset_password()`](/14-authentication-permissions/#4-password-management-cryptography-utilities) <span class="badge server">Server</span> — Generates password recovery token and dispatches reset email (`frappe.core.doctype.user.user.reset_password`).
+- [`rounded()`](/19-utils/#2-python-type-conversion-safe-casting-frappe-utils) <span class="badge server">Server</span> — Safely rounds float to specified precision (`frappe.utils.rounded`).
 
 ---
 
 ## S
 
+- [`safe_json_loads()`](/19-utils/#6-python-data-structure-collection-json-helpers-frappe-utils) <span class="badge server">Server</span> — Safely parses JSON string without raising JSONDecodeError (`frappe.utils.safe_json_loads`).
+- [`sbool()`](/19-utils/#2-python-type-conversion-safe-casting-frappe-utils) <span class="badge server">Server</span> — Converts string ("true", "1", "yes") to boolean (`frappe.utils.sbool`).
 - [`scheduler_events`](/08-hooks/#2-scheduler-hooks-scheduler-events) <span class="badge server">Server</span> — Defines periodic background cron tasks in `hooks.py`.
-- [`scrub()`](/19-utils/#3-formatting-text-manipulation) <span class="badge server">Server</span> — Scrubs string into valid Python variable/field identifier.
-- [`slug()`](/19-utils/#3-formatting-text-manipulation) <span class="badge server">Server</span> — Slugifies text string for URL routing.
+- [`scrub()`](/19-utils/#4-python-string-html-identifier-markdown-utilities-frappe-utils) <span class="badge server">Server</span> — Scrubs string into valid Python variable/field identifier (`frappe.utils.scrub`).
+- [`sign_up()`](/14-authentication-permissions/#3-user-signup-registration-api-sign_up) <span class="badge server">Server</span> — Registers new website user, creates confirmation key, and sends welcome email (`frappe.core.doctype.user.user.sign_up`).
+- [`slug()`](/19-utils/#4-python-string-html-identifier-markdown-utilities-frappe-utils) <span class="badge server">Server</span> — Slugifies text string for URL routing (`frappe.utils.slug`).
+- [`split_emails()`](/19-utils/#5-python-validation-url-path-utilities-frappe-utils) <span class="badge server">Server</span> — Splits multi-email string into cleaned list of validated email addresses (`frappe.utils.split_emails`).
+- [`strip_html()`](/19-utils/#4-python-string-html-identifier-markdown-utilities-frappe-utils) <span class="badge server">Server</span> — Strips HTML tags from string (`frappe.utils.strip_html`).
 
 ---
 
 ## T
 
-- [`time_diff_in_seconds()`](/19-utils/#1-date-time-utilities) <span class="badge server">Server</span> — Calculates time difference in seconds.
-- [`today()`](/19-utils/#1-date-time-utilities) <span class="badge both">Both</span> — Returns current date string (`YYYY-MM-DD`) in Python or JS.
+- [`time_diff_in_seconds()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge server">Server</span> — Calculates time difference in seconds (`frappe.utils.time_diff_in_seconds`).
+- [`today()`](/19-utils/#1-python-date-time-utilities-frappe-utils) <span class="badge both">Both</span> — Returns current date string (`YYYY-MM-DD`) in Python or JS.
+
+---
+
+## U
+
+- [`unique()`](/19-utils/#6-python-data-structure-collection-json-helpers-frappe-utils) <span class="badge server">Server</span> — Removes duplicates from sequence while preserving original order (`frappe.utils.unique`).
+- [`update_password()`](/14-authentication-permissions/#4-password-management-cryptography-utilities) <span class="badge server">Server</span> — Hashes and saves new password for user (`frappe.utils.password.update_password`).
 
 ---
 
 ## V
 
 - [`validate()`](/07-controllers/#2-complete-lifecycle-events-reference-matrix) <span class="badge server">Server</span> — Primary controller validation hook.
-- [`validate_email_address()`](/19-utils/#4-validation-utilities) <span class="badge server">Server</span> — Validates email string format.
-- [`validate_url()`](/19-utils/#4-validation-utilities) <span class="badge server">Server</span> — Validates URL string format.
+- [`validate_email_address()`](/19-utils/#5-python-validation-url-path-utilities-frappe-utils) <span class="badge server">Server</span> — Validates email string format (`frappe.utils.validate_email_address`).
+- [`validate_url()`](/19-utils/#5-python-validation-url-path-utilities-frappe-utils) <span class="badge server">Server</span> — Validates URL string format (`frappe.utils.validate_url`).
 - [`Virtual DocType`](/05-doctypes/#virtual-doctypes-is_virtual-1) <span class="badge server">Server</span> — External data source backed DocType (`is_virtual=1`).
 
 ---
