@@ -16,13 +16,27 @@ This document tracks the evolution, feature additions, API expansions, and revis
 
 | Version | Release Name | Major Focus & Key Additions | Total Chapters / Sections | Status |
 | :--- | :--- | :--- | :--- | :---: |
-| **v1.10.0 (v1.10)** | **Document Field Access Strategy, Safe Getter Methods & Best Practice Callouts** | Added exhaustive Python field-reading patterns (`doc.get("fieldname")` vs `frappe.db.get_value`) across Chapters 06, 07, 09, 10, 30, and 31; integrated defensive null-safety, in-memory child table filtering, technical callout boxes (`> [!TIP]`), official Frappe documentation references, and synced API Index. | **31 Chapters + 1 Ecosystem Section** | **Current Release** |
+| **v1.11.0-beta.1 (v16-beta)** | **Frappe Framework v16 Differences, Breaking Changes & Migration Guide** | Added Chapter 32 (Frappe v16 Differences & Migration), covering default sorting shift (`creation desc` vs `modified desc`), ban of `frappe.db.commit()` in document hooks, Python 3.14+ & Node 24+ runtime requirements, sandboxed IIFE client scripts, strict ISO country codes, Desk `/desk` routing, and landing page v16 hub. | **32 Chapters + 1 Ecosystem Section** | **Current Release (Beta)** |
+| **v1.10.0 (v1.10)** | **Document Field Access Strategy, Safe Getter Methods & Best Practice Callouts** | Added exhaustive Python field-reading patterns (`doc.get("fieldname")` vs `frappe.db.get_value`) across Chapters 06, 07, 09, 10, 30, and 31; integrated defensive null-safety, in-memory child table filtering, technical callout boxes (`> [!TIP]`), official Frappe documentation references, and synced API Index. | **31 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.9.0 (v1.9)** | **Tree Reports, LoginManager, Nginx Port Assignment & Utilities Overhaul** | Added folded first-child Tree Report architecture in Chapter 18, LoginManager & custom signup/login APIs in Chapter 14, Nginx port assignment & port-based multi-tenancy in Chapter 03, complete Python/JS utilities expansion in Chapter 19, and synced API Index. | **31 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.8.0 (v1.8)** | **Conditional Date Filter Patterns & Validation in Script Reports** | Added conditional date requirement pattern in Chapter 18 (Reports Guide), client-side dynamic `on_change` requirement toggle (`df.reqd = 1`), server-side validation guard (`frappe.throw`), and multi-table parameterized SQL query examples. | **31 Chapters + 1 Ecosystem Section** | Stable |
 
 ---
 
-## 🆕 Version 1.10.0 (v1.10) — Document Field Access Strategy, Safe Getter Methods & Best Practice Callouts (Current)
+## 🆕 Version 1.11.0-beta.1 (v16-beta) — Frappe Framework v16 Differences & Migration Guide (Current)
+
+**Release Date:** September 29, 2026
+
+Version 1.11.0-beta.1 introduces **Chapter 32: Frappe Framework v16 Differences, Breaking Changes & Migration Guide**, offering a comprehensive breakdown of all methods, functions, database query behaviors, transaction safety rules, and frontend scoping mechanisms introduced in Frappe v16.
+
+### 🌟 Key Enhancements in v1.11.0-beta.1
+- **Chapter 32: Frappe v16 Differences & Migration Guide**: Complete technical guide detailing the default sorting shift from `modified` to `creation`, prohibition of `frappe.db.commit()` in document hooks, strict boolean return contracts for `has_permission`, sandboxed IIFE execution for client scripts, and decoupled core modules.
+- **Landing Page Navigation Hub**: Added dedicated v16 Beta Spotlight Banner, interactive hero action button, `v16 Differences` code switcher tab, and a new developer focus pathway.
+- **Runtime Updates**: Documented minimum dependency bumps for Python 3.14+ and Node.js 24+.
+
+---
+
+## 🟢 Version 1.10.0 (v1.10) — Document Field Access Strategy, Safe Getter Methods & Best Practice Callouts
 
 **Release Date:** September 29, 2026
 

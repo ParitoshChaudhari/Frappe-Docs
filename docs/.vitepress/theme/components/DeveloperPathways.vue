@@ -83,6 +83,16 @@ export default {
           descHtml: 'Build token-authenticated REST resource endpoints, file upload APIs &amp; whitelisted <code class="chip">@frappe.whitelist()</code> RPC calls.',
           link: '/13-rest-api/',
           ctaText: 'Explore REST API'
+        },
+        {
+          id: 'v16',
+          icon: '⚡',
+          title: 'v16 Beta Differences',
+          badge: 'BETA v16',
+          color: '#ec4899',
+          descHtml: 'Understand default sorting shift (<code class="chip">creation</code> vs <code class="chip">modified</code>), transaction commit bans in hooks, runtime bumps &amp; breaking changes.',
+          link: '/32-frappe-v16-differences/',
+          ctaText: 'Explore v16 Differences'
         }
       ]
     };

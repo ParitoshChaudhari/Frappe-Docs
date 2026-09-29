@@ -89,6 +89,16 @@ export default {
           summary: 'Asynchronous background task queuing with configurable Redis RQ timeouts.',
           link: '/15-background-jobs-scheduler/',
           code: `frappe.enqueue("my_app.tasks.generate_pdf", queue="long", timeout=1800)`
+        },
+        {
+          id: 'v16',
+          label: 'v16 Differences',
+          badge: 'v16 BETA',
+          icon: '⚡',
+          color: '#ec4899',
+          summary: 'Frappe v16 changes default ORM sorting from modified to creation desc and prohibits db.commit in hooks.',
+          link: '/32-frappe-v16-differences/',
+          code: `# In v16, queries default to 'creation desc' instead of 'modified desc'\ntasks = frappe.get_all("Task", fields=["name", "status"])\n\n# Document hooks cannot run frappe.db.commit() anymore\n# Defer heavy operations to background queues via frappe.enqueue()`
         }
       ]
     };

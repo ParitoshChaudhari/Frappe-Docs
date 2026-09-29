@@ -56,10 +56,19 @@ export default defineConfig({
       }
     },
 
-    // Empty nav so header contains ONLY Search + Theme Switcher
-    nav: [],
+    nav: [
+      { text: '⚡ v16 Differences (Beta)', link: '/32-frappe-v16-differences/' }
+    ],
 
     sidebar: [
+      {
+        text: '⚡ Frappe v16 Beta Differences',
+        collapsible: true,
+        collapsed: false,
+        items: [
+          { text: '32. Frappe v16 Differences & Migration', link: '/32-frappe-v16-differences/' }
+        ]
+      },
       {
         text: 'Overview & Basics',
         collapsible: true,

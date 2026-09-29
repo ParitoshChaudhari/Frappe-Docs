@@ -39,6 +39,11 @@
   color: #ffffff;
 }
 
+.badge.v16 {
+  background-color: #ec4899;
+  color: #ffffff;
+}
+
 .badge.server {
   background-color: #36b37e;
   color: #ffffff;
