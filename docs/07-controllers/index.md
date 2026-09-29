@@ -24,17 +24,41 @@ from frappe.model.document import Document
 class CustomTask(Document):
     def validate(self):
         """Executes before saving or submitting."""
-        if self.end_date and self.start_date and self.end_date < self.start_date:
+        # Safe field reading via self.get(): Prevents AttributeError if fields are optional
+        start_date = self.get("start_date")
+        end_date = self.get("end_date")
+        status = self.get("status", "Open") # Fallback default value
+
+        if end_date and start_date and end_date < start_date:
             frappe.throw(_("End Date cannot be before Start Date"))
+
+        # In-memory child table filtering via self.get():
+        reviewers = self.get("task_assignees", {"role": "Reviewer"})
 
     def on_update(self):
         """Executes after database save."""
         self.sync_task_status_with_project()
 
     def sync_task_status_with_project(self):
-        if self.project:
-            frappe.db.set_value("Project", self.project, "last_updated", frappe.utils.now())
+        project = self.get("project")
+        if project:
+            frappe.db.set_value("Project", project, "last_updated", frappe.utils.now())
 ```
+
+> [!TIP]
+> **Best Practices, Reason, Why It's Used & How It Works: `self.get("fieldname")` in Controllers**
+>
+> - **Why & When to Use `self.get("fieldname")` inside Controllers**:
+>   1. **Defensive against Optional & Custom Fields**: In a custom app or polymorphic controller, custom fields added by other apps may not be guaranteed to exist on every site. Using `self.get("custom_discount", 0.0)` prevents crashing with an `AttributeError`.
+>   2. **Child Table Filtering**: `self.get("child_table_name", {"is_primary": 1})` allows you to quickly filter child rows in memory without looping or running SQL queries.
+>   3. **Uniformity**: When interacting with either Document instances (`self`) or dictionary parameters (`frappe._dict`), `.get("fieldname")` provides consistent syntax.
+> - **When to Use Direct Attribute (`self.fieldname`)**:
+>   Use `self.fieldname` for standard, mandatory core fields defined in the DocType schema where an immediate `AttributeError` is preferable to catch spelling mistakes during unit testing.
+> - **How It Works Internally**:
+>   Because controller classes inherit from `Document` (which subclasses `BaseDocument`), `self.get()` resolves to `frappe.model.base_document.BaseDocument.get`.
+> - **Official Documentation References**:
+>   - [Frappe Framework Official Docs: Controllers & Document Methods](https://frappeframework.com/docs/v15/user/en/basics/doctypes/controllers#document-methods)
+>   - [Frappe Framework Official Docs: Document API Reference (`doc.get`)](https://frappeframework.com/docs/v15/user/en/api/document#docget)
 
 ---
 

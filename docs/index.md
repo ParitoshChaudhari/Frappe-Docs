@@ -19,8 +19,8 @@ hero:
 <!-- Release Pill Banner -->
 <div style="text-align: center; margin-bottom: 1.5rem; position: relative; z-index: 1;">
   <a href="/29-version-history/" class="hero-pill" style="text-decoration: none;">
-    <span class="hero-pill-badge">NEW v1.9.0</span>
-    <span>Tree Reports, LoginManager, Nginx Port Assignment &amp; Utilities Expansion</span>
+    <span class="hero-pill-badge">NEW v1.10.0</span>
+    <span>Field Access Patterns (doc.get vs db.get_value) &amp; Best Practices Callouts</span>
     <span style="opacity: 0.7;">→</span>
   </a>
 </div>

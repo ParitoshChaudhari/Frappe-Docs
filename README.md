@@ -1,6 +1,6 @@
 # Frappe Framework v15 Complete Developer Documentation & Reference
 
-[![Documentation Version](https://img.shields.io/badge/version-v1.8.0-blue.svg)](https://github.com/ParitoshChaudhari/Frappe-Docs)
+[![Documentation Version](https://img.shields.io/badge/version-v1.10.0-blue.svg)](https://github.com/ParitoshChaudhari/Frappe-Docs)
 [![Frappe Framework](https://img.shields.io/badge/frappe-v15-0052CC.svg)](https://frappeframework.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -12,6 +12,11 @@ A fast, lightweight, static-first developer documentation website and technical 
 
 ## 🌟 Key Features & Documentation Highlights
 
+- **Document Field Access Strategy & Best Practice Callouts (Chapters 06, 07, 09, 10, 30, 31)**: Exhaustive Python field-reading patterns comparing full document instantiation (`frappe.get_doc` + `doc.get("fieldname", default)`) vs direct SQL scalar reads (`frappe.db.get_value()`). Includes defensive null-safety against `AttributeError`, in-memory child table filtering, and `> [!TIP]` callout boxes with official Frappe documentation references.
+- **Tree Reports & Folded First-Child Architecture (Chapter 18)**: High-density layout rendering the first child reading inline with the parent inspection row at `indent: 0` while expanding secondary child records as collapsible sub-rows at `indent: 1`.
+- **Authentication, LoginManager & User Registration (Chapter 14)**: Deep dive into `frappe.auth.LoginManager`, programmatic session impersonation (`login_as`), headless registration (`sign_up`), and auth hooks.
+- **Bench CLI Nginx & Port-Based Multi-Tenancy (Chapter 03)**: Complete reverse-proxy guide covering `bench setup nginx`, port allocation (`bench set-nginx-port <site> <port>`), and Let's Encrypt SSL.
+- **Exhaustive Python & JavaScript Utilities (Chapter 19)**: Date/time manipulation, null-safe type casting (`cint`, `flt`, `cstr`), string sanitization, and universal field formatters.
 - **Conditional Date Filtering in Script Reports (Chapter 18)**: Complete guide on building reports with unpopulated initial dates, client-side dynamic requirement triggers (`on_change` modifying `df.reqd = 1`), server-side validation guards (`frappe.throw`), and multi-table parameterized SQL JOINs.
 - **Exhaustive Bench CLI Reference Expansion**: Added `bench --site <site-name> list-apps`, `bench list-sites`, `bench set-admin-password`, `bench mariadb`/`postgres`, `bench reset-perms`, `bench scheduler` (`status`, `enable`, `disable`), `bench build-search-index`, `bench remove-app`, `bench update`, `bench restart`, `bench setup`, `bench doctor`, `bench worker`, `bench schedule`, and `bench version`.
 - **Chapter 31: Frappe Data Types & Custom Containers Reference**: Comprehensive reference covering `frappe._dict` (dot-accessible dictionary, KeyError safety, parameter typing), `Document` ORM classes, `DF` synthetic IDE type stubs (`frappe.types`), `frappe.form_dict`, thread-local `frappe.local` context, DB query return types, null-safe primitives (`cint`, `flt`, `cstr`), and developer type annotation cheat sheets.
@@ -72,7 +77,9 @@ Static HTML, CSS, JavaScript, and local full-text search indexes will be generat
 
 | Version | Release Stage | Highlights |
 | :--- | :--- | :--- |
-| **v1.8.0 (v1.8)** | **Current Release** | Added conditional date requirement pattern in Chapter 18 (Reports Guide), client-side dynamic `on_change` requirement toggle (`df.reqd = 1`), server-side validation guard (`frappe.throw`), and multi-table parameterized SQL query examples. |
+| **v1.10.0 (v1.10)** | **Current Release** | Added comprehensive Python field-reading patterns (`doc.get("fieldname")` vs `frappe.db.get_value`) across Chapters 06, 07, 09, 10, 30, and 31; integrated defensive null-safety, in-memory child table filtering, technical callout boxes (`> [!TIP]`), official Frappe documentation references, and synced API Index. |
+| **v1.9.0 (v1.9)** | **Tree Reports & Utils** | Added folded first-child Tree Report architecture in Chapter 18, LoginManager & custom signup/login APIs in Chapter 14, Nginx port assignment & port-based multi-tenancy in Chapter 03, complete Python/JS utilities expansion in Chapter 19, and synced API Index. |
+| **v1.8.0 (v1.8)** | **Conditional Reports** | Added conditional date requirement pattern in Chapter 18 (Reports Guide), client-side dynamic `on_change` requirement toggle (`df.reqd = 1`), server-side validation guard (`frappe.throw`), and multi-table parameterized SQL query examples. |
 | **v1.7.0 (v1.7)** | **Bench CLI Expansion** | Added `bench --site <site-name> list-apps`, `list-sites`, `remove-app`, `set-admin-password`, `mariadb`/`postgres`, `reset-perms`, `scheduler`, `build-search-index`, `update`, `restart`, `setup`, `doctor`, `worker`/`schedule`, `version`, and updated API Index. |
 | **v1.6.0 (v1.6)** | **Data Types & Custom Containers** | Added Chapter 31: Frappe Data Types & Custom Containers Reference (`frappe._dict`, `Document`, `DF` type stubs, `frappe.local`, query return types, null-safe primitives, type annotation cheat sheet). |
 | **v1.5.0 (v1.5)** | **Notifications & Search** | Added sub-heading TOC navigation (`outline: [2, 6]`), complete System & Email Notifications guide, and expanded navbar search bar to 560px. |
@@ -90,7 +97,7 @@ For detailed revision history, see [Version History & Changelog](docs/29-version
 
 ```text
 frappe-docs/
-├── package.json                          # Package scripts & dependencies (v1.7.0)
+├── package.json                          # Package scripts & dependencies (v1.10.0)
 ├── README.md                             # Project documentation & guide
 └── docs/
     ├── .vitepress/

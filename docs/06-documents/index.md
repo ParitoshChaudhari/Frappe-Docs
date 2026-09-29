@@ -20,13 +20,22 @@ The Document API (`frappe.model.document.Document`) is Frappe Framework's Object
 
 Fetches an existing document from the database **or** instantiates a new document in memory. Raises `frappe.DoesNotExistError` if the specified record is not found.
 
-There are **three** distinct call patterns:
+There are **four** distinct call patterns:
 
-#### Pattern 1: Fetch an existing document by name
+#### Pattern 1: Fetch an existing document by name & read/write fields
 
 ```python
-# Fetches the Task record with name 'TASK00002' from the database
+# 1. Fetch entire Document object from database by DocType & Name
 doc = frappe.get_doc('Task', 'TASK00002')
+
+# Way A: Safe getter method (Returns None or default if field is empty/unset - No AttributeError!)
+task_title = doc.get("title")
+task_status = doc.get("status", "Draft") # with fallback default
+
+# Way B: Direct attribute access (Standard ORM syntax)
+print(doc.title)
+
+# Update and persist changes
 doc.title = 'Updated Title'
 doc.save()
 ```
@@ -285,6 +294,7 @@ print(url)
 
 | Method | Return Type | Description |
 | :--- | :--- | :--- |
+| `doc.get(fieldname, default=None)` | `Any` | Safely retrieves field value without raising `AttributeError`; supports default fallbacks and child table filtering |
 | `doc.is_new()` | `bool` | Returns `True` if document has not yet been saved to the database |
 | `doc.is_dirty()` | `bool` | Returns `True` if in-memory field values differ from the last saved state |
 | `doc.has_value_changed(fieldname)` | `bool` | Returns `True` if the specified field changed compared to its DB value before save |
@@ -304,7 +314,16 @@ print(url)
 | `doc.queue_action(action, **kwargs)` | `None` | Enqueues a controller action (e.g., `'submit'`, `'cancel'`) as a background job |
 
 ```python
-# 1. Append a child table row and save
+# 1. Safe field access via doc.get() with fallback defaults
+doc = frappe.get_doc("Task", "TASK-2026-00001")
+status = doc.get("status", "Draft")
+priority = doc.get("priority") # returns None if unset, no AttributeError!
+
+# 2. Filter child table rows in memory via doc.get()
+# Returns only child rows where item_code == "CPU-INTEL-I9" without hitting DB
+intel_items = doc.get("items", {"item_code": "CPU-INTEL-I9"})
+
+# 3. Append a child table row and save
 doc.append("items", {
     "item_code": "CPU-INTEL-I9",
     "qty": 2,
@@ -312,22 +331,38 @@ doc.append("items", {
 })
 doc.save()
 
-# 2. Convert document instance to plain dictionary
+# 4. Convert document instance to plain dictionary
 doc_dict = doc.as_dict()
 # Output: {"name": "TASK-2026-00001", "doctype": "Task", "title": "Deploy Server", ...}
 
-# 3. Check if a field changed since last save
+# 5. Check if a field changed since last save
 if doc.has_value_changed("status"):
     old_doc = doc.get_doc_before_save()
     print(f"Status changed from {old_doc.status} to {doc.status}")
 
-# 4. Add a comment and tags
+# 6. Add a comment and tags
 doc.add_comment("Comment", "Reviewed architecture specs with team.")
 doc.add_tag("High-Priority")
 doc.add_tag("Reviewed")
 tags = doc.get_tags()
 print(tags)  # Output: ['High-Priority', 'Reviewed']  <- a list, not a string!
 ```
+
+> [!TIP]
+> **Best Practices, Reason, Why It's Used & How It Works: `doc.get("fieldname")` vs `doc.fieldname` vs `frappe.db.get_value`**
+>
+> - **Why & When to Use `doc.get("fieldname")`**:
+>   1. **Null-Safety & Defensive Programming**: If a DocType field is optional, unset, or dynamic, reading `doc.some_custom_field` will raise an `AttributeError` if the attribute does not exist on the object. In contrast, `doc.get("some_custom_field")` safely evaluates to `None` (or your chosen fallback: `doc.get("fieldname", default_value)`).
+>   2. **In-Memory Child Table Filtering**: `doc.get(table_name, filters)` is a built-in Frappe ORM feature. Calling `doc.get("items", {"item_code": "ITEM-01"})` returns filtered child table rows in memory instantly without issuing another SQL query to the database.
+>   3. **Dynamic Field Resolution**: When looping through fields dynamically (e.g., `for field in ["status", "priority", "owner"]: val = doc.get(field)`), `doc.get()` is significantly cleaner than `getattr(doc, field, None)`.
+> - **When to Prefer `frappe.db.get_value` Instead**:
+>   If you ONLY need 1 or 2 scalar values from a record and do **not** plan to modify the document, run controller methods, or check child tables, use `frappe.db.get_value("DocType", name, "fieldname")`. It issues a lightweight `SELECT fieldname FROM tabDocType WHERE name=...` query, avoiding the memory overhead of instantiating the entire document tree.
+> - **How It Works Internally**:
+>   `Document` inherits from `BaseDocument` (`frappe.model.base_document.BaseDocument`). The `BaseDocument.get(self, key=None, filters=None, limit=None, default=None)` method checks `self.__dict__`. If `filters` are provided and the key corresponds to a child table (`Table` field), Frappe iterates over child row instances in memory and evaluates them using `frappe.compare(doc.get(f), condition, val)`, returning matched rows without database round-trips.
+> - **Official Documentation References**:
+>   - [Frappe Framework Official Docs: Document API Reference (`doc.get`)](https://frappeframework.com/docs/v15/user/en/api/document#docget)
+>   - [Frappe Framework Official Docs: Document Methods](https://frappeframework.com/docs/v15/user/en/basics/doctypes/controllers#document-methods)
+>   - [Frappe Framework Official Docs: Database API (`frappe.db.get_value`)](https://frappeframework.com/docs/v15/user/en/api/database#frappedbget_value)
 
 ---
 

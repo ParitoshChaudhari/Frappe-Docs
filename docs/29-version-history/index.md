@@ -16,12 +16,49 @@ This document tracks the evolution, feature additions, API expansions, and revis
 
 | Version | Release Name | Major Focus & Key Additions | Total Chapters / Sections | Status |
 | :--- | :--- | :--- | :--- | :---: |
-| **v1.9.0 (v1.9)** | **Tree Reports, LoginManager, Nginx Port Assignment & Utilities Overhaul** | Added folded first-child Tree Report architecture in Chapter 18, LoginManager & custom signup/login APIs in Chapter 14, Nginx port assignment & port-based multi-tenancy in Chapter 03, complete Python/JS utilities expansion in Chapter 19, and synced API Index. | **31 Chapters + 1 Ecosystem Section** | **Current Release** |
+| **v1.10.0 (v1.10)** | **Document Field Access Strategy, Safe Getter Methods & Best Practice Callouts** | Added exhaustive Python field-reading patterns (`doc.get("fieldname")` vs `frappe.db.get_value`) across Chapters 06, 07, 09, 10, 30, and 31; integrated defensive null-safety, in-memory child table filtering, technical callout boxes (`> [!TIP]`), official Frappe documentation references, and synced API Index. | **31 Chapters + 1 Ecosystem Section** | **Current Release** |
+| **v1.9.0 (v1.9)** | **Tree Reports, LoginManager, Nginx Port Assignment & Utilities Overhaul** | Added folded first-child Tree Report architecture in Chapter 18, LoginManager & custom signup/login APIs in Chapter 14, Nginx port assignment & port-based multi-tenancy in Chapter 03, complete Python/JS utilities expansion in Chapter 19, and synced API Index. | **31 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.8.0 (v1.8)** | **Conditional Date Filter Patterns & Validation in Script Reports** | Added conditional date requirement pattern in Chapter 18 (Reports Guide), client-side dynamic `on_change` requirement toggle (`df.reqd = 1`), server-side validation guard (`frappe.throw`), and multi-table parameterized SQL query examples. | **31 Chapters + 1 Ecosystem Section** | Stable |
 
 ---
 
-## 🆕 Version 1.9.0 (v1.9) — Tree Reports, LoginManager Architecture, Port-Based Multi-Tenancy & Utilities Overhaul (Current)
+## 🆕 Version 1.10.0 (v1.10) — Document Field Access Strategy, Safe Getter Methods & Best Practice Callouts (Current)
+
+**Release Date:** September 29, 2026
+
+Version 1.10.0 introduces an exhaustive documentation overhaul of **document field access patterns** across the server-side Python guides. It clarifies when and why to fetch the entire document and safely access fields via `doc.get("fieldname")` versus issuing direct scalar database queries with `frappe.db.get_value()`. Every method now includes dedicated **Best Practices, Reason, Why It's Used & How It Works** callout boxes and official Frappe framework documentation links.
+
+### 🌟 Key Enhancements in v1.10.0
+
+#### 1. Universal `doc.get("fieldname")` Safe Field Access Pattern
+- **Comprehensive Coverage Across 6 Core Chapters**:
+  - **[Chapter 06: Document API & Lifecycle](/06-documents/)**: Pattern 1 updated to contrast `doc.get("fieldname", default)` with direct dot access `doc.fieldname`. Added `doc.get()` to the Key Inspection & Helper Methods table.
+  - **[Chapter 07: Controllers & Events](/07-controllers/)**: Documented defensive `self.get("fieldname")` inside `validate()` and `on_update()` controller hooks to protect against optional and app-extended custom fields.
+  - **[Chapter 09: Server API Reference](/09-server-api/)**: Re-architected Section 2 into a 3-way comparison: `frappe.db.get_value` (fast scalar SQL) vs `frappe.get_doc` + `doc.get` (full ORM) vs `frappe.get_cached_doc` / `get_cached_value` (Redis memory cache).
+  - **[Chapter 10: Database, ORM & Query Builder](/10-database/)**: Added the `frappe.get_doc` + `doc.get("fieldname")` alternative directly beneath `frappe.db.get_value`.
+  - **[Chapter 30: Frappe ORM Masterclass](/30-frappe-orm/)**: Enhanced Section 1.4 Helper APIs with full document retrieval, default value fallbacks, and in-memory child table extraction.
+  - **[Chapter 31: Frappe Data Types & Custom Containers](/31-frappe-types/)**: Added `doc.get()` to the `Document` method matrix and integrated safe getters into the `calculate_invoice_totals` controller example.
+
+#### 2. Best Practices, Reason, Why It's Used & How It Works Callout Boxes (`> [!TIP]`)
+- **Defensive Null-Safety**: Contrasted direct dot access `doc.custom_field` (which crashes with `AttributeError` if the field does not exist in schema or instance) against `doc.get("custom_field", default)` which gracefully falls back.
+- **In-Memory Child Table Filtering**: Documented Frappe's unique ORM feature: `doc.get("items", {"item_code": "LAPTOP-01"})` filters nested child rows in Python memory without issuing secondary SQL queries.
+- **Dynamic Field Iteration**: Highlighted clean iteration over dynamic field arrays (`for f in fields: val = doc.get(f)`) avoiding cumbersome `getattr(doc, f, None)` calls.
+- **Performance Trade-Off Guidelines**: Established clear rules for when to bypass Document instantiation in favor of `frappe.db.get_value` (1 to 5 scalar fields, background loops, reporting queries).
+- **Internal Engine Architecture**: Explained `BaseDocument.get(self, key, filters, default)` (`frappe/model/base_document.py`) and Frappe's in-memory `frappe.compare()` evaluation mechanism.
+
+#### 3. Official Documentation References
+- Embedded direct official documentation links in every chapter:
+  - [Frappe Framework Official Docs: Document API Reference (`doc.get`)](https://frappeframework.com/docs/v15/user/en/api/document#docget)
+  - [Frappe Framework Official Docs: Controllers & Document Methods](https://frappeframework.com/docs/v15/user/en/basics/doctypes/controllers#document-methods)
+  - [Frappe Framework Official Docs: Database API (`frappe.db.get_value`)](https://frappeframework.com/docs/v15/user/en/api/database#frappedbget_value)
+  - [Frappe Framework Official Docs: Cached Values (`frappe.db.get_cached_value`)](https://frappeframework.com/docs/v15/user/en/api/database#frappedbget_cached_value)
+
+#### 4. Searchable API Index Synchronization (Chapter 24)
+- Cataloged [`doc.get()`](/06-documents/#key-inspection-helper-methods) in Chapter 24 (API Index) under the `D` category with direct navigation to Document inspection.
+
+---
+
+## 🟢 Version 1.9.0 (v1.9) — Tree Reports, LoginManager Architecture, Port-Based Multi-Tenancy & Utilities Overhaul
 
 **Release Date:** September 28, 2026
 

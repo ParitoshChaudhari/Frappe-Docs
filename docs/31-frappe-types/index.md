@@ -212,6 +212,7 @@ class WorkOrder(Document):
 | `doc.name` | `str` | Primary key identifier of the document (e.g. `ACC-INV-2026-00001`). |
 | `doc.doctype` | `str` | DocType name string (e.g. `Sales Invoice`). |
 | `doc.docstatus` | `int` | Document state: `0` = Draft, `1` = Submitted, `2` = Cancelled. |
+| `doc.get(fieldname, default=None)` | `Any` | Safely reads field value without `AttributeError`; supports fallback default & child table filtering. |
 | `doc.is_new()` | `bool` | Returns `True` if document is not yet saved to database. |
 | `doc.as_dict()` | `frappe._dict` | Serializes document attributes and child tables into a dictionary. |
 | `doc.append(key, value)` | `BaseDocument` | Appends a row to a Child Table field (`self.append("items", {...})`). |
@@ -226,26 +227,51 @@ Use `Document` as a type hint whenever a function or utility expects a full Frap
 ```python
 import frappe
 from frappe.model.document import Document
+from frappe.utils import flt
 from typing import Optional
 
 def calculate_invoice_totals(doc: Document) -> frappe._dict:
     """
     Calculates total amount and tax breakdown for a Sales Invoice document object.
+    Demonstrates safe field reads using doc.get("fieldname") and child table iteration.
     """
+    # Safe field access: Returns fallback if field is unset/optional - prevents AttributeError!
+    customer_group = doc.get("customer_group", "Commercial")
+    is_interstate = doc.get("is_interstate", False)
+    discount_percentage = doc.get("discount_percentage", 0.0)
+
+    # In-memory child table access:
     subtotal = 0.0
     for item in doc.get("items", []):
-        subtotal += flt(item.qty) * flt(item.rate)
+        subtotal += flt(item.get("qty", 0)) * flt(item.get("rate", 0.0))
     
-    tax_rate = 0.18 if doc.is_interstate else 0.12
+    tax_rate = 0.18 if is_interstate else 0.12
     total_tax = subtotal * tax_rate
     grand_total = subtotal + total_tax
 
     return frappe._dict(
+        customer_group=customer_group,
         subtotal=subtotal,
         total_tax=total_tax,
         grand_total=grand_total
     )
 ```
+
+> [!TIP]
+> **Best Practices, Reason, Why It's Used & How It Works: `doc.get("fieldname")` on Document Instances**
+>
+> - **Why & When to Use `doc.get("fieldname")`**:
+>   1. **Defensive Against Missing/Custom Fields**: `doc.custom_discount` throws `AttributeError` if the custom field does not exist in the tenant's database schema. `doc.get("custom_discount", 0.0)` gracefully provides a default fallback.
+>   2. **Child Table Extraction with Built-in Filtering**: Calling `doc.get("items", {"item_code": "LAPTOP-01"})` returns only matching child table rows in memory without triggering a database query.
+>   3. **Dictionary Interoperability**: Ensures that functions accepting both `frappe._dict` and `Document` can read fields uniformly via `.get("fieldname")`.
+> - **When to Use `frappe.db.get_value` Instead**:
+>   If your code only requires a single column or flag from the database and does not need to inspect child tables or run business validation logic, prefer `frappe.db.get_value("Sales Invoice", docname, "grand_total")` for maximum performance and minimal memory usage.
+> - **How It Works Internally**:
+>   `Document` inherits from `BaseDocument` (`frappe.model.base_document.BaseDocument`). The `.get()` method inspects `self.__dict__` and leverages Frappe's in-memory record comparison engine for child tables.
+> - **Official Documentation References**:
+>   - [Frappe Framework Official Docs: Document API Reference (`doc.get`)](https://frappeframework.com/docs/v15/user/en/api/document#docget)
+>   - [Frappe Framework Official Docs: Controllers & Document Methods](https://frappeframework.com/docs/v15/user/en/basics/doctypes/controllers#document-methods)
+>   - [Frappe Framework Official Docs: Database API (`frappe.db.get_value`)](https://frappeframework.com/docs/v15/user/en/api/database#frappedbget_value)
 
 ---
 

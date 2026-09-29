@@ -121,6 +121,7 @@ Exhaustive alphabetical reference index of all public functions, methods, hooks,
 - [`doc.flags.ignore_mandatory`](/06-documents/#3-document-flags-docflags) <span class="badge server">Server</span> — Suppresses errors for missing mandatory fields.
 - [`doc.flags.ignore_permissions`](/06-documents/#3-document-flags-docflags) <span class="badge server">Server</span> — Bypasses user permission checks during insert/save/submit.
 - [`doc.flags.ignore_validate`](/06-documents/#3-document-flags-docflags) <span class="badge server">Server</span> — Bypasses execution of controller `validate()` hooks.
+- [`doc.get()`](/06-documents/#key-inspection-helper-methods) <span class="badge server">Server</span> — Safely retrieves field value with optional fallback default or filters child table rows in memory.
 - [`doc.get_db_value()`](/06-documents/#key-inspection-helper-methods) <span class="badge server">Server</span> — Reads field value directly from database disk bypassing cache.
 - [`doc.get_doc_before_save()`](/06-documents/#key-inspection-helper-methods) <span class="badge server">Server</span> — Returns immutable snapshot of document prior to save.
 - [`doc.get_formatted()`](/06-documents/#key-inspection-helper-methods) <span class="badge server">Server</span> — Returns human-formatted string of field value.

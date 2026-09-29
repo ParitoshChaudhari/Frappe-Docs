@@ -18,21 +18,45 @@ Frappe Framework v15 provides 3 database access interfaces under `frappe.db` and
 
 Fetches values from a single database row efficiently without instantiating document objects.
 
-```python
-# Signature
-frappe.db.get_value(doctype, filters, fieldname, as_dict=False, debug=False)
+# Signature:
+# frappe.db.get_value(doctype, filters, fieldname, as_dict=False, debug=False)
 
-# Fetch single field
+# WAY 1: Direct SQL fetch via frappe.db.get_value (Minimal RAM, bypasses Document ORM)
 email = frappe.db.get_value("User", "Administrator", "email")
 
-# Fetch multiple fields as dictionary
 data = frappe.db.get_value(
     "Task",
     {"status": "Open", "priority": "High"},
     ["name", "subject", "allocated_to"],
     as_dict=True
 )
+
+# WAY 2: Full Document fetch + safe field access via doc.get()
+# Use when you need validation hooks, child tables, or modifying document state
+task_doc = frappe.get_doc("Task", "TASK-00001")
+
+# Safe access with fallback default (prevents AttributeError crashes)
+subject = task_doc.get("subject", "Untitled Task")
+priority = task_doc.get("priority") # Returns None safely if empty
+
+# In-memory child table filtering via doc.get():
+assigned_users = task_doc.get("assignments", {"role": "Reviewer"})
 ```
+
+> [!TIP]
+> **Best Practices, Reason, Why It's Used & How It Works: `doc.get("fieldname")` vs `frappe.db.get_value`**
+>
+> - **Why & When to Use `doc.get("fieldname")`**:
+>   1. **Defensive Coding Against `AttributeError`**: Standard dot access `task_doc.custom_score` crashes with `AttributeError` if the field is missing or dynamic. `task_doc.get("custom_score", 0)` returns the default cleanly.
+>   2. **Lifecycle & Child Tables**: If your code needs to access child tables (e.g., `task_doc.get("items")`), check permissions (`task_doc.check_permission()`), or update and save records (`task_doc.save()`), fetch the document with `frappe.get_doc()` and access fields with `.get()`.
+>   3. **Built-in Child Table Filtering**: `doc.get("child_table_name", {"status": "Pending"})` filters nested child rows in memory without additional SQL queries.
+> - **When to Use `frappe.db.get_value`**:
+>   Use `frappe.db.get_value` whenever you only need 1 to 5 scalar values (e.g., checking a user's role or an order's status) and do NOT need to execute controller logic or save changes. It generates an ultra-fast `SELECT` query and skips document instantiation.
+> - **How It Works Internally**:
+>   `doc.get()` delegates to `BaseDocument.get()` in `frappe/model/base_document.py`, checking the in-memory `__dict__` and performing Python-level list comprehension for child table filters. Conversely, `frappe.db.get_value()` queries the database engine directly via `frappe.db.sql()`.
+> - **Official Documentation References**:
+>   - [Frappe Framework Official Docs: Database API (`frappe.db.get_value`)](https://frappeframework.com/docs/v15/user/en/api/database#frappedbget_value)
+>   - [Frappe Framework Official Docs: Document API Reference (`doc.get`)](https://frappeframework.com/docs/v15/user/en/api/document#docget)
 
 ---
 

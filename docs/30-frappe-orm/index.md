@@ -191,11 +191,11 @@ LIMIT 2 OFFSET 0
 When you do not need the full `frappe.qb` syntax, Frappe provides built-in shortcuts under `frappe.db`:
 
 ```python
-# 1. Fetch single scalar value
+# 1. Fetch single scalar value directly via SQL
 credit = frappe.db.get_value("Customer", "CUST-001", "credit_limit")
 # Output: 50000.00
 
-# 2. Fetch multiple columns as dictionary
+# 2. Fetch multiple columns as dictionary directly via SQL
 customer_info = frappe.db.get_value(
     "Customer",
     {"name": "CUST-001"},
@@ -204,14 +204,38 @@ customer_info = frappe.db.get_value(
 )
 # Output: {'customer_name': 'Acme Corp', 'territory': 'United States', 'credit_limit': 50000.0}
 
-# 3. Check record existence
+# 3. Alternative: Fetch full Document ORM object and access safely via doc.get()
+# Ideal when you need child tables, custom methods, validation, or fallback defaults
+customer_doc = frappe.get_doc("Customer", "CUST-001")
+territory = customer_doc.get("territory", "Global") # Safe fallback default
+custom_tax = customer_doc.get("custom_tax_id")     # Returns None if unset - no AttributeError!
+
+# In-memory child table filtering via doc.get() without extra SQL queries:
+us_addresses = customer_doc.get("portal_users", {"is_active": 1})
+
+# 4. Check record existence
 exists = frappe.db.exists("Customer", {"customer_name": "Acme Corp"})
 # Output: 'CUST-001'
 
-# 4. Count matching rows
+# 5. Count matching rows
 active_customer_count = frappe.db.count("Customer", filters={"disabled": 0})
 # Output: 4
 ```
+
+> [!TIP]
+> **Best Practices, Reason, Why It's Used & How It Works: `doc.get("fieldname")` vs `frappe.db.get_value`**
+>
+> - **Why & When to Use `doc = frappe.get_doc(...)` + `doc.get("fieldname")`**:
+>   1. **Defensive Programming & Null-Safety**: Accessing attributes directly with `customer_doc.custom_tax_id` will crash your code with `AttributeError` if the field does not exist on that site's schema. `customer_doc.get("custom_tax_id")` cleanly yields `None` or an optional fallback default (`customer_doc.get("field", default_value)`).
+>   2. **Child Table Extraction with Dynamic Filters**: `doc.get("items", {"status": "Pending"})` filters nested child rows right in Python memory without requiring a secondary database round-trip.
+>   3. **Entity Lifecycle & Mutation**: Whenever you plan to validate, calculate totals, trigger events (`on_update`), or persist updates (`doc.save()`), you must instantiate the Document.
+> - **Why & When to Use `frappe.db.get_value`**:
+>   When you simply need to read 1 to 5 values for display or simple checks without loading child tables or controller dependencies. It translates to a single fast SQL query.
+> - **How It Works Internally**:
+>   `doc.get()` is provided by Frappe's base ORM class `frappe.model.base_document.BaseDocument`. It reads directly from `self.__dict__` and leverages Frappe's in-memory record comparison engine. `frappe.db.get_value` directly queries the database cursor.
+> - **Official Documentation References**:
+>   - [Frappe Framework Official Docs: Document API Reference (`doc.get`)](https://frappeframework.com/docs/v15/user/en/api/document#docget)
+>   - [Frappe Framework Official Docs: Database API (`frappe.db.get_value`)](https://frappeframework.com/docs/v15/user/en/api/database#frappedbget_value)
 
 ---
 
