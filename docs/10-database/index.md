@@ -18,17 +18,26 @@ Frappe Framework v15 provides 3 database access interfaces under `frappe.db` and
 
 Fetches values from a single database row efficiently without instantiating document objects.
 
-# Signature:
-# frappe.db.get_value(doctype, filters, fieldname, as_dict=False, debug=False)
+# Full Method Signature:
+# frappe.db.get_value(doctype, filters, fieldname, as_dict=False, debug=False, order_by=None, cache=False, for_update=False, pluck=False, distinct=False, skip_locked=False, wait=True)
 
 # WAY 1: Direct SQL fetch via frappe.db.get_value (Minimal RAM, bypasses Document ORM)
 email = frappe.db.get_value("User", "Administrator", "email")
 
+# Reading multiple fields as a dictionary:
 data = frappe.db.get_value(
     "Task",
     {"status": "Open", "priority": "High"},
     ["name", "subject", "allocated_to"],
     as_dict=True
+)
+
+# Concurrency Row Locking: SELECT ... FOR UPDATE (Prevents race conditions)
+locked_balance = frappe.db.get_value(
+    "Account",
+    "ACC-001",
+    "balance",
+    for_update=True
 )
 
 # WAY 2: Full Document fetch + safe field access via doc.get()
@@ -42,6 +51,20 @@ priority = task_doc.get("priority") # Returns None safely if empty
 # In-memory child table filtering via doc.get():
 assigned_users = task_doc.get("assignments", {"role": "Reviewer"})
 ```
+
+#### `frappe.db.get_value` Options Reference Table
+
+| Option / Parameter | Type | Default | What It Does & Behavior |
+| :--- | :--- | :--- | :--- |
+| **`for_update`** | `bool` | `False` | Appends `FOR UPDATE` to the SQL query, acquiring an exclusive row-level write lock in MariaDB/PostgreSQL. Blocks other transactions until the current transaction commits. |
+| **`skip_locked`** | `bool` | `False` | When combined with `for_update=True`, skips rows currently locked by other transactions instead of waiting. Ideal for distributed worker queues. |
+| **`wait`** | `bool` | `True` | If set to `False`, uses `NOWAIT` and raises an exception immediately if the row is already locked. |
+| **`pluck`** | `bool` | `False` | Returns a flat scalar value (or flat 1D list when fetching multiple rows) instead of nested tuples or dictionaries. |
+| **`cache`** | `bool` | `False` | Caches the query result in thread-local memory (`frappe.local.cache`). Subsequent queries with identical parameters within the same request hit memory without querying SQL. |
+| **`distinct`** | `bool` | `False` | Injects `DISTINCT` into the SQL query to remove duplicate rows. |
+| **`as_dict`** | `bool` | `False` | Returns a dictionary `{fieldname: value}` instead of a tuple when fetching multiple columns. |
+| **`order_by`** | `str` | `"modified desc"` | Specifies custom sorting for resolving the scalar value when multiple records match filters. |
+| **`debug`** | `bool` | `False` | Prints the generated SQL query in the console or terminal output. |
 
 > [!TIP]
 > **Best Practices, Reason, Why It's Used & How It Works: `doc.get("fieldname")` vs `frappe.db.get_value`**
@@ -76,17 +99,68 @@ frappe.db.set_value(
 )
 ```
 
+#### `frappe.db.set_value` Parameters & Options Reference
+
+| Parameter | Type | Default | What It Does & Behavior |
+| :--- | :--- | :--- | :--- |
+| **`update_modified`** | `bool` | `True` | When set to `False`, updates column values in the database **without modifying the `modified` timestamp or `modified_by` user**. Essential for background migrations, data corrections, and telemetry sync. |
+| **`fieldname` / `val`** | `str | dict` | *(Required)* | Can be a single fieldname string or a **dictionary of multiple columns** to update multiple values in a single atomic SQL `UPDATE` statement. |
+| **`modified`** | `datetime` | `None` | Explicit custom timestamp to record as the `modified` date instead of `now()`. |
+| **`modified_by`** | `str` | `None` | Explicit user string to record as the editor. |
+
 ```python
-# Example: Bulk field update
+# 1. Update single field
 frappe.db.set_value("Task", "TASK-00001", "status", "Completed")
 
-# Dict-based multi-field update
+# 2. Multi-column update without touching the modified timestamp
+frappe.db.set_value(
+    "Task",
+    "TASK-00001",
+    {
+        "status": "Completed",
+        "progress": 100,
+        "completed_by": frappe.session.user
+    },
+    update_modified=False
+)
+
+# 3. Update across multiple matching rows (using filters dict)
 frappe.db.set_value(
     "Task",
     {"status": "Open", "priority": "Low"},
     {"priority": "Medium", "status": "Working"}
 )
 ```
+
+---
+
+### `frappe.delete_doc` (Deleting Documents)
+
+Deletes a document record and handles database foreign key cascades and dependency checks.
+
+```python
+# Method Signature:
+# frappe.delete_doc(doctype, name, force=False, ignore_permissions=False, delete_permanently=False, ignore_on_trash=False, ignore_missing=True)
+
+# 1. Standard delete (Moves document to Deleted Document recycle bin)
+frappe.delete_doc("Customer", "CUST-0001")
+
+# 2. Permanent purge (Bypasses recycle bin, permanently drops row from SQL)
+frappe.delete_doc("Customer", "CUST-0001", delete_permanently=True)
+
+# 3. Force delete (Bypasses link validation and submitted docstatus blocks)
+frappe.delete_doc("Task", "TASK-0001", force=True, ignore_permissions=True)
+```
+
+#### `frappe.delete_doc` Options Reference Table
+
+| Parameter | Type | Default | What It Does & Behavior |
+| :--- | :--- | :--- | :--- |
+| **`delete_permanently`** | `bool` | `False` | When `True`, **permanently purges the row from the database**, completely bypassing the Deleted Document table. |
+| **`force`** | `bool` | `False` | Allows deleting the document even if it is linked as a foreign key to other records or has been submitted (`docstatus = 1`). |
+| **`ignore_permissions`** | `bool` | `False` | Bypasses user role permission checks when running in background worker jobs. |
+| **`ignore_on_trash`** | `bool` | `False` | Bypasses the document controller's `on_trash` hook. |
+| **`ignore_missing`** | `bool` | `True` | Silently succeeds if the document has already been deleted. |
 
 ---
 

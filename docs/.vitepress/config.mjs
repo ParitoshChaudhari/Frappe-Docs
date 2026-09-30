@@ -76,8 +76,7 @@ export default defineConfig({
           { text: '01. Getting Started', link: '/01-getting-started/' },
           { text: '02. Frappe Architecture', link: '/02-architecture/' },
           { text: '03. Bench CLI Reference', link: '/03-bench-cli/' },
-          { text: '04. Apps & Sites Structure', link: '/04-apps-and-sites/' },
-          { text: '29. Version History & Changelog', link: '/29-version-history/' }
+          { text: '04. Apps & Sites Structure', link: '/04-apps-and-sites/' }
         ]
       },
       {
@@ -147,6 +146,13 @@ export default defineConfig({
         collapsible: true,
         items: [
           { text: 'Open Source Projects', link: '/opensource-projects/' }
+        ]
+      },
+      {
+        text: 'Miscellaneous',
+        collapsible: true,
+        items: [
+          { text: '29. Version History & Changelog', link: '/29-version-history/' }
         ]
       }
     ],

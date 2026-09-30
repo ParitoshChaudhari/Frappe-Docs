@@ -56,6 +56,180 @@ frappe.ui.form.on("Task", {
 
 ---
 
+### Programmatic Event Triggers & Custom Handlers (`frm.trigger`)
+
+`frm.trigger(event_name, [doctype], [name])` programmatically invokes registered form lifecycle hooks, docfield change handlers, or custom reusable controller functions.
+
+```javascript
+// Method Signature
+frm.trigger(event_name, [doctype], [name]);
+```
+
+#### How It Works Under the Hood
+1. **ScriptManager Registry**: When you define functions inside `frappe.ui.form.on("DocType", { ... })`, Frappe registers each method in its internal `ScriptManager` instance (`cur_frm.script_manager`).
+2. **Serial Execution (`frappe.run_serially`)**: When `frm.trigger(event_name)` executes, Frappe retrieves all handlers matching `event_name` for the specified `doctype` and executes them sequentially.
+3. **Promise-Aware**: If a triggered function returns a JavaScript `Promise` (such as `frappe.call` or `frappe.db.get_value`), `frm.trigger` automatically awaits that promise. This allows callers to write `await frm.trigger("custom_party")` or `.then(...)` to guarantee asynchronous operations finish before executing downstream code.
+4. **Scope Resolution**: If `doctype` and `name` are omitted, they default to `frm.doctype` and `frm.docname`. When triggering child table methods, passing `cdt` (child DocType) and `cdn` (child row name) scopes the execution to that specific child row.
+
+---
+
+#### Where You Can Define `custom_party`
+You can define `custom_party` in any of the following locations:
+
+1. **Inside the Primary DocType Client Script**:
+   ```javascript
+   frappe.ui.form.on("Sales Invoice", {
+       custom_party(frm) {
+           // Defined directly in the main form event map
+       }
+   });
+   ```
+2. **Inside a Standalone or Custom App Client Script**:
+   Frappe dynamically merges multiple `frappe.ui.form.on` blocks for the same DocType. If a standard app defines handlers, your custom Client Script can register its own `custom_party` handler, and both will execute serially.
+3. **In a Controller Class (Custom Apps)**:
+   ```javascript
+   frappe.ui.form.on("Sales Invoice", class extends frappe.ui.form.Controller {
+       custom_party() {
+           // Defined in Controller class
+       }
+   });
+   ```
+4. **Inside a Child Table Event Map**:
+   ```javascript
+   frappe.ui.form.on("Sales Invoice Item", {
+       custom_party(frm, cdt, cdn) {
+           let row = locals[cdt][cdn];
+           // Scoped to individual child row
+       }
+   });
+   ```
+
+---
+
+#### The Real-World "Party Unification" Pattern: Why Use `custom_party`?
+
+In enterprise ERP systems, documents (e.g., **Sales Invoice**, **Payment Entry**, **Journal Entry**) frequently interact with multiple party entities (**Customer**, **Supplier**, **Employee**, or **Student**). When the party or party type changes, the form needs to:
+* Fetch billing, shipping, and tax addresses.
+* Retrieve customer-specific price lists and discount schemes.
+* Check customer credit limits or supplier outstanding balances.
+* Update payment terms, default currency, and cost center.
+
+Without `frm.trigger("custom_party")`, you would have to duplicate this 30-line retrieval logic across:
+1. `customer(frm)` field handler
+2. `supplier(frm)` field handler
+3. `party_type(frm)` field handler
+4. `refresh(frm)` form handler
+
+By defining a centralized `custom_party(frm)` method and calling `frm.trigger("custom_party")`, you maintain a clean, single source of truth without duplicated code.
+
+---
+
+#### Complete Production Example: `frm.trigger("custom_party")`
+
+```javascript
+frappe.ui.form.on("Sales Invoice", {
+    // -------------------------------------------------------------
+    // 1. Centralized Custom Method Definition
+    // -------------------------------------------------------------
+    custom_party(frm) {
+        let party = frm.doc.customer;
+        if (!party) {
+            frm.set_value("customer_group", "");
+            frm.set_value("territory", "");
+            frm.set_value("credit_limit", 0);
+            return;
+        }
+
+        // Return the Promise so callers can await this trigger!
+        return frappe.db.get_value("Customer", party, ["customer_group", "territory", "credit_limit"])
+            .then(r => {
+                if (r.message) {
+                    frm.set_value("customer_group", r.message.customer_group);
+                    frm.set_value("territory", r.message.territory);
+                    frm.set_value("credit_limit", r.message.credit_limit);
+
+                    // Show visual feedback toast
+                    frappe.show_alert({
+                        message: __("Party details & credit limit synced for {0}", [party]),
+                        indicator: "blue"
+                    }, 4);
+                }
+            });
+    },
+
+    // -------------------------------------------------------------
+    // 2. Triggering on Field Changes
+    // -------------------------------------------------------------
+    customer(frm) {
+        // Triggered when user selects or changes Customer link field
+        frm.trigger("custom_party");
+    },
+
+    party_type(frm) {
+        // Clear and re-trigger if party type dropdown switches
+        frm.set_value("customer", "");
+        frm.trigger("custom_party");
+    },
+
+    // -------------------------------------------------------------
+    // 3. Triggering on Form Refresh
+    // -------------------------------------------------------------
+    refresh(frm) {
+        // If opening an existing draft that already has a customer, re-sync details
+        if (!frm.is_new() && frm.doc.customer && !frm.doc.customer_group) {
+            frm.trigger("custom_party");
+        }
+
+        // Add a manual toolbar refresh button that triggers the custom method
+        if (!frm.is_new()) {
+            frm.add_custom_button(__("Re-Sync Party Data"), () => {
+                frm.trigger("custom_party");
+            }, __("Actions"));
+        }
+    },
+
+    // -------------------------------------------------------------
+    // 4. Awaiting Async Custom Trigger in Form Lifecycle Events
+    // -------------------------------------------------------------
+    async before_save(frm) {
+        // Ensure party details are fully loaded before saving to MariaDB
+        if (frm.doc.customer && !frm.doc.credit_limit) {
+            await frm.trigger("custom_party");
+        }
+    }
+});
+```
+
+---
+
+#### Child Table Trigger Pattern (`frm.trigger(event, cdt, cdn)`)
+
+When working with child table rows (e.g. `items`), you can trigger row-level custom functions by passing the Child DocType (`cdt`) and Child DocName (`cdn`):
+
+```javascript
+frappe.ui.form.on("Sales Invoice Item", {
+    // Custom row-level calculation function
+    recalculate_row_margin(frm, cdt, cdn) {
+        let row = locals[cdt][cdn]; // or frappe.get_doc(cdt, cdn)
+        if (row.rate && row.cost_price) {
+            let margin = ((row.rate - row.cost_price) / row.rate) * 100;
+            frappe.model.set_value(cdt, cdn, "margin_percent", margin.toFixed(2));
+        }
+    },
+
+    // Trigger row calculation when rate or cost_price changes
+    rate(frm, cdt, cdn) {
+        frm.trigger("recalculate_row_margin", cdt, cdn);
+    },
+
+    cost_price(frm, cdt, cdn) {
+        frm.trigger("recalculate_row_margin", cdt, cdn);
+    }
+});
+```
+
+---
+
 ## 2. Custom Buttons API (`frm.add_custom_button`)
 
 Frappe Desk allows adding custom buttons to the top action toolbar, organizing them into dropdown groups, and styling them.
@@ -95,16 +269,88 @@ frappe.ui.form.on("Task", {
 });
 ```
 
-### Clearing Custom Buttons
+### Removing Specific Custom Buttons & Clearing Toolbar
 
 ```javascript
-// Clear all custom buttons from form toolbar
+// 1. Remove a specific top-level custom button
+frm.remove_custom_button(__("Quick Close"));
+
+// 2. Remove a nested button inside a specific dropdown group
+frm.remove_custom_button(__("Sync with Jira"), __("Actions"));
+
+// 3. Clear all custom buttons from the toolbar
 frm.clear_custom_buttons();
 ```
 
 ---
 
-## 3. Hiding & Disabling Standard Form Buttons & Menu Options
+## 3. Form Intro Banners & Dashboard Indicators (`frm.set_intro`, `frm.dashboard.*`)
+
+Frappe Desk provides dedicated banner and indicator APIs to surface document state, compliance notices, or warnings directly at the top of the form layout.
+
+### 1. Document Intro Callout Banners (`frm.set_intro`)
+
+`frm.set_intro(message, [color])` renders a high-visibility alert banner directly below the form title header.
+
+```javascript
+// Signature: frm.set_intro(message, [color])
+frappe.ui.form.on("Sales Invoice", {
+    refresh(frm) {
+        if (frm.doc.is_return) {
+            // Renders red warning banner
+            frm.set_intro(__("This document is a Credit Note / Sales Return against original invoice {0}", [frm.doc.return_against]), "red");
+        } else if (frm.doc.status === "Overdue") {
+            frm.set_intro(__("Payment for this invoice is overdue. Interest charges may apply."), "orange");
+        } else if (frm.doc.docstatus === 0 && !frm.is_new()) {
+            frm.set_intro(__("This is a Draft document. Click Submit to post entries to the General Ledger."), "blue");
+        }
+    }
+});
+```
+
+#### Supported Banner Colors & Use Cases
+| Color | Visual Appearance | Ideal Use Case |
+| :--- | :--- | :--- |
+| **`blue`** *(Default)* | Soft Blue background with info icon | Draft instructions, guidance notes, workflow steps |
+| **`green`** | Light Green background with checkmark | Verification confirmations, reconciled status |
+| **`orange`** / **`yellow`** | Amber background with warning icon | Approaching deadlines, grace period notices, pending approvals |
+| **`red`** | Light Red background with alert icon | Returns, cancellations, audit blocks, credit hold notices |
+
+---
+
+### 2. Form Dashboard Headline & Indicators (`frm.dashboard.*`)
+
+The `frm.dashboard` object manages the dynamic KPI widgets, summary headlines, and status dots rendered between the form header and the document fields.
+
+```javascript
+frappe.ui.form.on("Customer", {
+    refresh(frm) {
+        // 1. Clear previous dynamic headlines to prevent duplicates
+        frm.dashboard.clear_headline();
+
+        // 2. Set an HTML Headline Alert Banner
+        if (frm.doc.loyalty_points > 1000) {
+            frm.dashboard.set_headline(
+                `🎉 <b>${__("VIP Gold Tier Customer")}</b> — ${__("Eligible for 15% automatic discount on all orders.")}`,
+                "green"
+            );
+        }
+
+        // 3. Add Colored Status Indicator Badges to Dashboard
+        if (frm.doc.outstanding_amount > 50000) {
+            frm.dashboard.add_indicator(__("High Credit Exposure: {0}", [format_currency(frm.doc.outstanding_amount)]), "red");
+        }
+        
+        if (frm.doc.customer_group === "Commercial") {
+            frm.dashboard.add_indicator(__("Commercial Account"), "blue");
+        }
+    }
+});
+```
+
+---
+
+## 4. Hiding & Disabling Standard Form Buttons & Menu Options
 
 To enforce custom workflows or lock down specific form views, Frappe provides APIs to disable or hide standard Desk elements:
 
@@ -883,7 +1129,15 @@ frm.scroll_to_field("closing_notes");
 // 6. Form Banner Intro
 frm.set_intro(__("Please review all mandatory fields before submitting."), "blue");
 
-// 7. Form Editing Controls
+// 7. Get Checked / Selected Child Table Rows in Grids
+let selected = frm.get_selected();
+// Returns object mapping child tables to array of checked row names (cdn)
+// Example: { items: ["8b3f12a9c0", "e76d9014f1"] }
+if (selected.items && selected.items.length) {
+    console.log("Selected child row names:", selected.items);
+}
+
+// 8. Form Editing Controls
 frm.disable_save();   // Hide Save button
 frm.enable_save();    // Show Save button
 frm.disable_form();   // Make all fields read-only and disable save

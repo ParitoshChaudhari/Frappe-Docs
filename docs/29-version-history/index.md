@@ -2,7 +2,7 @@
 title: Documentation Version History & Changelog
 description: Comprehensive version history documenting v1.0 initial baseline, v1.1 GitHub & ORM masterclass, v1.2 exhaustive documentation expansion, and v1.3 Client JS API expansion & Open Source Ecosystem section.
 version: v15
-category: Overview & Basics
+category: Miscellaneous
 status: Stable
 ---
 
