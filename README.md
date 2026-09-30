@@ -1,6 +1,6 @@
 # Frappe Framework v15 Complete Developer Documentation & Reference
 
-[![Documentation Version](https://img.shields.io/badge/version-v1.11.0-magenta.svg)](https://github.com/ParitoshChaudhari/Frappe-Docs)
+[![Documentation Version](https://img.shields.io/badge/version-v1.12.0-magenta.svg)](https://github.com/ParitoshChaudhari/Frappe-Docs)
 [![Frappe Framework](https://img.shields.io/badge/frappe-v15%20%7C%20v16-0052CC.svg)](https://frappeframework.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -12,6 +12,9 @@ A fast, lightweight, static-first developer documentation website and technical 
 
 ## 🌟 Key Features & Documentation Highlights
 
+- **Client UI, Form Triggers & Toast Alerts Overhaul (Chapter 11)**: Complete overhaul of toast notifications (`frappe.show_alert`) with 8-color indicator palette, hover-to-pause timer, and rich HTML action links; programmatic event triggers with `frm.trigger("custom_party")`, Promise chaining, child table row scoping (`cdt`, `cdn`), and the ERP "Party Unification" pattern; form dashboard headlines & indicators (`frm.dashboard.*`), intro callout banners (`frm.set_intro`), and toolbar controls (`frm.remove_custom_button`, `frm.get_selected`).
+- **Database Engine & Transaction Controls (Chapter 10)**: High-performance multi-row batch insertion (`frappe.db.bulk_insert`), permanent purging (`frappe.delete_doc(..., delete_permanently=True)`), transaction savepoint release (`frappe.db.release_savepoint`), and query options (`for_update`, `skip_locked`, `update_modified=False`).
+- **Modern Server RPC (Chapter 11)**: Promise-native `frappe.xcall()` for async/await server method calls alongside full configuration options for `frappe.call()` (`freeze`, `headers`, `btn`).
 - **Chapter 32: Frappe Framework v16 Differences, Breaking Changes & Migration Guide**: Comprehensive guide detailing the default sorting shift from `modified` to `creation`, prohibition of `frappe.db.commit()` in document hooks, Python 3.14+ & Node 24+ runtime requirements, sandboxed IIFE client scripts, strict ISO country codes, Desk `/desk` routing, and decoupled modules.
 - **Document Field Access Strategy & Best Practice Callouts (Chapters 06, 07, 09, 10, 30, 31)**: Exhaustive Python field-reading patterns comparing full document instantiation (`frappe.get_doc` + `doc.get("fieldname", default)`) vs direct SQL scalar reads (`frappe.db.get_value()`). Includes defensive null-safety against `AttributeError`, in-memory child table filtering, and `> [!TIP]` callout boxes with official Frappe documentation references.
 - **Tree Reports & Folded First-Child Architecture (Chapter 18)**: High-density layout rendering the first child reading inline with the parent inspection row at `indent: 0` while expanding secondary child records as collapsible sub-rows at `indent: 1`.
@@ -78,7 +81,8 @@ Static HTML, CSS, JavaScript, and local full-text search indexes will be generat
 
 | Version | Release Stage | Highlights |
 | :--- | :--- | :--- |
-| **v1.11.0 (v16)** | **Current Release** | Added Chapter 32 (Frappe v16 Differences & Migration), covering default sorting shift (`creation desc` vs `modified desc`), ban of `frappe.db.commit()` in document hooks, Python 3.14+ & Node 24+ runtime requirements, sandboxed IIFE client scripts, strict ISO country codes, Desk `/desk` routing, and landing page v16 hub. |
+| **v1.12.0 (v1.12)** | **Current Release** | Overhauled toast alerts (`frappe.show_alert`), documented programmatic triggers (`frm.trigger`), form dashboard APIs (`frm.dashboard.*`), toolbar helpers (`frm.remove_custom_button`), modern `frappe.xcall()`, batch insertion (`frappe.db.bulk_insert`), permanent purging (`frappe.delete_doc`), and full API Index synchronization. |
+| **v1.11.0 (v16)** | **Frappe v16 Guide** | Added Chapter 32 (Frappe v16 Differences & Migration), covering default sorting shift (`creation desc` vs `modified desc`), ban of `frappe.db.commit()` in document hooks, Python 3.14+ & Node 24+ runtime requirements, sandboxed IIFE client scripts, strict ISO country codes, Desk `/desk` routing, and landing page v16 hub. |
 | **v1.10.0 (v1.10)** | **Field Access Patterns** | Added comprehensive Python field-reading patterns (`doc.get("fieldname")` vs `frappe.db.get_value`) across Chapters 06, 07, 09, 10, 30, and 31; integrated defensive null-safety, in-memory child table filtering, technical callout boxes (`> [!TIP]`), official Frappe documentation references, and synced API Index. |
 | **v1.9.0 (v1.9)** | **Tree Reports & Utils** | Added folded first-child Tree Report architecture in Chapter 18, LoginManager & custom signup/login APIs in Chapter 14, Nginx port assignment & port-based multi-tenancy in Chapter 03, complete Python/JS utilities expansion in Chapter 19, and synced API Index. |
 | **v1.8.0 (v1.8)** | **Conditional Reports** | Added conditional date requirement pattern in Chapter 18 (Reports Guide), client-side dynamic `on_change` requirement toggle (`df.reqd = 1`), server-side validation guard (`frappe.throw`), and multi-table parameterized SQL query examples. |
@@ -99,7 +103,7 @@ For detailed revision history, see [Version History & Changelog](docs/29-version
 
 ```text
 frappe-docs/
-├── package.json                          # Package scripts & dependencies (v1.11.0)
+├── package.json                          # Package scripts & dependencies (v1.12.0)
 ├── README.md                             # Project documentation & guide
 └── docs/
     ├── .vitepress/

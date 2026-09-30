@@ -1,6 +1,6 @@
 ---
 title: Documentation Version History & Changelog
-description: Comprehensive version history documenting v1.0 initial baseline, v1.1 GitHub & ORM masterclass, v1.2 exhaustive documentation expansion, and v1.3 Client JS API expansion & Open Source Ecosystem section.
+description: Comprehensive version history documenting v1.0 initial baseline through v1.12 Client JS UI & Toolbar APIs, toast alerts overhaul, database batch engine, and API Index synchronization.
 version: v15
 category: Miscellaneous
 status: Stable
@@ -16,14 +16,56 @@ This document tracks the evolution, feature additions, API expansions, and revis
 
 | Version | Release Name | Major Focus & Key Additions | Total Chapters / Sections | Status |
 | :--- | :--- | :--- | :--- | :---: |
-| **v1.11.0 (v16)** | **Frappe Framework v16 Differences, Breaking Changes & Migration Guide** | Added Chapter 32 (Frappe v16 Differences & Migration), covering default sorting shift (`creation desc` vs `modified desc`), ban of `frappe.db.commit()` in document hooks, Python 3.14+ & Node 24+ runtime requirements, sandboxed IIFE client scripts, strict ISO country codes, Desk `/desk` routing, and landing page v16 hub. | **32 Chapters + 1 Ecosystem Section** | **Current Release** |
+| **v1.12.0 (v1.12)** | **Client UI & Form Triggers Overhaul, Database Engine Expansion & API Index Sync** | Overhauled `frappe.show_alert` (options, duration, indicator palette, HTML action triggers), documented `frm.trigger("custom_party")` and Party Unification pattern, added form dashboard & toolbar controls (`frm.dashboard.*`, `frm.remove_custom_button`, `frm.set_intro`, `frm.get_selected`), added modern `frappe.xcall()` & `frappe.call` options, documented `frappe.db.bulk_insert()`, `frappe.delete_doc()`, `frappe.db.release_savepoint()`, and synchronized the Searchable API Index. | **32 Chapters + 1 Ecosystem Section** | **Current Release** |
+| **v1.11.0 (v16)** | **Frappe Framework v16 Differences, Breaking Changes & Migration Guide** | Added Chapter 32 (Frappe v16 Differences & Migration), covering default sorting shift (`creation desc` vs `modified desc`), ban of `frappe.db.commit()` in document hooks, Python 3.14+ & Node 24+ runtime requirements, sandboxed IIFE client scripts, strict ISO country codes, Desk `/desk` routing, and landing page v16 hub. | **32 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.10.0 (v1.10)** | **Document Field Access Strategy, Safe Getter Methods & Best Practice Callouts** | Added exhaustive Python field-reading patterns (`doc.get("fieldname")` vs `frappe.db.get_value`) across Chapters 06, 07, 09, 10, 30, and 31; integrated defensive null-safety, in-memory child table filtering, technical callout boxes (`> [!TIP]`), official Frappe documentation references, and synced API Index. | **31 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.9.0 (v1.9)** | **Tree Reports, LoginManager, Nginx Port Assignment & Utilities Overhaul** | Added folded first-child Tree Report architecture in Chapter 18, LoginManager & custom signup/login APIs in Chapter 14, Nginx port assignment & port-based multi-tenancy in Chapter 03, complete Python/JS utilities expansion in Chapter 19, and synced API Index. | **31 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.8.0 (v1.8)** | **Conditional Date Filter Patterns & Validation in Script Reports** | Added conditional date requirement pattern in Chapter 18 (Reports Guide), client-side dynamic `on_change` requirement toggle (`df.reqd = 1`), server-side validation guard (`frappe.throw`), and multi-table parameterized SQL query examples. | **31 Chapters + 1 Ecosystem Section** | Stable |
 
 ---
 
-## 🆕 Version 1.11.0 (v16) — Frappe Framework v16 Differences & Migration Guide (Current)
+## 🆕 Version 1.12.0 (v1.12) — Client UI & Form Triggers Overhaul, Database Engine Expansion & API Index Sync (Current)
+
+**Release Date:** September 30, 2026
+
+Version 1.12.0 delivers an extensive developer documentation expansion focused on client-side Desk UI controls, programmatic event triggers, high-performance database batch APIs, modern server RPC patterns, and full synchronization of the Searchable API Index.
+
+### 🌟 Key Enhancements in v1.12.0
+
+#### 1. Toast Alerts (`frappe.show_alert`) Comprehensive Overhaul (Chapter 11)
+- **Exhaustive Options & Parameters Reference**: Documented `message`, `indicator`, and `seconds` parameters, supporting both string shorthand `frappe.show_alert(msg, duration)` and configuration object signatures.
+- **8-Color Indicator Palette & Guidelines**: Complete palette matrix detailing visual roles and use cases for `green` (Success), `blue` (Information), `orange`/`yellow` (Warning), `red` (Danger/Error), `purple` (Milestone/Workflow), `gray`/`grey` (Muted), and `cyan` (Telemetry/Sync).
+- **Interactive Features & Server Triggering**: Documented automatic timer pause on mouse hover, rich HTML action triggers (e.g. clickable inline "Undo" button), comparison table against `msgprint`, `confirm`, `warn`, and `prompt`, and server-side toast dispatch via `frappe.publish_realtime("msgprint", {alert: 1})`.
+
+#### 2. Programmatic Event Triggers & Custom Handlers (`frm.trigger`)
+- **Internal Mechanics & Execution Flow**: Detailed how `frm.trigger` registers methods with `cur_frm.script_manager`, executes matching handlers sequentially via `frappe.run_serially`, and natively awaits returned Promises (`await frm.trigger(...)`).
+- **Child Table Scoping**: Detailed row-level trigger pattern using `frm.trigger(event, cdt, cdn)` for grid row calculations.
+- **"Party Unification" Production Architecture**: Documented the enterprise ERP pattern using `frm.trigger("custom_party")` to eliminate duplicate party address, price list, credit limit, and payment terms retrieval across `customer`, `supplier`, `party_type`, and `refresh` handlers.
+
+#### 3. Desk Form UI, Toolbar & Dashboard APIs (Chapter 11)
+- **Form Dashboard Headlines & Indicators**: Documented `frm.dashboard.set_headline()`, `frm.dashboard.clear_headline()`, and `frm.dashboard.add_indicator()` for dynamic form KPI metrics.
+- **Callout Intro Banners**: Documented `frm.set_intro(message, color)` with 4-color status matrix (`blue`, `green`, `orange`, `red`).
+- **Toolbar Customization**: Added `frm.remove_custom_button()` for removing individual buttons or nested dropdown actions, alongside `frm.clear_custom_buttons()`.
+- **Bulk Child Row Selection**: Documented `frm.get_selected()` returning dictionary mapping child tables to checked `docnames`.
+- **Hiding & Disabling Standard Controls**: Added patterns for `frm.disable_save()`, `frm.enable_save()`, `frm.disable_form()`, `frm.enable_form()`, and `frm.page.hide_menu()`.
+
+#### 4. Modern Server RPC (`frappe.xcall` & `frappe.call`)
+- **Promise-Native `frappe.xcall`**: Documented `await frappe.xcall("method", args)` resolving directly to `r.message` and rejecting on errors.
+- **Exhaustive `frappe.call` Options**: Documented `type`, `headers`, `freeze`, `freeze_message`, `async`, and `btn` spinner integration.
+
+#### 5. Database Batch Engine & Transaction Controls (Chapter 10)
+- **`frappe.db.bulk_insert`**: High-performance direct SQL multi-row batch insertion bypassing ORM triggers with `chunk_size=10_000` and `ignore_duplicates=True`.
+- **`frappe.delete_doc` Options**: Documented `delete_permanently=True` (recycle bin bypass) and `force=True` (foreign key & submitted docstatus bypass).
+- **Nested Savepoint Release**: Added `frappe.db.release_savepoint(name)` for successful execution in batch loops.
+- **Advanced Query Options**: Documented `frappe.db.get_value` concurrency locks (`for_update`, `skip_locked`, `wait`), `pluck`, `cache`, and `distinct`, and `frappe.db.set_value(..., update_modified=False)`.
+
+#### 6. Information Architecture & API Index Synchronization (Chapters 24 & 29)
+- **Sidebar Categorization**: Moved Chapter 29 (Version History) into a dedicated `Miscellaneous` section.
+- **Searchable API Index Sync**: Added new entries across Sections B, C, D, F, G, R, S, T, and introduced Section X for `xcall()`.
+
+---
+
+## 🟢 Version 1.11.0 (v16) — Frappe Framework v16 Differences & Migration Guide
 
 **Release Date:** September 29, 2026
 
