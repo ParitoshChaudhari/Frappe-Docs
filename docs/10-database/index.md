@@ -18,6 +18,7 @@ Frappe Framework v15 provides 3 database access interfaces under `frappe.db` and
 
 Fetches values from a single database row efficiently without instantiating document objects.
 
+```python
 # Full Method Signature:
 # frappe.db.get_value(doctype, filters, fieldname, as_dict=False, debug=False, order_by=None, cache=False, for_update=False, pluck=False, distinct=False, skip_locked=False, wait=True)
 
