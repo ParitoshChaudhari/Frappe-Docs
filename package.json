@@ -9,7 +9,8 @@
     "docs:preview": "vitepress preview docs",
     "dev": "vitepress dev docs",
     "build": "vitepress build docs",
-    "preview": "vitepress preview docs"
+    "preview": "npm run docs:build && wrangler dev",
+    "deploy": "npm run docs:build && wrangler deploy"
   },
   "keywords": [
     "frappe",
@@ -22,6 +23,7 @@
   "author": "Frappe Developer Community",
   "license": "MIT",
   "devDependencies": {
-    "vitepress": "^1.6.4"
+    "vitepress": "^1.6.4",
+    "wrangler": "^4.143.0"
   }
 }
