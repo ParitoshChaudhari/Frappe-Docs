@@ -282,18 +282,70 @@ result = frappe.db.sql("""
 
 ### Database Transactions: `commit`, `rollback`, `savepoint`
 
+Frappe manages MariaDB and PostgreSQL transactions automatically per HTTP request. However, background jobs, large integrations, and fault-tolerant data pipelines require explicit transaction boundaries.
+
 ```python
-# Savepoint and Transaction Control
-try:
-    frappe.db.savepoint("before_bulk_update")
-    frappe.db.set_value("Task", task_id, "status", "Completed")
-    # Commit explicit transaction if required
-    frappe.db.commit()
-except Exception:
-    # Revert to savepoint without aborting entire request transaction
-    frappe.db.rollback(save_point="before_bulk_update")
-    raise
+# 1. Full Commit & Full Rollback
+frappe.db.commit()   # Persists uncommitted SQL statements to disk
+frappe.db.rollback() # Discards all uncommitted changes in the current transaction
+
+# 2. Nested Transactions using Savepoints
+# Allows rolling back individual failed operations without aborting the entire batch!
+records = [{"id": 1, "valid": True}, {"id": 2, "valid": False}, {"id": 3, "valid": True}]
+
+for row in records:
+    sp_name = f"row_savepoint_{row['id']}"
+    frappe.db.savepoint(sp_name)
+    try:
+        # Process and insert row
+        frappe.db.set_value("Task", f"TASK-0000{row['id']}", "status", "Completed")
+        frappe.db.release_savepoint(sp_name) # Lock released on success
+    except Exception as e:
+        # Roll back ONLY the failed row, preserving previous successful rows
+        frappe.db.rollback(save_point=sp_name)
+        frappe.log_error(title=f"Failed processing row {row['id']}", message=frappe.get_traceback())
+
+# Commit all successful records at the end of the loop
+frappe.db.commit()
 ```
+
+---
+
+### High-Performance Batch Insertion (`frappe.db.bulk_insert`)
+
+When inserting tens of thousands of records (e.g. historical ledger data, telemetry logs, or bulk imports), instantiating documents with `doc.insert()` incurs heavy ORM overhead. `frappe.db.bulk_insert` bypasses ORM triggers to perform direct multi-row SQL `INSERT` statements chunked at 10,000 rows.
+
+```python
+# Signature:
+# frappe.db.bulk_insert(doctype, fields, values, ignore_duplicates=False, chunk_size=10_000)
+
+data_values = [
+    ("TASK-00101", "Audit Check 1", "Open", "2026-09-30 10:00:00"),
+    ("TASK-00102", "Audit Check 2", "Open", "2026-09-30 10:01:00"),
+    ("TASK-00103", "Audit Check 3", "Open", "2026-09-30 10:02:00"),
+]
+
+frappe.db.bulk_insert(
+    doctype="Task",
+    fields=["name", "subject", "status", "creation"],
+    values=data_values,
+    ignore_duplicates=True, # Injects INSERT IGNORE (MariaDB) / ON CONFLICT DO NOTHING (Postgres)
+    chunk_size=10_000
+)
+
+# Remember to commit after bulk insertion completes!
+frappe.db.commit()
+```
+
+#### `frappe.db.bulk_insert` Options Reference
+
+| Option | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| **`doctype`** | `str` | *(Required)* | Target DocType name (e.g., `"Task"`, `"Error Log"`). |
+| **`fields`** | `list[str]` | *(Required)* | List of database column names matching the order of tuples in `values`. |
+| **`values`** | `Iterable[Sequence]`| *(Required)* | Iterable/list of row tuples to insert. |
+| **`ignore_duplicates`**| `bool` | `False` | Skips duplicate primary key or unique constraint violations without throwing an exception. |
+| **`chunk_size`** | `int` | `10_000` | Number of rows sent per SQL query batch to avoid memory exhaustion and max packet size limits. |
 
 ---
 

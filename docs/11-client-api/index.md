@@ -710,9 +710,43 @@ frappe.db.insert({
 
 ---
 
-## 7. Asynchronous Server RPC (`frappe.call`)
+## 7. Asynchronous Server RPC (`frappe.call` & `frappe.xcall`)
 
-Executes an asynchronous AJAX HTTP POST request to a whitelisted Python server method.
+Executes an asynchronous AJAX HTTP POST request to a `@frappe.whitelist()` Python server method.
+
+### 1. Modern Promise-Based Calls (`frappe.xcall`)
+
+`frappe.xcall(method, [params])` is the modern, Promise-first alternative to `frappe.call`. It directly returns a Promise that resolves to `r.message` and automatically rejects on error, enabling clean `async/await` syntax without callback nesting.
+
+```javascript
+// Modern async/await with frappe.xcall
+frappe.ui.form.on("Task", {
+    async refresh(frm) {
+        if (!frm.is_new() && frm.doc.project) {
+            try {
+                // Directly returns unwrapped r.message!
+                let metrics = await frappe.xcall("my_custom_app.api.get_project_metrics", {
+                    project_id: frm.doc.project
+                });
+
+                frm.set_value("completion_percent", metrics.completion);
+                frm.refresh_field("completion_percent");
+            } catch (err) {
+                frappe.show_alert({
+                    message: __("Could not fetch project metrics"),
+                    indicator: "red"
+                });
+            }
+        }
+    }
+});
+```
+
+---
+
+### 2. Configuration Object Invocation (`frappe.call`)
+
+For complex requests requiring UI freezing, button spinners, or custom headers, use `frappe.call`:
 
 ```javascript
 frappe.call({
@@ -722,6 +756,7 @@ frappe.call({
     },
     freeze: true,
     freeze_message: __("Calculating Metrics..."),
+    btn: $(".btn-primary"), // Automatically attaches spinner to button and disables it during execution
     callback(r) {
         if (!r.exc && r.message) {
             frm.set_value("completion_percent", r.message.completion);
@@ -733,6 +768,19 @@ frappe.call({
     }
 });
 ```
+
+#### `frappe.call` Options & Parameters Reference
+
+| Option | Type | Default | Description & Behavior |
+| :--- | :--- | :--- | :--- |
+| **`method`** | `string` | *(Required)* | Dotted path to the whitelisted Python function (e.g., `"my_app.api.sync"`). |
+| **`args`** | `object` | `{}` | Parameter dictionary passed as JSON payload to the Python function kwargs. |
+| **`freeze`** | `boolean` | `false` | When `true`, displays a semi-transparent modal overlay freezing the screen until completion. |
+| **`freeze_message`** | `string` | `""` | Informative label rendered inside the loading spinner overlay when `freeze: true`. |
+| **`btn`** | `jQuery | HTMLElement` | `null` | Attaches a loading spinner inside the button and disables it until the network call finishes. |
+| **`async`** | `boolean` | `true` | When `false`, executes as a blocking synchronous AJAX call (rarely recommended). |
+| **`callback`** | `function(r)` | `null` | Invoked on HTTP 200 response. Response data is accessible via `r.message`. |
+| **`error`** | `function(r)` | `null` | Invoked if the server raises an exception or returns a non-200 HTTP status code. |
 
 ---
 
