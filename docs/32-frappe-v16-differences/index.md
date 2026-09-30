@@ -1,12 +1,12 @@
 ---
 title: Frappe Framework v16 Differences, Breaking Changes & Migration Guide
 description: Complete guide to all methods, functions, database sorting, transaction boundary changes, frontend IIFE scoping, and paradigm shifts introduced in Frappe v16 vs v15.
-version: v16-beta
+version: v16
 category: Overview & Basics
-status: Beta
+status: Active
 ---
 
-# <span class="badge v16">v16 Beta</span> <span class="badge server">Server & Client</span> Frappe Framework v16: Breaking Changes, Methods & Architectural Shifts
+# <span class="badge v16">v16</span> <span class="badge server">Server & Client</span> Frappe Framework v16: Breaking Changes, Methods & Architectural Shifts
 
 Frappe Framework version 16 introduces significant architectural refinements, performance enhancements (up to **2x faster** on typical workloads), database query behavior shifts, and strict safety contracts.
 
@@ -16,7 +16,7 @@ This chapter documents every **method**, **function**, **database ORM rule**, **
 
 ## ⚡ v15 vs v16 Executive Comparison Matrix
 
-| Architectural Feature | Frappe v15 | Frappe v16 (Beta) | Impact & Migration Requirement |
+| Architectural Feature | Frappe v15 | Frappe v16 | Impact & Migration Requirement |
 | :--- | :--- | :--- | :--- |
 | **Minimum Python Runtime** | Python 3.10 – 3.12 | **Python 3.14+** | ⚠️ Server environment upgrade required before bench setup |
 | **Minimum Node.js Runtime** | Node.js 18.x – 20.x | **Node.js 24+** | ⚠️ Server Node version must be updated via nvm/apt |

@@ -93,7 +93,7 @@ export default {
         {
           id: 'v16',
           label: 'v16 Differences',
-          badge: 'v16 BETA',
+          badge: 'v16',
           icon: '⚡',
           color: '#ec4899',
           summary: 'Frappe v16 changes default ORM sorting from modified to creation desc and prohibits db.commit in hooks.',

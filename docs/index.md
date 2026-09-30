@@ -13,7 +13,7 @@ hero:
       text: 🔍 Searchable API Index
       link: /24-api-index/
     - theme: alt
-      text: ⚡ v16 Differences (Beta)
+      text: ⚡ v16 Differences
       link: /32-frappe-v16-differences/
 ---
 
@@ -22,18 +22,18 @@ hero:
 <!-- Release Pill Banner -->
 <div style="text-align: center; margin-bottom: 1.25rem; position: relative; z-index: 1;">
   <a href="/29-version-history/" class="hero-pill" style="text-decoration: none;">
-    <span class="hero-pill-badge">NEW v1.10.0</span>
-    <span>Field Access Patterns (doc.get vs db.get_value) &amp; Best Practices Callouts</span>
+    <span class="hero-pill-badge">NEW v1.11.0</span>
+    <span>Frappe Framework v16 Differences, Breaking Changes &amp; Migration Guide</span>
     <span style="opacity: 0.7;">→</span>
   </a>
 </div>
 
-<!-- v16 Beta Spotlight Banner -->
+<!-- v16 Spotlight Banner -->
 <div style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%); border: 1px solid rgba(236, 72, 153, 0.3); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; position: relative; z-index: 1;">
   <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;">
     <div style="max-width: 680px;">
       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.35rem;">
-        <span style="background: #ec4899; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.05em;">v16 Beta Preview</span>
+        <span style="background: #ec4899; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.05em;">v16 Spotlight</span>
         <span style="font-size: 0.85rem; font-weight: 600; color: var(--vp-c-text-2);">What's New, Deprecations &amp; Migration</span>
       </div>
       <h3 style="margin: 0 0 0.4rem; font-size: 1.15rem; font-weight: 700; color: var(--vp-c-text-1);">Frappe Framework v16: Breaking Changes &amp; Paradigm Shifts</h3>

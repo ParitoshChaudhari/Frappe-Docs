@@ -260,15 +260,148 @@ frappe.ui.form.on("Task", {
 
 ### Toast Alerts (`frappe.show_alert`)
 
-Displays non-blocking temporary popup notifications.
+`frappe.show_alert` displays non-intrusive, temporary floating toast notifications in the Desk interface. Unlike modal dialogs, toast alerts do not freeze the screen or block user input, and they automatically dismiss after a configurable timeout.
+
+#### API Signatures & Overloads
 
 ```javascript
-// Display 5-second green toast message
+// Signature 1: Simple message string with optional duration
+frappe.show_alert(message, [seconds]);
+
+// Signature 2: Options configuration object with optional duration
 frappe.show_alert({
-    message: __("Task status updated successfully!"),
+    message: __("Text or HTML markup"),
+    indicator: "green"
+}, [seconds]);
+```
+
+---
+
+#### Complete Options & Parameters Reference
+
+| Parameter / Key | Type | Default | Choices / Format | What It Does & Behavior |
+| :--- | :--- | :--- | :--- | :--- |
+| **`message`** | `string` | *(Required)* | Plain text or HTML string | The content displayed inside the toast. Always wrap user-facing text in `__("...")` for internationalization. Supports rich HTML tags (`<b>`, `<span>`, `<a>`, `<i class="fa ...">`) for custom styles, links, and inline interactive actions. |
+| **`indicator`** | `string` | `'blue'` | `'green'`, `'blue'`, `'orange'`, `'yellow'`, `'red'`, `'purple'`, `'gray'`, `'cyan'` | The colored status indicator dot positioned next to the message. Sets the visual tone and urgency of the alert. |
+| **`seconds`** | `number` | `7` | Any positive integer or float (e.g., `3`, `5`, `10`) | Display duration in seconds before the alert auto-dismisses. Can be passed as the 2nd argument to `frappe.show_alert(msg, seconds)` or specified inside options. |
+
+> [!TIP] **Hover to Pause Timer**
+> If a user hovers their mouse cursor over a toast alert, Frappe automatically pauses the dismissal countdown timer. This guarantees users have sufficient time to read longer messages or click embedded action links.
+
+---
+
+#### Indicator Color Palette & Usage Guidelines
+
+| Indicator Color | Visual Role | Ideal Use Case & Scenario |
+| :--- | :--- | :--- |
+| **`green`** | **Success** | Successful document save, submission, record creation, or background job completion. |
+| **`blue`** | **Information** | Neutral system updates, informational tips, navigation notes, or in-progress states. |
+| **`orange`** / **`yellow`** | **Warning** | Non-fatal warnings, approaching thresholds, draft state reminders, or pending syncs. |
+| **`red`** | **Danger / Error** | Validation rejection, network timeout, failed API call, or permission warning. |
+| **`purple`** | **Accent / Workflow** | Major workflow milestone transitions, approval notices, or special event triggers. |
+| **`gray`** / **`grey`** | **Muted / Neutral** | Low-priority telemetry, cached data notices, or background polling heartbeats. |
+| **`cyan`** | **Sync / Telemetry** | Real-time WebSocket synchronization events and telemetry diagnostics. |
+
+---
+
+#### Practical Code Patterns & Real-World Examples
+
+##### 1. Basic Quick Message
+```javascript
+// Displays standard 7-second neutral informational alert
+frappe.show_alert(__("Quick note: Document draft refreshed"));
+```
+
+##### 2. Success Alert with Custom 5-Second Duration
+```javascript
+// Green success indicator with 5-second auto-dismiss
+frappe.show_alert({
+    message: __("Task #{0} updated and saved successfully!", [frm.doc.name]),
     indicator: "green"
 }, 5);
 ```
+
+##### 3. Warning Alert for Approaching Credit Limits
+```javascript
+// Warning indicator highlighting approaching limit threshold
+let used_pct = ((frm.doc.outstanding_amount / frm.doc.credit_limit) * 100).toFixed(0);
+
+frappe.show_alert({
+    message: __("Credit alert: Customer has utilized {0}% of credit limit.", [used_pct]),
+    indicator: "orange"
+}, 8);
+```
+
+##### 4. Error Alert for Failed Client-Side Actions
+```javascript
+// Red danger indicator for client-side API error
+frappe.show_alert({
+    message: __("Failed to connect to shipping carrier API. Please retry."),
+    indicator: "red"
+}, 10);
+```
+
+##### 5. Rich HTML Alert with Clickable Inline Action ("Undo" / "View")
+Because the `message` parameter accepts valid HTML, you can render clickable interactive action triggers directly inside the toast:
+
+```javascript
+// Interactive toast with an inline "Undo" action link
+frappe.show_alert({
+    message: `
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+            <span>${__("Task marked as Closed.")}</span>
+            <a href="javascript:void(0)" 
+               onclick="cur_frm.set_value('status', 'Open'); cur_frm.save();" 
+               style="color: var(--primary-color, #171717); font-weight: 700; text-decoration: underline;">
+               ${__("Undo")}
+            </a>
+        </div>
+    `,
+    indicator: "purple"
+}, 10);
+```
+
+##### 6. Triggering Client Toast Alerts from Python (Server-Side)
+You can trigger non-blocking client toast notifications directly from server-side Python controllers using the `alert=True` flag:
+
+```python
+import frappe
+from frappe import _
+
+# 1. Trigger toast alert during document validation or server RPC
+def on_submit(doc, method):
+    # Renders green non-blocking toast in the client browser
+    frappe.msgprint(
+        msg=_("Inventory balance updated and sync queued."),
+        alert=True,
+        indicator="green"
+    )
+
+# 2. Trigger real-time toast alert asynchronously from background worker
+def process_background_export(user, file_url):
+    # Pushes toast alert over WebSocket to the specific user session
+    frappe.publish_realtime(
+        event="msgprint",
+        message={
+            "message": _("Your Excel export is ready: <a href='{0}'>Download</a>").format(file_url),
+            "alert": True,
+            "indicator": "blue"
+        },
+        user=user
+    )
+```
+
+---
+
+#### Comparison: When to Use `show_alert` vs Other UI Messaging APIs
+
+| Method | UI Type | Blocks Screen? | Auto-Dismisses? | Best Used For |
+| :--- | :--- | :---: | :---: | :--- |
+| **`frappe.show_alert`** | Floating Toast | ❌ No | ✅ Yes (default 7s) | Passive confirmations, status changes, non-fatal errors |
+| **`frappe.msgprint`** | Modal Dialog | ✅ Yes | ❌ No (requires click) | Detailed warnings, exception stack, lists (`as_list`), tables (`as_table`) |
+| **`frappe.confirm`** | Confirmation Modal | ✅ Yes | ❌ No | "Are you sure?" binary choices (Yes/No callbacks) |
+| **`frappe.warn`** | Warning Modal | ✅ Yes | ❌ No | Dangerous/destructive actions (Red primary button) |
+| **`frappe.prompt`** | Input Dialog Modal | ✅ Yes | ❌ No | Capturing fast user inputs (reason text, date selection) |
 
 ---
 

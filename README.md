@@ -1,10 +1,10 @@
 # Frappe Framework v15 Complete Developer Documentation & Reference
 
-[![Documentation Version](https://img.shields.io/badge/version-v1.11.0--beta.1-magenta.svg)](https://github.com/ParitoshChaudhari/Frappe-Docs/tree/beta/v16)
-[![Frappe Framework](https://img.shields.io/badge/frappe-v15%20%7C%20v16%20beta-0052CC.svg)](https://frappeframework.com)
+[![Documentation Version](https://img.shields.io/badge/version-v1.11.0-magenta.svg)](https://github.com/ParitoshChaudhari/Frappe-Docs)
+[![Frappe Framework](https://img.shields.io/badge/frappe-v15%20%7C%20v16-0052CC.svg)](https://frappeframework.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A fast, lightweight, static-first developer documentation website and technical handbook for **Frappe Framework v15** and **Frappe v16 Beta**, built with **VitePress**.
+A fast, lightweight, static-first developer documentation website and technical handbook for **Frappe Framework v15** and **Frappe v16**, built with **VitePress**.
 
 🔗 **GitHub Repository**: [https://github.com/ParitoshChaudhari/Frappe-Docs](https://github.com/ParitoshChaudhari/Frappe-Docs)
 
@@ -78,7 +78,7 @@ Static HTML, CSS, JavaScript, and local full-text search indexes will be generat
 
 | Version | Release Stage | Highlights |
 | :--- | :--- | :--- |
-| **v1.11.0-beta.1 (v16-beta)** | **Current Release (Beta)** | Added Chapter 32 (Frappe v16 Differences & Migration), covering default sorting shift (`creation desc` vs `modified desc`), ban of `frappe.db.commit()` in document hooks, Python 3.14+ & Node 24+ runtime requirements, sandboxed IIFE client scripts, strict ISO country codes, Desk `/desk` routing, and landing page v16 hub. |
+| **v1.11.0 (v16)** | **Current Release** | Added Chapter 32 (Frappe v16 Differences & Migration), covering default sorting shift (`creation desc` vs `modified desc`), ban of `frappe.db.commit()` in document hooks, Python 3.14+ & Node 24+ runtime requirements, sandboxed IIFE client scripts, strict ISO country codes, Desk `/desk` routing, and landing page v16 hub. |
 | **v1.10.0 (v1.10)** | **Field Access Patterns** | Added comprehensive Python field-reading patterns (`doc.get("fieldname")` vs `frappe.db.get_value`) across Chapters 06, 07, 09, 10, 30, and 31; integrated defensive null-safety, in-memory child table filtering, technical callout boxes (`> [!TIP]`), official Frappe documentation references, and synced API Index. |
 | **v1.9.0 (v1.9)** | **Tree Reports & Utils** | Added folded first-child Tree Report architecture in Chapter 18, LoginManager & custom signup/login APIs in Chapter 14, Nginx port assignment & port-based multi-tenancy in Chapter 03, complete Python/JS utilities expansion in Chapter 19, and synced API Index. |
 | **v1.8.0 (v1.8)** | **Conditional Reports** | Added conditional date requirement pattern in Chapter 18 (Reports Guide), client-side dynamic `on_change` requirement toggle (`df.reqd = 1`), server-side validation guard (`frappe.throw`), and multi-table parameterized SQL query examples. |
@@ -99,7 +99,7 @@ For detailed revision history, see [Version History & Changelog](docs/29-version
 
 ```text
 frappe-docs/
-├── package.json                          # Package scripts & dependencies (v1.10.0)
+├── package.json                          # Package scripts & dependencies (v1.11.0)
 ├── README.md                             # Project documentation & guide
 └── docs/
     ├── .vitepress/
@@ -140,6 +140,7 @@ frappe-docs/
     ├── 29-version-history/               # Documentation Version History & Changelog
     ├── 30-frappe-orm/                    # Frappe ORM Masterclass (SELECT, WHERE, JOINs, UNION)
     ├── 31-frappe-types/                  # Frappe Data Types & Custom Containers (frappe._dict, Document, DF)
+    ├── 32-frappe-v16-differences/        # Frappe Framework v16 Differences, Breaking Changes & Migration
     └── opensource-projects/              # Open Source Ecosystem Projects (ERPNext, HRMS, India Compliance)
 ```
 

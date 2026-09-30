@@ -87,8 +87,8 @@ export default {
         {
           id: 'v16',
           icon: '⚡',
-          title: 'v16 Beta Differences',
-          badge: 'BETA v16',
+          title: 'v16 Differences',
+          badge: 'v16',
           color: '#ec4899',
           descHtml: 'Understand default sorting shift (<code class="chip">creation</code> vs <code class="chip">modified</code>), transaction commit bans in hooks, runtime bumps &amp; breaking changes.',
           link: '/32-frappe-v16-differences/',

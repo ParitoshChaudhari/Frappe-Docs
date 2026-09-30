@@ -1,7 +1,7 @@
 {
   "name": "frappe-docs",
-  "version": "1.11.0-beta.1",
-  "description": "Complete Developer Documentation for Frappe Framework v15 & v16 Beta",
+  "version": "1.11.0",
+  "description": "Complete Developer Documentation for Frappe Framework v15 & v16",
   "type": "module",
   "scripts": {
     "docs:dev": "vitepress dev docs",

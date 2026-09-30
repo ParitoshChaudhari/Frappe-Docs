@@ -57,12 +57,12 @@ export default defineConfig({
     },
 
     nav: [
-      { text: '⚡ v16 Differences (Beta)', link: '/32-frappe-v16-differences/' }
+      { text: '⚡ v16 Differences', link: '/32-frappe-v16-differences/' }
     ],
 
     sidebar: [
       {
-        text: '⚡ Frappe v16 Beta Differences',
+        text: '⚡ Frappe v16 Differences',
         collapsible: true,
         collapsed: false,
         items: [
