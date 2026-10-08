@@ -1,6 +1,6 @@
 ---
 title: Documentation Version History & Changelog
-description: Comprehensive version history documenting v1.0 initial baseline through v1.12 Client JS UI & Toolbar APIs, toast alerts overhaul, database batch engine, and API Index synchronization.
+description: Comprehensive version history documenting v1.0 initial baseline through v1.13 Child Table Grid lockdown strategies, Server Python API expansion, DocType & Form Dashboard masterclass, and API Index synchronization.
 version: v15
 category: Miscellaneous
 status: Stable
@@ -16,7 +16,8 @@ This document tracks the evolution, feature additions, API expansions, and revis
 
 | Version | Release Name | Major Focus & Key Additions | Total Chapters / Sections | Status |
 | :--- | :--- | :--- | :--- | :---: |
-| **v1.12.0 (v1.12)** | **Client UI & Form Triggers Overhaul, Database Engine Expansion & API Index Sync** | Overhauled `frappe.show_alert` (options, duration, indicator palette, HTML action triggers), documented `frm.trigger("custom_party")` and Party Unification pattern, added form dashboard & toolbar controls (`frm.dashboard.*`, `frm.remove_custom_button`, `frm.set_intro`, `frm.get_selected`), added modern `frappe.xcall()` & `frappe.call` options, documented `frappe.db.bulk_insert()`, `frappe.delete_doc()`, `frappe.db.release_savepoint()`, and synchronized the Searchable API Index. | **32 Chapters + 1 Ecosystem Section** | **Current Release** |
+| **v1.13.0 (v1.13)** | **Child Table Row Lockdown Strategies, Server API Expansion & DocType Dashboard Masterclass** | Added 6 complete methods to restrict, hide, or control child table add/remove row operations in Chapter 12; expanded Chapter 09 with essential server APIs (`has_permission`, `has_role`, `only_for`, `set_user`, `flags`, `new_doc`, `copy_doc`, `delete_doc`, `rename_doc`, `enqueue`, `sendmail`, `publish_realtime`, `cache`, `as_json`, `format`, `_dict`); added full DocType Dashboard guide (`<doctype>_dashboard.py`, `override_doctype_dashboards`, `Dashboard Chart`, `Number Card`) in Chapter 28; added all `frm.dashboard.*` methods in Chapter 11; and synchronized the Searchable API Index. | **32 Chapters + 1 Ecosystem Section** | **Current Release** |
+| **v1.12.0 (v1.12)** | **Client UI & Form Triggers Overhaul, Database Engine Expansion & API Index Sync** | Overhauled `frappe.show_alert` (options, duration, indicator palette, HTML action triggers), documented `frm.trigger("custom_party")` and Party Unification pattern, added form dashboard & toolbar controls (`frm.dashboard.*`, `frm.remove_custom_button`, `frm.set_intro`, `frm.get_selected`), added modern `frappe.xcall()` & `frappe.call` options, documented `frappe.db.bulk_insert()`, `frappe.delete_doc()`, `frappe.db.release_savepoint()`, and synchronized the Searchable API Index. | **32 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.11.0 (v16)** | **Frappe Framework v16 Differences, Breaking Changes & Migration Guide** | Added Chapter 32 (Frappe v16 Differences & Migration), covering default sorting shift (`creation desc` vs `modified desc`), ban of `frappe.db.commit()` in document hooks, Python 3.14+ & Node 24+ runtime requirements, sandboxed IIFE client scripts, strict ISO country codes, Desk `/desk` routing, and landing page v16 hub. | **32 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.10.0 (v1.10)** | **Document Field Access Strategy, Safe Getter Methods & Best Practice Callouts** | Added exhaustive Python field-reading patterns (`doc.get("fieldname")` vs `frappe.db.get_value`) across Chapters 06, 07, 09, 10, 30, and 31; integrated defensive null-safety, in-memory child table filtering, technical callout boxes (`> [!TIP]`), official Frappe documentation references, and synced API Index. | **31 Chapters + 1 Ecosystem Section** | Stable |
 | **v1.9.0 (v1.9)** | **Tree Reports, LoginManager, Nginx Port Assignment & Utilities Overhaul** | Added folded first-child Tree Report architecture in Chapter 18, LoginManager & custom signup/login APIs in Chapter 14, Nginx port assignment & port-based multi-tenancy in Chapter 03, complete Python/JS utilities expansion in Chapter 19, and synced API Index. | **31 Chapters + 1 Ecosystem Section** | Stable |
@@ -24,7 +25,45 @@ This document tracks the evolution, feature additions, API expansions, and revis
 
 ---
 
-## 🆕 Version 1.12.0 (v1.12) — Client UI & Form Triggers Overhaul, Database Engine Expansion & API Index Sync (Current)
+## 🆕 Version 1.13.0 (v1.13) — Child Table Row Lockdown Strategies, Server API Expansion & DocType Dashboard Masterclass (Current)
+
+**Release Date:** October 8, 2026
+
+Version 1.13.0 delivers a major content expansion encompassing child table grid UX security patterns, server-side Python utility functions, comprehensive DocType dashboard architecture, and full search index synchronization.
+
+### 🌟 Key Enhancements in v1.13.0
+
+#### 1. Child Table Row Restriction & Lockdown Strategies (Chapter 12)
+- **6 Detailed Approaches**:
+  1. **Official DocField Properties API (`frm.set_df_property`)**: Disables `cannot_add_rows` and `cannot_delete_rows` natively without breaking grid reactivity or re-renders.
+  2. **Strict Sort-Only Mode (`grid.only_sortable()`)**: Locks the grid to a fixed set of rows where users can drag-and-drop reorder items while preventing addition or deletion.
+  3. **jQuery DOM Control (`grid.wrapper`)**: Directly targets and hides `.grid-add-row`, `.grid-add-multiple-rows`, `.grid-download`, `.grid-upload`, `.grid-remove-rows`, and `.grid-remove-all-rows`.
+  4. **Table-Wide Read-Only Mode (`read_only` / `frm.toggle_enable`)**: Completely locks all inputs, additions, and deletions across all columns.
+  5. **Client Event Interceptors (`before_<field>_add` / `before_<field>_remove`)**: Intercepts programmatic and UI additions/removals before execution to enforce business rules.
+  6. **DocPerm & Python Server Validation**: Enforces backend security rules so client bypasses cannot save illegal row changes.
+- **Comparison Decision Matrix**: Clear table comparing persistence, inline editability, sorting capability, and recommended use cases across all 6 approaches.
+
+#### 2. Server-Side Python API Reference Expansion (Chapter 09)
+- **Permissions & Identity Context**: Documented `frappe.has_permission(doctype, ptype, doc, throw=True)`, `frappe.has_role(role, user)`, `frappe.only_for(roles)`, and `frappe.set_user(user)` with clean `try...finally` context restoration.
+- **Global Runtime Flags (`frappe.flags`)**: Added guide for `frappe.flags.ignore_permissions`, `mute_messages`, `in_test`, `in_migrate`, and `in_install`.
+- **Top-Level Document Utilities**: Documented `frappe.new_doc()`, `frappe.copy_doc()`, `frappe.delete_doc()`, and `frappe.rename_doc()` with foreign-key cascade updates.
+- **Async Execution & Queues**: Detailed `frappe.enqueue(method, queue, timeout)` and `frappe.enqueue_doc(doctype, name, method)`.
+- **Communications & Realtime**: Documented transactional email dispatch with `frappe.sendmail()` and WebSocket broadcasting with `frappe.publish_realtime()`.
+- **Caching & Memory**: Detailed Redis cache management via `frappe.cache()` and site/doctype/user flushing with `frappe.clear_cache()`.
+- **Data Serialization & Utilities**: Added safe JSON helpers (`frappe.as_json()`, `frappe.parse_json()`), universal field formatter (`frappe.format()`), and dot-accessible dictionary container (`frappe._dict`).
+
+#### 3. DocType & Form Dashboard Masterclass (Chapters 11 & 28)
+- **DocType Dashboard Connections (`<doctype>_dashboard.py`)**: Complete specification of `get_data()` covering `fieldname`, `non_standard_fieldnames`, `internal_links` (child table connections), and transaction group categorizations.
+- **Standard DocType Dashboard Extensibility**: Documented overriding or appending dashboard transactions using the `override_doctype_dashboards` hook in `hooks.py`.
+- **Desk Dashboard Chart & Number Card Views**: Documented linking interactive charts (Group By, Time Series, Custom) and KPI Number Cards to DocType list views and module workspaces.
+- **Client Form Dashboard Methods (`frm.dashboard.*`)**: Exhaustive reference and code examples for `set_headline()`, `clear_headline()`, `add_indicator()` with click action callbacks, `add_progress()`, `show_progress()`, `render_graph()` (Frappe Charts), `render_heatmap()` (GitHub-style calendar heatmap), and `add_transactions()`.
+
+#### 4. Searchable API Index Synchronization (Chapter 24)
+- Added new entries with badges and deep links for `frappe._dict`, `frappe.as_json()`, `frappe.parse_json()`, `frappe.clear_cache()`, `frappe.enqueue_doc()`, `frappe.flags`, `frappe.has_permission()`, `frappe.has_role()`, `frappe.only_for()`, `frappe.rename_doc()`, `frappe.set_user()`, `frm.dashboard.add_progress()`, `frm.dashboard.show_progress()`, `frm.dashboard.render_graph()`, `frm.dashboard.render_heatmap()`, and `frm.dashboard.add_transactions()`.
+
+---
+
+## 🟢 Version 1.12.0 (v1.12) — Client UI & Form Triggers Overhaul, Database Engine Expansion & API Index Sync
 
 **Release Date:** September 30, 2026
 

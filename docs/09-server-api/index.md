@@ -250,7 +250,7 @@ def update_task_priority(task_name, priority):
 # Current user ID (e.g. 'administrator@example.com' or 'Guest')
 user = frappe.session.user
 
-# User roles list
+# User roles list for current user or a specific user
 roles = frappe.get_roles(frappe.session.user)
 
 # Active Werkzeug HTTP Request object
@@ -262,9 +262,374 @@ is_dev = frappe.conf.get("developer_mode", 0)
 
 ---
 
+## 6. Permissions, Roles & User Context APIs
+
+When writing backend methods, endpoints, or background workers, you frequently need to check user permissions, assert roles, or switch user identities.
+
+### `frappe.has_permission`
+
+Checks whether the current user (or a specified user) has a specific permission (`read`, `write`, `create`, `delete`, `submit`, `cancel`, `amend`) on a DocType or a specific document.
+
+```python
+# Check if current user can write to a specific document
+if frappe.has_permission("Sales Invoice", ptype="write", doc="SINV-2026-0001"):
+    print("User can edit this invoice.")
+
+# Check if a specific user has 'create' permission on a DocType
+can_create = frappe.has_permission("Task", ptype="create", user="john@example.com")
+
+# Raise an exception automatically if permission check fails:
+frappe.has_permission("Task", ptype="write", doc=task_doc, throw=True)
+```
+
+---
+
+### `frappe.has_role`
+
+Quickly checks whether the active session user or a designated user holds a specific role.
+
+```python
+# Check if current user has 'Accounts Manager' role
+if frappe.has_role("Accounts Manager"):
+    process_special_ledger_entry()
+
+# Check role for a specific user
+is_admin = frappe.has_role("System Manager", user="john@example.com")
+```
+
+---
+
+### `frappe.only_for`
+
+A security guard assertion. Immediately raises a `frappe.PermissionError` if the logged-in user does not belong to any of the specified roles.
+
+```python
+@frappe.whitelist()
+def purge_old_audit_logs():
+    # Only System Managers or HR Managers can execute this method
+    frappe.only_for(["System Manager", "HR Manager"])
+    
+    # Execution proceeds only if the check passes
+    frappe.db.delete("Activity Log", {"creation": ["<", "2025-01-01"]})
+```
+
+---
+
+### `frappe.set_user`
+
+Temporarily changes the active user context for the duration of the current execution. Essential for background jobs or webhooks where actions must be executed on behalf of a specific user or `Administrator`.
+
+```python
+# In a background worker or webhook handler
+original_user = frappe.session.user
+
+try:
+    # Switch execution context to Administrator
+    frappe.set_user("Administrator")
+    
+    # This document will now be created with owner = 'Administrator'
+    # and bypass user-specific restrictions
+    doc = frappe.get_doc({
+        "doctype": "Audit Log",
+        "details": "Automated reconciliation complete"
+    }).insert()
+finally:
+    # Always restore original user context
+    frappe.set_user(original_user)
+```
+
+---
+
+## 7. Global Execution Flags (`frappe.flags`)
+
+`frappe.flags` is an in-memory dictionary-like object used to control framework behavior during request processing.
+
+| Flag | Type | Description |
+| :--- | :--- | :--- |
+| `frappe.flags.ignore_permissions` | `bool` | Set to `True` to bypass all Role & User Permission checks across document operations. |
+| `frappe.flags.mute_messages` | `bool` | Set to `True` to suppress all `frappe.msgprint` popups (useful in bulk migration scripts). |
+| `frappe.flags.in_test` | `bool` | `True` when code is running inside automated test suites (`bench run-tests`). |
+| `frappe.flags.in_migrate` | `bool` | `True` when `bench migrate` is currently running schema alterations. |
+| `frappe.flags.in_install` | `bool` | `True` during app or site installation. |
+
+### Example: Bypassing Permissions in Trusted Backend Code
+
+```python
+# Example: Automated system script modifying a protected document
+try:
+    frappe.flags.ignore_permissions = True
+    
+    doc = frappe.get_doc("Salary Slip", "SAL-0001")
+    doc.status = "Paid"
+    doc.save()
+finally:
+    frappe.flags.ignore_permissions = False  # Reset flag!
+```
+
+---
+
+## 8. Document Management Utility Functions (`frappe.*`)
+
+In addition to calling methods directly on document instances (`doc.insert()`, `doc.save()`), the top-level `frappe.*` namespace provides several high-level helpers:
+
+### `frappe.new_doc`
+
+Instantiates a new document in memory, pre-populating standard default values from DocType schema definitions.
+
+```python
+# Create new unsaved document instance
+task = frappe.new_doc("Task")
+task.subject = "Draft Annual Report"
+task.priority = "Medium"
+task.insert()
+```
+
+---
+
+### `frappe.copy_doc`
+
+Duplicates an existing document object into a new unsaved record in memory. It strips primary keys (`name`), timestamps (`creation`, `modified`), submitted statuses (`docstatus: 0`), and any fields marked with `no_copy: 1`.
+
+```python
+original_order = frappe.get_doc("Sales Order", "SO-2026-00100")
+
+# Clone document with all child tables preserved
+new_order = frappe.copy_doc(original_order)
+new_order.transaction_date = frappe.utils.nowdate()
+new_order.insert()
+```
+
+---
+
+### `frappe.delete_doc`
+
+Deletes a document from the database directly, including its child tables, comments, attachments, and link validations without needing to instantiate the document first.
+
+```python
+# Standard delete (validates user delete permissions)
+frappe.delete_doc("Task", "TASK-00050")
+
+# Force delete (ignores permissions and link checks - use with caution!)
+frappe.delete_doc("Task", "TASK-00050", force=True, ignore_permissions=True)
+```
+
+---
+
+### `frappe.rename_doc`
+
+Renames a document's primary key (`name`) and **automatically cascades** the new name across all foreign-key Link fields across the entire database.
+
+```python
+# Rename Customer ID and update all linked Sales Invoices, Orders, etc.
+frappe.rename_doc(
+    doctype="Customer",
+    old="OLD-CUST-CODE",
+    new="NEW-CUST-CODE",
+    merge=False  # If True and NEW-CUST-CODE exists, records are merged into it!
+)
+```
+
+---
+
+## 9. Background Jobs & Asynchronous Queues (`frappe.enqueue`)
+
+Offloads long-running or computationally heavy tasks from the web server thread to Redis background workers.
+
+```python
+# Signature:
+# frappe.enqueue(method, queue='default', timeout=300, is_async=True, now=False, job_name=None, **kwargs)
+```
+
+### Example: Enqueuing a Standalone Function
+
+```python
+import frappe
+
+def generate_monthly_report(company, year, recipient_email):
+    # Heavy report generation logic...
+    pdf_bytes = build_complex_pdf(company, year)
+    frappe.sendmail(
+        recipients=[recipient_email],
+        subject=f"Monthly Financial Report - {year}",
+        message="Please find attached the financial report.",
+        attachments=[{"fname": "report.pdf", "fcontent": pdf_bytes}]
+    )
+
+@frappe.whitelist()
+def trigger_report_generation(company, year):
+    # Offload to background worker immediately; HTTP request responds in milliseconds
+    frappe.enqueue(
+        method="my_app.reports.generate_monthly_report",
+        queue="long",          # Options: 'short' (2 mins), 'default' (5 mins), 'long' (25 mins)
+        timeout=1500,          # Custom worker timeout in seconds
+        company=company,
+        year=year,
+        recipient_email=frappe.session.user
+    )
+    return {"message": _("Report is being generated in background.")}
+```
+
+### Example: Enqueuing a Document Method (`frappe.enqueue_doc`)
+
+Runs a specific method defined on a Document model in the background:
+
+```python
+# Enqueue doc.submit() or a custom document method
+frappe.enqueue_doc(
+    doctype="Sales Invoice",
+    name="SINV-2026-0001",
+    method="sync_with_payment_gateway",
+    queue="default",
+    timeout=300
+)
+```
+
+---
+
+## 10. Communication & Real-time Push APIs
+
+### `frappe.sendmail`
+
+Dispatches emails through the site's configured Email Account and logs communication audit records.
+
+```python
+frappe.sendmail(
+    recipients=["client@example.com", "accounting@example.com"],
+    subject=_("Payment Confirmation - Invoice {0}").format(invoice.name),
+    message="<p>Thank you! Your payment has been received successfully.</p>",
+    reference_doctype="Sales Invoice",
+    reference_name=invoice.name,
+    now=False  # If False (default), queued to Email Queue table; if True, sends synchronously
+)
+```
+
+---
+
+### `frappe.publish_realtime`
+
+Publishes WebSocket events to connected Desk client browser windows via the Socket.io service. Useful for progress bars, live updates, and notification alerts.
+
+```python
+# 1. Broadcast event to a specific logged-in user
+frappe.publish_realtime(
+    event="task_progress",
+    message={"progress": 75, "total": 100, "status": "Importing rows..."},
+    user=frappe.session.user
+)
+
+# 2. Broadcast event to all users currently viewing a specific document
+frappe.publish_realtime(
+    event="doc_updated",
+    message={"status": "Approved by Manager"},
+    doctype="Purchase Order",
+    docname="PO-2026-0045"
+)
+```
+
+---
+
+## 11. Caching & Memory Management (`frappe.cache` & `frappe.clear_cache`)
+
+### `frappe.clear_cache`
+
+Flushes cached schemas, doctype definitions, and user permissions across Redis and memory.
+
+```python
+# Flushes all cached data for a specific DocType (schema, default values, links)
+frappe.clear_cache(doctype="Customer")
+
+# Flushes user permissions and cached roles for a specific user
+frappe.clear_cache(user="john@example.com")
+
+# Flushes entire site cache (all DocTypes, sessions, and configurations)
+frappe.clear_cache()
+```
+
+---
+
+### `frappe.cache()` Redis Client Wrapper
+
+Provides direct access to the site's Redis cache instance with key-value and hash operations:
+
+```python
+cache = frappe.cache()
+
+# 1. Simple Key-Value
+cache.set_value("exchange_rate_USD_EUR", 0.92, expires_in_sec=3600)
+rate = cache.get_value("exchange_rate_USD_EUR")
+
+# 2. Hash Set & Get (Organized namespaced caches)
+cache.hset("customer_credit_limits", "CUST-001", 50000)
+limit = cache.hget("customer_credit_limits", "CUST-001")
+
+# Delete cached key
+cache.delete_value("exchange_rate_USD_EUR")
+```
+
+---
+
+## 12. Serialization & Utility Helpers
+
+### `frappe.as_json` and `frappe.parse_json`
+
+Safe JSON serialization and parsing that cleanly handles datetime objects, Decimal types, and Frappe data structures:
+
+```python
+data = {
+    "date": frappe.utils.now_datetime(),
+    "amount": frappe.utils.flt(1250.50),
+    "status": "Active"
+}
+
+# Safely converts to formatted JSON string without datetime/Decimal errors
+json_str = frappe.as_json(data, indent=2)
+
+# Parses string back to dictionary/list
+parsed_dict = frappe.parse_json(json_str)
+```
+
+---
+
+### `frappe.format`
+
+Formats raw database values into human-readable strings according to Frappe fieldtype formatting rules (Currencies, Dates, Datetimes, Percentages).
+
+```python
+# Format Currency using active company currency and decimal places
+formatted_price = frappe.format(15420.75, {"fieldtype": "Currency", "options": "currency"})
+# Output: "₹ 15,420.75" or "$ 15,420.75" depending on system configuration
+
+# Format Date
+formatted_date = frappe.format("2026-10-08", {"fieldtype": "Date"})
+# Output: "08-10-2026" or "10/08/2026" depending on user date format
+```
+
+---
+
+### `frappe._dict`
+
+A lightweight subclass of Python's standard `dict` that provides attribute-style dot access to dictionary keys (`d.field` is identical to `d["field"]`).
+
+```python
+# Initialize a frappe._dict
+item = frappe._dict({"item_code": "MACBOOK-PRO", "qty": 5})
+
+# Access using dot notation
+print(item.item_code)  # "MACBOOK-PRO"
+print(item.qty)        # 5
+
+# Set attributes using dot notation
+item.rate = 1999.00
+```
+
+---
+
 ## Related Topics
 
 - [06. Document API](/06-documents/)
 - [10. Database API & Query Builder](/10-database/)
 - [13. REST API & RPC](/13-rest-api/)
+- [15. Background Jobs & Scheduler](/15-background-jobs-scheduler/)
+- [16. Cache, Realtime, Email & Files](/16-cache-realtime-email-files/)
 - [23. Client vs Server API Matrix](/23-client-vs-server/)
+- [24. Comprehensive API Index](/24-api-index/)

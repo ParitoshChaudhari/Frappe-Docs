@@ -105,7 +105,126 @@ frappe.views.calendar["Task"] = {
 
 ---
 
-## 4. In-App Dynamic Customizations
+## 4. DocType Dashboard Connections (`<doctype>_dashboard.py`)
+
+Every DocType can have a native dashboard section rendered directly at the top of its Form View. This dashboard serves as an interactive hub linking the document to related transactions, child-table connections, and internal references with live badge counters.
+
+### File Structure & Discovery
+
+In your custom app, create a file named `<doctype>_dashboard.py` in the DocType directory alongside your controller:
+
+```
+your_app/
+└── your_module/
+    └── doctype/
+        └── project/
+            ├── project.json
+            ├── project.py
+            ├── project.js
+            └── project_dashboard.py   <-- DocType Dashboard definition
+```
+
+### Complete Specification: `get_data()`
+
+The file must implement a `get_data()` function returning a dictionary configuration:
+
+```python
+from frappe import _
+
+def get_data():
+    return {
+        # 1. Primary link fieldname on related DocTypes pointing back to this DocType
+        "fieldname": "project",
+        
+        # 2. Non-standard link fieldnames where the field is NOT named 'project'
+        "non_standard_fieldnames": {
+            "Delivery Note": "against_project",
+            "Purchase Invoice": "cost_center_project",
+            "Journal Entry": "project_name"
+        },
+        
+        # 3. Internal child-table links: Connections where the link exists inside a child table
+        "internal_links": {
+            "Sales Order": ["items", "project"],       # Sales Order Item table -> 'project' field
+            "Purchase Order": ["items", "project"]
+        },
+        
+        # 4. Transactions group matrix: Organizes linked DocTypes into labeled columns
+        "transactions": [
+            {
+                "label": _("Planning & Tasks"),
+                "items": ["Task", "Timesheet", "Project Template"]
+            },
+            {
+                "label": _("Procurement & Costs"),
+                "items": ["Purchase Order", "Purchase Invoice", "Expense Claim"]
+            },
+            {
+                "label": _("Billing & Sales"),
+                "items": ["Sales Order", "Delivery Note", "Sales Invoice"]
+            }
+        ]
+    }
+```
+
+### Dynamic Dashboard Hook via `hooks.py`
+
+If you are customizing a **standard DocType** (like `Customer`, `Item`, or `Employee`) without modifying Frappe/ERPNext source code, use the `override_doctype_dashboards` hook in your app's `hooks.py`:
+
+```python
+# your_app/hooks.py
+override_doctype_dashboards = {
+    "Task": "your_app.overrides.dashboard.get_task_dashboard_data"
+}
+```
+
+And in `your_app/overrides/dashboard.py`:
+
+```python
+from frappe import _
+
+def get_task_dashboard_data(data):
+    # 'data' contains the existing dashboard config dict
+    data["transactions"].append({
+        "label": _("Custom Operations"),
+        "items": ["Site Inspection", "Quality Check"]
+    })
+    return data
+```
+
+---
+
+## 5. DocType List Sidebar Dashboard View (`Dashboard Chart` & `Number Card`)
+
+In addition to form connections, every DocType in Frappe Desk has a built-in **Dashboard View** accessible from the List View sidebar (List View → Switch View → **Dashboard**).
+
+### 1. Linking `Dashboard Chart` to a DocType
+
+You can build interactive bar, line, pie, or percentage charts linked directly to any DocType:
+
+1. Search for **Dashboard Chart** in awesomebar → Click **Add Dashboard Chart**.
+2. Set **Chart Name** (e.g. `Tasks by Priority`).
+3. Set **Chart Type**:
+   - `Group By`: Aggregates records by field (e.g., DocType: `Task`, Group By: `priority`, Aggregate: `Count`).
+   - `Time Series`: Aggregates values over time (e.g., Monthly Sales).
+   - `Custom`: Links to a custom Python method returning chart data.
+4. Set **Document Type**: `Task`.
+5. Under **Filters**, define standard criteria (e.g. `{"status": ["!=", "Cancelled"]}`).
+
+### 2. Linking `Number Card` to a DocType
+
+Number Cards display large standalone KPI metric cards:
+
+1. Search for **Number Card** in awesomebar → Click **Add Number Card**.
+2. Set **Document Type**: `Task`.
+3. Choose **Function**: `Count`, `Sum`, `Average`, `Minimum`, or `Maximum`.
+4. Choose **Aggregate Field**: (e.g. `expected_time`).
+5. Set **Filters**: `{"status": "Open"}`.
+6. Check **Is Public** to make it available to all authorized users.
+
+---
+
+## 6. In-App Dynamic Customizations
 
 Frappe supports non-destructive customization directly via Desk forms without modifying source repository files.
 

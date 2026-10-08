@@ -1,6 +1,6 @@
 ---
 title: Client API (frappe.ui.form & JS SDK) for Frappe v15
-description: Comprehensive client-side JavaScript API reference - form handlers, frm methods, custom buttons, hiding/disabling standard buttons, set_df_property, set_query, frappe.call, dialogs, and alerts.
+description: Comprehensive client-side JavaScript API reference - form handlers, frm methods, custom buttons, hiding/disabling standard buttons, set_df_property, set_query, frappe.call, built-in data fetching and updating with frappe.client.* and frappe.db.*, dialogs, and alerts.
 version: v15
 category: Client-Side JavaScript APIs
 status: Stable
@@ -320,29 +320,119 @@ frappe.ui.form.on("Sales Invoice", {
 
 ### 2. Form Dashboard Headline & Indicators (`frm.dashboard.*`)
 
-The `frm.dashboard` object manages the dynamic KPI widgets, summary headlines, and status dots rendered between the form header and the document fields.
+The `frm.dashboard` object manages the dynamic KPI widgets, summary headlines, status indicators, progress bars, charts, and heatmaps rendered directly between the form header and the document fields.
+
+#### Complete `frm.dashboard` Methods Reference Matrix
+
+| Method | Parameters | Description |
+| :--- | :--- | :--- |
+| `frm.dashboard.set_headline(html, color)` | `html`, `color` (`'green'`, `'red'`, `'orange'`, `'blue'`, `'yellow'`) | Displays colored announcement ribbon at the top of the form dashboard. |
+| `frm.dashboard.clear_headline()` | None | Clears the active headline banner (call on `refresh` to avoid duplicate headlines). |
+| `frm.dashboard.add_indicator(label, color, [action])` | `label`, `color`, `action_fn` | Adds a pill-shaped status badge to dashboard with optional click callback. |
+| `frm.dashboard.add_progress(title, percent, [message])` | `title`, `percent`, `message` | Renders a progress percentage bar within the form dashboard. |
+| `frm.dashboard.show_progress(title, percent, [message])` | `title`, `percent`, `message` | Updates or shows a progress indicator dynamically in real-time. |
+| `frm.dashboard.render_graph(args)` | `args` (data, type, colors) | Injects an embedded Frappe Charts graph directly into the dashboard. |
+| `frm.dashboard.render_heatmap(args)` | `args` (dataPoints, start, end) | Injects a GitHub-style contribution activity heatmap into the dashboard. |
+| `frm.dashboard.add_transactions(opts)` | `opts` (transactions list) | Dynamically appends transaction connection links to related DocTypes. |
+| `frm.dashboard.clear_comment()` | None | Clears any comment banner displayed in the dashboard header. |
+
+---
+
+#### Comprehensive Code Examples: All `frm.dashboard` Methods
 
 ```javascript
 frappe.ui.form.on("Customer", {
     refresh(frm) {
-        // 1. Clear previous dynamic headlines to prevent duplicates
-        frm.dashboard.clear_headline();
+        // -----------------------------------------------------------------
+        // 1. Headlines: Announcements and Status Alerts
+        // -----------------------------------------------------------------
+        frm.dashboard.clear_headline(); // Always clear on refresh to prevent duplicate ribbons
 
-        // 2. Set an HTML Headline Alert Banner
         if (frm.doc.loyalty_points > 1000) {
             frm.dashboard.set_headline(
                 `🎉 <b>${__("VIP Gold Tier Customer")}</b> — ${__("Eligible for 15% automatic discount on all orders.")}`,
                 "green"
             );
+        } else if (frm.doc.outstanding_amount > 100000) {
+            frm.dashboard.set_headline(
+                `⚠️ <b>${__("Overdue Account")}</b> — ${__("Outstanding balance exceeds credit threshold.")}`,
+                "red"
+            );
         }
 
-        // 3. Add Colored Status Indicator Badges to Dashboard
+        // -----------------------------------------------------------------
+        // 2. Status Indicator Badges (With Click Actions)
+        // -----------------------------------------------------------------
         if (frm.doc.outstanding_amount > 50000) {
-            frm.dashboard.add_indicator(__("High Credit Exposure: {0}", [format_currency(frm.doc.outstanding_amount)]), "red");
+            frm.dashboard.add_indicator(
+                __("High Credit Exposure: {0}", [format_currency(frm.doc.outstanding_amount)]),
+                "red",
+                () => {
+                    // Click handler opens related Accounts Receivable report
+                    frappe.set_route("query-report", "Accounts Receivable", { customer: frm.doc.name });
+                }
+            );
         }
-        
+
         if (frm.doc.customer_group === "Commercial") {
             frm.dashboard.add_indicator(__("Commercial Account"), "blue");
+        }
+
+        // -----------------------------------------------------------------
+        // 3. Progress Indicators (Tasks, Milestones, Onboarding)
+        // -----------------------------------------------------------------
+        if (!frm.is_new()) {
+            let kyc_score = frm.doc.kyc_completed ? 100 : 60;
+            frm.dashboard.add_progress(
+                __("KYC Verification Status"),
+                kyc_score,
+                kyc_score === 100 ? __("Completed") : __("Pending Documents")
+            );
+        }
+
+        // -----------------------------------------------------------------
+        // 4. Embedded Frappe Charts (render_graph)
+        // -----------------------------------------------------------------
+        if (!frm.is_new()) {
+            frm.dashboard.render_graph({
+                title: __("Quarterly Sales Activity"),
+                data: {
+                    labels: ["Q1", "Q2", "Q3", "Q4"],
+                    datasets: [
+                        { name: "Invoiced", values: [45000, 52000, 61000, 58000] }
+                    ]
+                },
+                type: "line",     // 'line', 'bar', 'axis-mixed'
+                height: 180,
+                colors: ["#2490ef"]
+            });
+        }
+
+        // -----------------------------------------------------------------
+        // 5. Activity Heatmap (render_heatmap)
+        // -----------------------------------------------------------------
+        if (!frm.is_new()) {
+            // Timestamp epoch in seconds mapped to activity count
+            let now_epoch = Math.floor(Date.now() / 1000);
+            let day_epoch = 86400;
+            let sample_data = {};
+            sample_data[now_epoch - day_epoch * 3] = 4;
+            sample_data[now_epoch - day_epoch * 2] = 7;
+            sample_data[now_epoch - day_epoch] = 2;
+            sample_data[now_epoch] = 9;
+
+            let start_date = new Date();
+            start_date.setMonth(start_date.getMonth() - 3);
+
+            frm.dashboard.render_heatmap({
+                title: __("Order Frequency Heatmap"),
+                data: {
+                    dataPoints: sample_data,
+                    start: start_date,
+                    end: new Date()
+                },
+                countLabel: __("Orders")
+            });
         }
     }
 });
@@ -784,7 +874,792 @@ frappe.call({
 
 ---
 
-## 8. UI Dialogs & User Prompting APIs
+<span id="built-in-client-data-operations"></span>
+<span id="frappe-client-crud"></span>
+## 8. Built-in Client Data Operations (`frappe.client.*` & `frappe.db.*`)
+
+Frappe provides a comprehensive suite of built-in methods to perform document CRUD (Create, Read, Update, Delete), list queries, record counts, and field updates directly from client-side JavaScript.
+
+### Architecture: How Client Data Operations Work
+
+Under the hood, Frappe provides client-side data operations through two interconnected layers:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                       Client Browser                        │
+├──────────────────────────────┬──────────────────────────────┤
+│    frappe.db.* (JS SDK)      │    frappe.call / xcall       │
+│  (Promise-based Desk sugar)  │   (Direct RPC dispatcher)    │
+└──────────────┬───────────────┴──────────────┬───────────────┘
+               │                              │
+               ▼ HTTP POST (/api/method/...)   ▼
+┌─────────────────────────────────────────────────────────────┐
+│                 Frappe Backend (Python)                     │
+├─────────────────────────────────────────────────────────────┤
+│                    frappe/client.py                         │
+│  @frappe.whitelist() endpoints:                             │
+│  • get               • set_value       • insert             │
+│  • get_value         • get_list        • save               │
+│  • get_single_value  • get_count       • delete             │
+│  • rename_doc        • submit          • cancel             │
+├─────────────────────────────────────────────────────────────┤
+│         ORM & Database Layer (MariaDB / PostgreSQL)         │
+└─────────────────────────────────────────────────────────────┘
+```
+
+1. **`frappe.client.*` (Backend RPC Endpoints)**: Whitelisted Python controller functions defined in `frappe/client.py`. You invoke them from JavaScript using `frappe.call({ method: "frappe.client.<action>", args: { ... } })` or modern `await frappe.xcall("frappe.client.<action>", { ... })`.
+2. **`frappe.db.*` (Client JS SDK)**: Built-in JavaScript convenience methods available in Desk that wrap `frappe.client.*` inside native JavaScript Promises.
+3. **Active Form State vs. Database Direct Writes**:
+   - `frm.set_value()` updates the **in-memory form model** (`locals`). It marks the form dirty (displays the orange unsaved indicator) and does **not** write to MariaDB until the user or script calls `frm.save()`.
+   - `frappe.client.set_value()` and `frappe.db.set_value()` write **directly to the database** on the server. If you update the document currently open in the active form view using database methods, you **must call `frm.reload_doc()`** to refresh local memory and prevent concurrency errors.
+
+---
+
+### 1. Fetching Full Documents (`frappe.client.get` & `frappe.db.get_doc`)
+
+`frappe.client.get` retrieves an entire document record from the server, including all standard fields, custom fields, and nested child table rows (e.g., `doc.items`).
+
+#### Parameter Reference (`frappe.client.get`)
+
+| Parameter | Type | Required | Default | Description & Choices |
+| :--- | :--- | :---: | :--- | :--- |
+| **`doctype`** | `string` | **Yes** | — | Name of the DocType to fetch (e.g., `"Customer"`, `"Sales Order"`, `"Task"`). |
+| **`name`** | `string` | **Conditional** | `null` | Document primary key / ID (e.g., `"CUST-2026-00001"`). Required if `filters` is not provided. |
+| **`filters`** | `object \| array` | **Conditional** | `null` | Filter dictionary (e.g., `{ email_id: "user@example.com" }`) or array used to locate the document when `name` is unknown. |
+| **`parent`** | `string` | No | `null` | Name of the parent document if querying a row from a child table DocType. |
+
+#### Return Value
+Returns the complete document object. Child tables are returned as arrays of child row objects under their respective child table fieldnames.
+
+#### JavaScript Examples
+
+```javascript
+// Pattern 1: frappe.call with callback (by Name)
+frappe.call({
+    method: "frappe.client.get",
+    args: {
+        doctype: "Customer",
+        name: "CUST-2026-00001"
+    },
+    callback(r) {
+        if (r.message) {
+            let customer = r.message;
+            console.log("Customer Name:", customer.customer_name);
+            console.log("Credit Limit:", customer.credit_limit);
+        }
+    }
+});
+
+// Pattern 2: Modern async/await with frappe.xcall (by Filters)
+async function fetchUserByEmail(email) {
+    try {
+        const userDoc = await frappe.xcall("frappe.client.get", {
+            doctype: "User",
+            filters: { email: email }
+        });
+        console.log("User Full Name:", userDoc.full_name);
+        return userDoc;
+    } catch (err) {
+        frappe.msgprint(__("User not found for email {0}", [email]));
+    }
+}
+
+// Pattern 3: Using client Desk helper frappe.db.get_doc
+async function loadOrderWithItems(orderName) {
+    const order = await frappe.db.get_doc("Sales Order", orderName);
+    console.log("Order Grand Total:", order.grand_total);
+    
+    // Access nested child table rows directly
+    (order.items || []).forEach(row => {
+        console.log(`Item: ${row.item_code} | Qty: ${row.qty} | Rate: ${row.rate}`);
+    });
+}
+```
+
+---
+
+### 2. Fetching Specific Fields (`frappe.client.get_value` & `frappe.db.get_value`)
+
+When you only need one or two field values instead of the entire document payload, `get_value` is significantly faster and uses less network bandwidth and server memory.
+
+#### Parameter Reference (`frappe.client.get_value`)
+
+| Parameter | Type | Required | Default | Description & Choices |
+| :--- | :--- | :---: | :--- | :--- |
+| **`doctype`** | `string` | **Yes** | — | Target DocType name (e.g., `"Task"`, `"Employee"`). |
+| **`fieldname`** | `string \| array` | **Yes** | — | Single field name string (`"status"`) or array of field names (`["status", "priority", "exp_end_date"]`). |
+| **`filters`** | `string \| object \| array` | **Yes** | — | Document name string (`"TASK-00001"`), or filter key-value object (`{ employee_name: "John Doe" }`), or filter array (`[["status", "=", "Open"]]`). |
+| **`as_dict`** | `boolean` | No | `true` (`1`) | When fetching multiple fields, returns an object `{ fieldname: value }` instead of an indexed array. |
+| **`debug`** | `boolean` | No | `false` | When `true`, prints generated SQL query execution plan to the browser console. |
+| **`parent`** | `string` | No | `null` | Parent document name when querying child table rows. |
+
+#### Return Value
+- **Single field requested**: Returns `{ [fieldname]: value }` in `r.message` (or directly resolved as `{ [fieldname]: value }` with `frappe.db.get_value`).
+- **Multiple fields requested**: Returns an object containing requested field names as keys: `{ status: "Open", priority: "High" }`.
+
+#### JavaScript Examples
+
+```javascript
+// Pattern 1: Fetching multiple fields via frappe.call
+frappe.call({
+    method: "frappe.client.get_value",
+    args: {
+        doctype: "Customer",
+        filters: "CUST-00001",
+        fieldname: ["customer_group", "territory", "credit_limit"],
+        as_dict: 1
+    },
+    callback(r) {
+        if (r.message) {
+            console.log("Customer Group:", r.message.customer_group);
+            console.log("Territory:", r.message.territory);
+            console.log("Credit Limit:", r.message.credit_limit);
+        }
+    }
+});
+
+// Pattern 2: Modern async/await with frappe.xcall
+async function checkItemPrice(itemCode) {
+    const itemData = await frappe.xcall("frappe.client.get_value", {
+        doctype: "Item",
+        filters: { item_code: itemCode },
+        fieldname: ["item_name", "standard_rate", "stock_uom"]
+    });
+    
+    if (itemData) {
+        console.log(`${itemData.item_name} costs ${itemData.standard_rate} per ${itemData.stock_uom}`);
+    }
+}
+
+// Pattern 3: Using client Desk helper frappe.db.get_value
+frappe.ui.form.on("Sales Invoice", {
+    customer(frm) {
+        if (!frm.doc.customer) return;
+        
+        frappe.db.get_value("Customer", frm.doc.customer, ["territory", "tax_id"])
+            .then(r => {
+                if (r.message) {
+                    frm.set_value("territory", r.message.territory);
+                    frm.set_value("tax_id", r.message.tax_id);
+                }
+            });
+    }
+});
+```
+
+---
+
+### 3. Fetching Single DocType Values (`frappe.client.get_single_value` & `frappe.db.get_single_value`)
+
+Single DocTypes (such as **System Settings**, **Global Defaults**, **Stock Settings**, **Accounts Settings**) store global configuration as a single set of key-value pairs without separate document rows.
+
+#### Parameter Reference (`frappe.client.get_single_value`)
+
+| Parameter | Type | Required | Default | Description & Choices |
+| :--- | :--- | :---: | :--- | :--- |
+| **`doctype`** | `string` | **Yes** | — | Name of the Single DocType (e.g., `"System Settings"`, `"Global Defaults"`). |
+| **`field`** | `string` | **Yes** | — | Name of the setting field to fetch (e.g., `"default_currency"`, `"country"`). |
+
+#### JavaScript Examples
+
+```javascript
+// Pattern 1: frappe.call
+frappe.call({
+    method: "frappe.client.get_single_value",
+    args: {
+        doctype: "System Settings",
+        field: "default_currency"
+    },
+    callback(r) {
+        console.log("System Default Currency:", r.message); // e.g. "USD"
+    }
+});
+
+// Pattern 2: Modern async/await with frappe.xcall
+const timeZone = await frappe.xcall("frappe.client.get_single_value", {
+    doctype: "System Settings",
+    field: "time_zone"
+});
+console.log("Configured System Timezone:", timeZone);
+
+// Pattern 3: Using frappe.db.get_single_value helper
+const defaultCompany = await frappe.db.get_single_value("Global Defaults", "default_company");
+console.log("Default Company:", defaultCompany);
+```
+
+---
+
+### 4. Querying Filtered Record Lists (`frappe.client.get_list` & `frappe.db.get_list`)
+
+`get_list` executes an optimized SQL query against the database with field selection, compound filtering operators, ordering, and pagination.
+
+#### Parameter Reference (`frappe.client.get_list`)
+
+| Parameter | Type | Required | Default | Description & Choices |
+| :--- | :--- | :---: | :--- | :--- |
+| **`doctype`** | `string` | **Yes** | — | DocType name to query (e.g., `"Sales Order"`, `"Task"`). |
+| **`fields`** | `array of strings` | No | `["name"]` | List of field columns to return (e.g., `["name", "customer", "grand_total"]`). |
+| **`filters`** | `object \| array` | No | `{}` | Filter criteria. Supports key-value dictionary `{ status: "Open" }` or array of conditions: `[["status", "=", "Open"], ["grand_total", ">", 1000]]`. |
+| **`or_filters`** | `array` | No | `null` | Alternative conditions evaluated with SQL `OR` logic. |
+| **`order_by`** | `string` | No | `"modified desc"` | SQL `ORDER BY` clause (e.g., `"creation desc"`, `"grand_total asc"`). |
+| **`limit_start`** | `integer` | No | `0` | Offset index for server pagination. |
+| **`limit_page_length`** | `integer` | No | `20` | Maximum number of rows to return per request. |
+| **`group_by`** | `string` | No | `null` | SQL `GROUP BY` column expression. |
+| **`parent`** | `string` | No | `null` | Parent document name for child doctype queries. |
+| **`as_list`** | `boolean` | No | `false` | When `true`, returns rows as arrays of cell values rather than objects. |
+
+#### Supported Filter Operators
+When passing an array to `filters`: `[fieldname, operator, value]`
+- Comparison: `=`, `!=`, `>`, `<`, `>=`, `<=`
+- Substring & Pattern: `like`, `not like` (e.g., `["customer_name", "like", "%Corp%"]`)
+- Membership: `in`, `not in` (e.g., `["status", "in", ["Open", "Pending"]]`)
+- Range: `between` (e.g., `["posting_date", "between", ["2026-01-01", "2026-12-31"]]`)
+- Nullity: `is` (e.g., `["assigned_to", "is", "set"]`, `["closing_notes", "is", "not set"]`)
+
+#### JavaScript Examples
+
+```javascript
+// Pattern 1: Complex filtered list query with frappe.call
+frappe.call({
+    method: "frappe.client.get_list",
+    args: {
+        doctype: "Sales Order",
+        fields: ["name", "customer", "grand_total", "delivery_date", "status"],
+        filters: [
+            ["status", "in", ["To Deliver and Bill", "To Bill"]],
+            ["grand_total", ">", 5000],
+            ["delivery_date", "<=", frappe.datetime.add_days(frappe.datetime.get_today(), 7)]
+        ],
+        order_by: "delivery_date asc",
+        limit_start: 0,
+        limit_page_length: 10
+    },
+    callback(r) {
+        if (r.message) {
+            console.log("High-priority upcoming deliveries:", r.message);
+        }
+    }
+});
+
+// Pattern 2: Using frappe.db.get_list with async/await
+async function getOverdueTasks(project) {
+    const today = frappe.datetime.get_today();
+    
+    const tasks = await frappe.db.get_list("Task", {
+        fields: ["name", "subject", "exp_end_date", "allocated_to"],
+        filters: [
+            ["project", "=", project],
+            ["status", "!=", "Completed"],
+            ["exp_end_date", "<", today]
+        ],
+        order_by: "exp_end_date asc",
+        limit: 25
+    });
+    
+    return tasks;
+}
+```
+
+---
+
+### 5. Counting Records (`frappe.client.get_count` & `frappe.db.count`)
+
+Returns the integer count of records matching filter criteria without fetching record rows over the network.
+
+#### Parameter Reference (`frappe.client.get_count`)
+
+| Parameter | Type | Required | Default | Description |
+| :--- | :--- | :---: | :--- | :--- |
+| **`doctype`** | `string` | **Yes** | — | DocType name to count. |
+| **`filters`** | `object \| array` | No | `{}` | Filter criteria dictionary or array of conditions. |
+| **`cache`** | `boolean` | No | `false` | When `true`, caches the count in Redis for subsequent lookups. |
+
+#### JavaScript Examples
+
+```javascript
+// Pattern 1: frappe.call
+frappe.call({
+    method: "frappe.client.get_count",
+    args: {
+        doctype: "Issue",
+        filters: { status: "Open", priority: "Urgent" }
+    },
+    callback(r) {
+        console.log("Urgent Open Issues:", r.message);
+    }
+});
+
+// Pattern 2: Modern async/await with frappe.db.count
+async function showBadgeNotification() {
+    const unreadCount = await frappe.db.count("Communication", {
+        filters: {
+            communication_type: "Communication",
+            read_by_recipient: 0
+        }
+    });
+    
+    if (unreadCount > 0) {
+        frappe.show_alert({
+            message: __("You have {0} unread communications.", [unreadCount]),
+            indicator: "orange"
+        }, 5);
+    }
+}
+```
+
+---
+
+### 6. Updating Records in Database (`frappe.client.set_value` & `frappe.db.set_value`)
+
+`frappe.client.set_value` directly updates one or more fields of an existing document in the database on the server, triggers controller validation hooks, and records the `modified` timestamp.
+
+> [!IMPORTANT] **Single Field vs. Multi-Field Object Update**
+> `fieldname` accepts **either a string** (for single field updates paired with `value`) **or a dictionary object** mapping multiple `{ fieldname: value }` pairs. Using an object updates multiple columns in a single atomic server call!
+
+#### Parameter Reference (`frappe.client.set_value`)
+
+| Parameter | Type | Required | Default | Description & Choices |
+| :--- | :--- | :---: | :--- | :--- |
+| **`doctype`** | `string` | **Yes** | — | Target DocType name (e.g., `"Task"`). |
+| **`name`** | `string` | **Yes** | — | Document primary key (e.g., `"TASK-2026-00001"`). |
+| **`fieldname`** | `string \| object` | **Yes** | — | Single field name string (`"status"`), **OR** an object of multiple fields `{ status: "Closed", closing_notes: "Done" }`. |
+| **`value`** | `any` | **Conditional** | `null` | Value to set when `fieldname` is a string. Not required if `fieldname` is passed as an object. |
+
+#### Return Value
+Returns the updated document representation dictionary in `r.message`.
+
+#### JavaScript Examples
+
+```javascript
+// Example 1: Updating a Single Field via frappe.call
+frappe.call({
+    method: "frappe.client.set_value",
+    args: {
+        doctype: "Task",
+        name: "TASK-2026-00001",
+        fieldname: "status",
+        value: "Completed"
+    },
+    callback(r) {
+        if (r.message) {
+            frappe.show_alert({
+                message: __("Task #{0} marked as Completed", [r.message.name]),
+                indicator: "green"
+            });
+        }
+    }
+});
+
+// Example 2: Updating MULTIPLE Fields at Once via Dictionary Object
+async function resolveIssue(issueName, notes) {
+    const updatedDoc = await frappe.xcall("frappe.client.set_value", {
+        doctype: "Issue",
+        name: issueName,
+        fieldname: {
+            status: "Closed",
+            resolution_details: notes,
+            resolved_by: frappe.session.user,
+            resolution_date: frappe.datetime.now_datetime()
+        }
+    });
+
+    console.log("Updated Issue Doc:", updatedDoc);
+    
+    // Concurrency Safety: If the updated document is currently open on user's desk, reload it!
+    if (cur_frm && cur_frm.docname === issueName) {
+        cur_frm.reload_doc();
+    }
+}
+
+// Example 3: Using frappe.db.set_value
+frappe.ui.form.on("Project", {
+    refresh(frm) {
+        frm.add_custom_button(__("Hold Project"), async () => {
+            await frappe.db.set_value("Project", frm.doc.name, "status", "On Hold");
+            frm.reload_doc();
+            frappe.show_alert({ message: __("Project placed on hold"), indicator: "orange" });
+        });
+    }
+});
+```
+
+#### Real-World Case Study: Updating Linked Balances (e.g., Loan Repayment -> Loan)
+
+A frequent source of bugs occurs when developers fetch data using `get_value` and update the resulting dictionary/object in memory without calling a persistence method.
+
+> [!WARNING] **The "In-Memory Mutation" Anti-Pattern**
+> ```python
+> # ❌ ANTI-PATTERN: This modifies ONLY the local in-memory dict in RAM!
+> # MariaDB / Postgres receives NO update, and changes are silently discarded upon exit.
+> loan = frappe.get_value("Loan", self.against_loan, ["total_amount_paid", "total_principal_paid"], as_dict=1)
+> loan.update({
+>     "total_amount_paid": loan.total_amount_paid + self.amount_paid,
+>     "total_principal_paid": loan.total_principal_paid + self.principal_amount_paid,
+> })
+> # Nothing was saved to the database!
+> ```
+
+##### Proper Solution in JavaScript (Client-Side)
+
+When processing a payment or repayment from a Desk Client Script and updating the linked document:
+
+```javascript
+// ✅ Method A: Direct Multi-Field Database Update (Fast & Atomic)
+async function updateLinkedLoanBalance(againstLoan, amountPaid, principalPaid) {
+    // 1. Fetch current balances from server
+    const loan = await frappe.xcall("frappe.client.get_value", {
+        doctype: "Loan",
+        filters: againstLoan,
+        fieldname: ["total_amount_paid", "total_principal_paid"]
+    });
+
+    if (!loan) return;
+
+    // 2. Compute new totals
+    const newTotalPaid = flt(loan.total_amount_paid) + flt(amountPaid);
+    const newPrincipalPaid = flt(loan.total_principal_paid) + flt(principalPaid);
+
+    // 3. PERSIST to database using frappe.client.set_value with an object payload
+    await frappe.xcall("frappe.client.set_value", {
+        doctype: "Loan",
+        name: againstLoan,
+        fieldname: {
+            total_amount_paid: newTotalPaid,
+            total_principal_paid: newPrincipalPaid
+        }
+    });
+
+    frappe.show_alert({
+        message: __("Loan #{0} balances updated successfully!", [againstLoan]),
+        indicator: "green"
+    });
+}
+
+// ✅ Method B: Full Doc Mutation & Save (Best when Loan triggers lifecycle hooks/recalculations)
+async function updateAndRecalculateLoan(againstLoan, amountPaid, principalPaid) {
+    // 1. Fetch complete Loan document
+    const loanDoc = await frappe.xcall("frappe.client.get", {
+        doctype: "Loan",
+        name: againstLoan
+    });
+
+    // 2. Mutate document properties
+    loanDoc.total_amount_paid = flt(loanDoc.total_amount_paid) + flt(amountPaid);
+    loanDoc.total_principal_paid = flt(loanDoc.total_principal_paid) + flt(principalPaid);
+
+    // 3. PERSIST back to database using frappe.client.save
+    const savedLoan = await frappe.xcall("frappe.client.save", {
+        doc: loanDoc
+    });
+
+    console.log("Recalculated Loan:", savedLoan);
+}
+```
+
+##### Proper Solution in Python (Server-Side Controller)
+
+If executing within a Python controller method (`def update_paid_amount(self):`):
+
+```python
+# ✅ Option 1: Direct SQL-level update via frappe.db.set_value (Recommended for fast updates)
+def update_paid_amount(self):
+    loan = frappe.get_value(
+        "Loan",
+        self.against_loan,
+        ["total_amount_paid", "total_principal_paid"],
+        as_dict=1,
+    )
+    if loan:
+        frappe.db.set_value(
+            "Loan",
+            self.against_loan,
+            {
+                "total_amount_paid": flt(loan.total_amount_paid) + flt(self.amount_paid),
+                "total_principal_paid": flt(loan.total_principal_paid) + flt(self.principal_amount_paid),
+            }
+        )
+
+# ✅ Option 2: Full Document Lifecycle (Recommended if Loan has validation / status updates)
+def update_paid_amount(self):
+    loan = frappe.get_doc("Loan", self.against_loan)
+    loan.total_amount_paid = flt(loan.total_amount_paid) + flt(self.amount_paid)
+    loan.total_principal_paid = flt(loan.total_principal_paid) + flt(self.principal_amount_paid)
+    
+    # Auto-update loan status if fully paid
+    if loan.total_amount_paid >= loan.total_payment:
+        loan.status = "Loan Closed"
+        
+    loan.save(ignore_permissions=True)
+
+# ✅ Option 3: Concurrency-Safe Atomic SQL Increment (Zero race conditions)
+def update_paid_amount(self):
+    frappe.db.sql("""
+        UPDATE `tabLoan`
+        SET total_amount_paid = total_amount_paid + %(paid)s,
+            total_principal_paid = total_principal_paid + %(principal)s
+        WHERE name = %(loan)s
+    """, {
+        "paid": flt(self.amount_paid),
+        "principal": flt(self.principal_amount_paid),
+        "loan": self.against_loan,
+    })
+```
+
+---
+
+### 7. Inserting New Records (`frappe.client.insert` & `frappe.db.insert`)
+
+`insert` creates and validates a brand-new document directly in the database. It triggers document naming (`autoname`), controller validation hooks (`before_insert`, `validate`, `after_insert`), and child table insertions.
+
+#### Parameter Reference (`frappe.client.insert`)
+
+| Parameter | Type | Required | Default | Description & Structure |
+| :--- | :--- | :---: | :--- | :--- |
+| **`doc`** | `object` | **Yes** | — | Document object containing:<br>• `doctype` (`string`, required)<br>• Field values (`subject`, `customer`, `status`, etc.)<br>• Child table arrays (e.g. `items: [{ item_code: "...", qty: 2 }]`). |
+
+#### Return Value
+Returns the complete newly inserted document object with its generated `name` (primary key), `owner`, and `creation` timestamps.
+
+#### JavaScript Examples
+
+```javascript
+// Example 1: Inserting Document with Child Table Rows via frappe.call
+frappe.call({
+    method: "frappe.client.insert",
+    args: {
+        doc: {
+            doctype: "Quotation",
+            party_name: "CUST-00001",
+            order_type: "Sales",
+            transaction_date: frappe.datetime.get_today(),
+            items: [
+                {
+                    item_code: "LAPTOP-PRO-16",
+                    qty: 2,
+                    rate: 1800
+                },
+                {
+                    item_code: "WIRELESS-MOUSE",
+                    qty: 2,
+                    rate: 45
+                }
+            ]
+        }
+    },
+    callback(r) {
+        if (!r.exc && r.message) {
+            let quotation = r.message;
+            frappe.show_alert({
+                message: __("Quotation {0} generated successfully!", [quotation.name]),
+                indicator: "green"
+            }, 5);
+            
+            // Navigate Desk viewport to the new document
+            frappe.set_route("Form", "Quotation", quotation.name);
+        }
+    }
+});
+
+// Example 2: Using frappe.db.insert with modern async/await
+async function createQuickTask(taskSubject, projectId) {
+    try {
+        const newTask = await frappe.db.insert({
+            doctype: "Task",
+            subject: taskSubject,
+            project: projectId,
+            priority: "Medium",
+            status: "Open",
+            exp_end_date: frappe.datetime.add_days(frappe.datetime.get_today(), 3)
+        });
+        
+        console.log("Created Task ID:", newTask.name);
+        return newTask;
+    } catch (error) {
+        frappe.msgprint(__("Failed to create task: {0}", [error.message]));
+    }
+}
+```
+
+---
+
+### 8. Saving Modified Document Objects (`frappe.client.save`)
+
+`frappe.client.save` takes an existing document dictionary (which was previously fetched, modified in JavaScript, or contains mutated child rows) and writes it back to the database, executing `validate`, `before_save`, and `on_update` hooks.
+
+#### Parameter Reference (`frappe.client.save`)
+
+| Parameter | Type | Required | Default | Description |
+| :--- | :--- | :---: | :--- | :--- |
+| **`doc`** | `object` | **Yes** | — | Document object with modified fields. Must include valid `doctype` and `name`. |
+
+#### JavaScript Example
+
+```javascript
+async function appendItemAndSaveOrder(orderName) {
+    // 1. Fetch full existing document
+    const orderDoc = await frappe.xcall("frappe.client.get", {
+        doctype: "Sales Order",
+        name: orderName
+    });
+
+    // 2. Modify parent properties
+    orderDoc.remarks = "Updated via automated replenishment script";
+
+    // 3. Append a new child table row
+    if (!orderDoc.items) orderDoc.items = [];
+    orderDoc.items.push({
+        doctype: "Sales Order Item",
+        item_code: "WARRANTY-1YR",
+        qty: 1,
+        rate: 150
+    });
+
+    // 4. Save modified document object back to database
+    const savedOrder = await frappe.xcall("frappe.client.save", {
+        doc: orderDoc
+    });
+
+    frappe.show_alert({
+        message: __("Sales Order {0} updated and recalculated.", [savedOrder.name]),
+        indicator: "green"
+    });
+}
+```
+
+---
+
+### 9. Deleting Records (`frappe.client.delete` & `frappe.db.delete_doc`)
+
+Deletes a record from the database. Frappe automatically checks user delete permissions, verifies foreign key link dependencies (preventing deletion if referenced by submitted records), and executes `before_trash` and `on_trash` controller hooks.
+
+#### Parameter Reference (`frappe.client.delete`)
+
+| Parameter | Type | Required | Default | Description |
+| :--- | :--- | :---: | :--- | :--- |
+| **`doctype`** | `string` | **Yes** | — | Target DocType name (e.g., `"Note"`, `"ToDo"`). |
+| **`name`** | `string` | **Yes** | — | Primary key / document name to delete. |
+
+#### Return Value
+Returns `"ok"` on successful deletion.
+
+#### JavaScript Examples
+
+```javascript
+// Example 1: frappe.call with confirmation prompt
+frappe.confirm(__("Are you sure you want to permanently delete this note?"), () => {
+    frappe.call({
+        method: "frappe.client.delete",
+        args: {
+            doctype: "Note",
+            name: "NOTE-2026-00014"
+        },
+        callback(r) {
+            frappe.show_alert({ message: __("Note deleted successfully"), indicator: "green" });
+        }
+    });
+});
+
+// Example 2: Using frappe.db.delete_doc with async/await
+async function removeDraftToDo(todoName) {
+    await frappe.db.delete_doc("ToDo", todoName);
+    frappe.show_alert({ message: __("ToDo removed"), indicator: "blue" });
+}
+```
+
+---
+
+### 10. Renaming Documents (`frappe.client.rename_doc`)
+
+Renames the primary key (`name`) of a document. Frappe cascades the rename across all foreign key Link fields throughout the entire database.
+
+#### Parameter Reference (`frappe.client.rename_doc`)
+
+| Parameter | Type | Required | Default | Description |
+| :--- | :--- | :---: | :--- | :--- |
+| **`doctype`** | `string` | **Yes** | — | Target DocType name. |
+| **`old_name`** | `string` | **Yes** | — | Current primary key name (e.g., `"CUST-OLD-001"`). |
+| **`new_name`** | `string` | **Yes** | — | Desired new primary key name (e.g., `"CUST-2026-001"`). |
+| **`merge`** | `boolean` | No | `false` | If `true` and `new_name` already exists, merges `old_name` into `new_name` and deletes `old_name`. |
+
+#### JavaScript Example
+
+```javascript
+async function renameCustomerCode(oldCode, newCode) {
+    try {
+        const renamedName = await frappe.xcall("frappe.client.rename_doc", {
+            doctype: "Customer",
+            old_name: oldCode,
+            new_name: newCode,
+            merge: false
+        });
+        frappe.msgprint(__("Customer renamed successfully to {0}", [renamedName]));
+    } catch (err) {
+        frappe.msgprint(__("Could not rename customer: {0}", [err.message]));
+    }
+}
+```
+
+---
+
+### 11. Submitting & Cancelling Documents (`submit` & `cancel`)
+
+For submittable DocTypes (`is_submittable = 1`), state transitions between Draft (`docstatus: 0`), Submitted (`docstatus: 1`), and Cancelled (`docstatus: 2`) are performed via dedicated client endpoints:
+
+```javascript
+// 1. Submit a Draft Document (sets docstatus = 1)
+const submittedDoc = await frappe.xcall("frappe.client.submit", {
+    doc: frm.doc
+});
+
+// 2. Cancel a Submitted Document (sets docstatus = 2)
+await frappe.xcall("frappe.client.cancel", {
+    doctype: "Sales Invoice",
+    name: "ACC-SINV-2026-00045"
+});
+```
+
+---
+
+### 12. Decision Matrix: When to Use Which Method
+
+Choosing the right client-side API depends on whether you are interacting with the **currently active form on screen** or performing **direct database operations**:
+
+| Capability / Behavior | `frm.set_value()` | `frappe.client.set_value()` / `frappe.db.set_value()` | `frappe.model.set_value()` |
+| :--- | :--- | :--- | :--- |
+| **Target Document** | Current open form document | Any record in the database | Document or Child row in local memory (`locals`) |
+| **Persistence Layer** | In-Memory form buffer (`locals`) | Direct MariaDB/Postgres write | In-Memory client cache (`locals`) |
+| **Marks Form Dirty?** | ✅ Yes (displays asterisk/orange dot) | ❌ No (bypasses active form buffer) | ✅ Yes |
+| **Triggers Client Event Scripts?** | ✅ Yes (triggers field change handlers) | ❌ No (bypasses browser form scripts) | ✅ Yes |
+| **Runs Server Controllers?** | ❌ No (runs only when Saved) | ✅ Yes (`validate`, `before_save`, `on_update`) | ❌ No (runs only when Saved) |
+| **Ideal Scenario** | User editing fields on the active form view | Background record updates, updating OTHER doctypes, toolbar actions | Child table row calculations within client scripts |
+
+> [!CAUTION] **Avoiding Concurrency Conflicts**
+> If you execute `frappe.client.set_value` or `frappe.db.set_value` on the **document currently being edited** by a user in the form view, the database `modified` timestamp will advance. When the user later clicks the standard **Save** button, Frappe will reject the save with a **TimestampMismatchError** (*"Document has been modified after you opened it"*).
+> **Rule of thumb**: To modify the active form, use `frm.set_value()`. If you must update via server RPC, immediately call `frm.reload_doc()`.
+
+---
+
+### 13. Master Parameters Quick Reference (`frappe.client.*`)
+
+| Method Name | Key Parameters & Signature | Return Type | Description & Purpose |
+| :--- | :--- | :--- | :--- |
+| **`frappe.client.get`** | `(doctype, name, filters, parent)` | `object` | Fetches complete document with all parent fields and child table arrays. |
+| **`frappe.client.get_value`** | `(doctype, fieldname, filters, as_dict, debug, parent)` | `object \| any` | Fetches one or multiple specific field values without entire document overhead. |
+| **`frappe.client.get_single_value`** | `(doctype, field)` | `any` | Reads a single configuration setting from a Single DocType. |
+| **`frappe.client.get_list`** | `(doctype, fields, filters, or_filters, order_by, limit_start, limit_page_length, group_by)` | `array of objects` | Performs filtered, sorted, paginated database queries. |
+| **`frappe.client.get_count`** | `(doctype, filters, cache, debug)` | `integer` | Returns total number of matching records in database. |
+| **`frappe.client.set_value`** | `(doctype, name, fieldname, value)` | `object` | Updates a single field or multiple fields (via object dictionary) directly in DB. |
+| **`frappe.client.insert`** | `(doc)` | `object` | Instantiates, validates, and persists a brand-new document with child rows. |
+| **`frappe.client.save`** | `(doc)` | `object` | Validates and persists an existing mutated document object. |
+| **`frappe.client.delete`** | `(doctype, name)` | `"ok"` | Deletes record after checking user permissions and foreign key links. |
+| **`frappe.client.rename_doc`** | `(doctype, old_name, new_name, merge)` | `string` | Renames primary key and cascades references throughout all Link fields. |
+| **`frappe.client.submit`** | `(doc)` | `object` | Transitions submittable document from Draft (`0`) to Submitted (`1`). |
+| **`frappe.client.cancel`** | `(doctype, name)` | `object` | Cancels submitted document (`docstatus: 2`). |
+
+---
+
+<span id="8-ui-dialogs-user-prompting-apis"></span>
+## 9. UI Dialogs & User Prompting APIs
 
 ### `frappe.confirm` & `frappe.prompt`
 
@@ -843,7 +1718,7 @@ d.show();
 
 ---
 
-## 9. Creating & Mapping Documents from Client Script (Doc Fields & Child Tables)
+## 10. Creating & Mapping Documents from Client Script (Doc Fields & Child Tables)
 
 Client scripts frequently need to instantiate a new document from an existing form and pass data from the current document (`frm.doc`) into the new document — including both **Doc-Level Fields** (parent fields) and **Child Table Rows**.
 
@@ -955,7 +1830,7 @@ frappe.ui.form.on("Project", {
 
 ---
 
-## 10. Complete Client JavaScript API & Utility Reference Matrix
+## 11. Complete Client JavaScript API & Utility Reference Matrix
 
 Below is the exhaustive, categorized reference of additional client-side JavaScript APIs provided by Frappe v15:
 

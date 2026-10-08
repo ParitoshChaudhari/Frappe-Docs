@@ -138,19 +138,191 @@ frappe.ui.form.on("Sales Invoice", {
 
 ---
 
-## 3. Desk Grid UI API Reference
+## 3. Restricting or Hiding Add & Delete Rows in Child Tables
+
+Frappe offers several techniques to restrict, hide, or control child table row addition and deletion depending on your specific use case:
+
+---
+
+### Approach 1: Official Frappe API (`frm.set_df_property` or `grid` properties) ⭐ *(Recommended)*
+
+This is the standard, idiomatic way. Setting `cannot_add_rows` and `cannot_delete_rows` natively disables the "+ Add Row" button, row insertion triggers, and row deletion buttons/menus in the grid without breaking reactivity.
 
 ```javascript
-// Access underlying Grid object
+frappe.ui.form.on("Your DocType", {
+    refresh(frm) {
+        // Option A: Using frm.set_df_property (Recommended)
+        // Disables the "Add Row" button
+        frm.set_df_property("component_configuration", "cannot_add_rows", true);
+        
+        // Disables row deletion (checkbox delete button and row menu remove action)
+        frm.set_df_property("component_configuration", "cannot_delete_rows", true);
+
+        // Option B: Directly on the field's grid instance
+        let grid = frm.get_field("component_configuration").grid;
+        grid.cannot_add_rows = true;
+        grid.cannot_delete_rows = true;
+        grid.refresh();
+    }
+});
+```
+
+> **Why use this approach?**
+> - Clean and officially supported across Frappe versions.
+> - Preserves grid state across re-renders and form updates.
+> - Automatically handles shortcut keys and row action menus.
+
+---
+
+### Approach 2: Grid Strict Sort-Only Mode (`grid.only_sortable()`)
+
+If you want a fixed set of rows that users can **reorder** but neither add new rows to nor delete existing rows from:
+
+```javascript
+frappe.ui.form.on("Your DocType", {
+    refresh(frm) {
+        // Disables both "Add Row" button and row-level insert above/below options,
+        // while preserving drag-to-sort reordering functionality
+        frm.get_field("component_configuration").grid.only_sortable();
+    }
+});
+```
+
+> **When to use:**
+> - Step sequences, routing stages, or predefined configuration templates where the number of rows is predetermined and users should only reorder or edit them.
+
+---
+
+### Approach 3: DOM Manipulation via jQuery (`grid.wrapper`)
+
+If you want direct UI/CSS control to visually hide specific action buttons:
+
+```javascript
+frappe.ui.form.on("Your DocType", {
+    refresh(frm) {
+        let grid = frm.get_field("component_configuration").grid;
+
+        // 1. Hide the "+ Add Row" button
+        grid.wrapper.find(".grid-add-row").hide();
+
+        // 2. Hide the "+ Add Multiple" / download / upload buttons if present
+        grid.wrapper.find(".grid-add-multiple-rows").hide();
+        grid.wrapper.find(".grid-download").hide();
+        grid.wrapper.find(".grid-upload").hide();
+
+        // 3. Hide row delete button / selection controls when rows are selected
+        grid.wrapper.find(".grid-remove-rows").hide();
+        grid.wrapper.find(".grid-remove-all-rows").hide();
+    }
+});
+```
+
+> **Considerations:**
+> - Because Frappe re-renders child table rows when grid actions occur, DOM elements hidden via jQuery may reappear if the grid is refreshed (`frm.refresh_field` or `grid.refresh()`). In contrast, **Approach 1** persists automatically with the field state.
+
+---
+
+### Approach 4: Making Entire Table Read-Only (`read_only` / `toggle_enable`)
+
+When a document reaches a certain state (e.g. submitted or approved), you can lock the entire child table. This automatically disables adding, deleting, and editing any rows or columns:
+
+```javascript
+frappe.ui.form.on("Your DocType", {
+    refresh(frm) {
+        // Option A: Set read_only property on the field
+        frm.set_df_property("component_configuration", "read_only", 1);
+
+        // Option B: Using frm.toggle_enable shorthand
+        frm.toggle_enable("component_configuration", false);
+    }
+});
+```
+
+---
+
+### Approach 5: Client-Side Event Interceptors (`before_items_add` / `before_items_remove`)
+
+Frappe child tables fire specific client event triggers before adding or removing rows. You can intercept these to enforce custom logic, permissions, or conditions programmatically:
+
+```javascript
+frappe.ui.form.on("Your DocType", {
+    // Intercept row creation: triggered BEFORE a row is added
+    before_component_configuration_add(frm) {
+        if (frm.doc.status === "Locked") {
+            frappe.msgprint(__("Cannot add rows when configuration is Locked."));
+            frappe.validated = false;
+            throw new Error("Row addition prevented");
+        }
+    },
+
+    // Intercept row deletion: triggered BEFORE a row is removed
+    before_component_configuration_remove(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        if (row.is_system_generated) {
+            frappe.throw(__("System-generated rows cannot be removed."));
+        }
+    }
+});
+```
+
+---
+
+### Approach 6: Role & Permission Level Enforcement (DocPerm / Schema)
+
+For enterprise security, UI-only JavaScript restrictions should be backed by Frappe permissions:
+
+1. **Child Table DocPerms**: In the child DocType's permission table, set read/write permissions per role.
+2. **Server-side Controller Validation**: Block unauthorized addition or deletion in Python lifecycle hooks:
+
+```python
+# In parent doctype controller (your_doctype.py)
+import frappe
+from frappe import _
+from frappe.model.document import Document
+
+class YourDocType(Document):
+    def validate(self):
+        if self.docstatus == 0 and self.status == "Locked":
+            # Compare with database state if needed
+            if len(self.component_configuration) > len(self.get_doc_before_save().component_configuration or []):
+                frappe.throw(_("Cannot add rows to Component Configuration when Locked."))
+```
+
+---
+
+### Comparison Matrix
+
+| Approach | Method / API | Adds Prevented? | Deletes Prevented? | Sorting Allowed? | Inline Edits Allowed? | Recommended Use Case |
+| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
+| **1. Property API** ⭐ | `frm.set_df_property('field', 'cannot_add_rows', true)` | ✅ | Optional (`cannot_delete_rows`) | ✅ | ✅ | Standard forms, conditional UI lockdown |
+| **2. Sort-Only** | `grid.only_sortable()` | ✅ | ✅ | ✅ | ✅ | Fixed row list where only reordering is allowed |
+| **3. jQuery DOM** | `grid.wrapper.find('.grid-add-row').hide()` | ✅ (UI only) | Optional | ✅ | ✅ | Quick UI tweaks or hiding secondary buttons |
+| **4. Read-Only** | `frm.set_df_property('field', 'read_only', 1)` | ✅ | ✅ | ❌ | ❌ | Completed, locked, or submitted documents |
+| **5. Interceptors** | `before_<field>_add` / `before_<field>_remove` | ✅ | ✅ | ✅ | ✅ | Conditional validation based on document state |
+| **6. Server-Side** | DocType DocPerm & Python `validate()` | ✅ | ✅ | ✅ | ✅ | Strict security and permission auditing |
+
+---
+
+## 4. Other Common Desk Grid UI Controls
+
+```javascript
 let grid = frm.get_field("items").grid;
 
-// 1. Toggle grid row buttons (Add, Delete)
-grid.cannot_add_rows = true;
-grid.refresh();
-
-// 2. Make specific column read-only dynamically
+// 1. Make a specific column read-only dynamically
 grid.get_field("rate").df.read_only = 1;
 grid.refresh();
+
+// 2. Toggle static row numbers / disable sortable rows
+grid.sortable = false;
+
+// 3. Make specific row editable or read-only dynamically
+frappe.ui.form.on("Sales Invoice Item", {
+    status(frm, cdt, cdn) {
+        let grid_row = frm.get_field("items").grid.get_row(cdn);
+        let is_locked = (locals[cdt][cdn].status === "Locked");
+        grid_row.toggle_editable("rate", !is_locked);
+    }
+});
 ```
 
 ---
